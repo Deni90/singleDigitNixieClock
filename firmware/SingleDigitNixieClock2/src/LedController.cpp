@@ -94,7 +94,7 @@ void LedController::SetColor(uint8_t r_, uint8_t g_, uint8_t b_, uint8_t a_)
     a = a_;
 }
 
-void LedController::UpdateState()
+void LedController::Update()
 {
     if(direction)
     {

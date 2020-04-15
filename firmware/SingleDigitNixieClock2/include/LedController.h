@@ -31,5 +31,5 @@ public:
     LedState GetState() const;
     void SetState(const LedState value_);
     void SetColor(uint8_t r_, uint8_t g_, uint8_t b_, uint8_t a_);
-    void UpdateState();
+    void Update();
 };

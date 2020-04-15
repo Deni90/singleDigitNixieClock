@@ -193,7 +193,7 @@ void SetTime()
 
 void HandlePeriodicTasks()
 {
-  ledController.UpdateState();
+  ledController.Update();
 }
 
 void ConfigRestServerRouting() {
