@@ -12,26 +12,30 @@
 #define UART_BAUDRATE   115200
 #define EEPROM_SIZE     512
 
-#define TIMER_PERIOD    4 //ms 255* 4 = ~1s
-
 #define SOFT_AP_SSID    "NixieClock"
 #define SOFT_AP_PASS    "12345678"
 
 #define HTTP_REST_PORT  80
 
-#define LED_PIN         D7
+#define LED_PIN         D3
 #define LED_COUNT       1
 
-#define ONE_MINUTE      60000 //ms
+#define INTERRUPT_PIN   D7
+
+#define TIMER_PERIOD        1 //ms
+#define UPDATE_LED_PERIOD   4 //ms 255* 4 = ~1s
+
+#define SECONDS_IN_MINUTE   60
 
 Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
 Adafruit_NeoPixel led(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 LedController ledController(led);
 ESP8266WebServer http_rest_server(HTTP_REST_PORT);
-uint32_t previousMillis = 0;
 
-uint16_t minuteTimer = 0;
+uint32_t ledControllerClock = 0;
+
+volatile uint32_t counter= 0;
 
 void GetLedInfo() {
     Serial.println("HTTP GET /led -->");
@@ -183,17 +187,21 @@ void SetTime()
                                       time.tm_sec);
     rtc.SetDateTime(newTime);
 
-    minuteTimer = (60 -  time.tm_sec) * 1000;
-    previousMillis = millis();
+    counter = time.tm_sec;
+
     ledController.Reset();
 
     Serial.printf("RESP: %d\n", 200);
     Serial.println("<--\n");
 }
 
-void HandlePeriodicTasks()
+void HandleTimer()
 {
-  ledController.Update();
+    ledControllerClock++;
+}
+
+void ICACHE_RAM_ATTR HandleInterrupt() {
+  counter++;
 }
 
 void ConfigRestServerRouting() {
@@ -241,10 +249,14 @@ void setup() {
 
     Serial.printf("Initializing real-time clock ... ");
     rtc.Begin();
+    rtc.SetSquareWavePinClockFrequency(DS3231SquareWaveClock_1Hz);
+    rtc.SetSquareWavePin(DS3231SquareWavePin_ModeClock, false);
     Serial.println("Done");
 
-    // RtcDateTime currentTime = RtcDateTime(20, 04, 12, 19, 51, 0); //define date and time object
-    // rtc.SetDateTime(currentTime); //configure the RTC with object
+    Serial.printf("Enabling interrupt for SQW ... ");
+    pinMode(INTERRUPT_PIN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), HandleInterrupt, FALLING);
+    Serial.println("Done");
 
     Serial.printf("Updating led state ... ");
     RtcDateTime previousDateTime = rtc.GetDateTime();
@@ -252,9 +264,8 @@ void setup() {
     {
         delay(1);
     }
-    timer.attach_ms(TIMER_PERIOD, HandlePeriodicTasks);
-    minuteTimer = (60 -  rtc.GetDateTime().Second()) * 1000;
-    previousMillis = millis();
+    timer.attach_ms(TIMER_PERIOD, HandleTimer);
+    counter = rtc.GetDateTime().Second();
     Serial.println("Done");
 
     Serial.print("Setting soft-AP ... ");
@@ -272,24 +283,24 @@ void setup() {
     ConfigRestServerRouting();
     http_rest_server.begin();
     Serial.println("Done");
-
 }
 
 void loop() {
     http_rest_server.handleClient();
 
-    uint32_t currentMillis = millis();
-    if(currentMillis - previousMillis >= minuteTimer)
+    if(ledControllerClock >= UPDATE_LED_PERIOD)
     {
-        previousMillis = currentMillis;
-        if(minuteTimer < ONE_MINUTE)
-        {
-            minuteTimer = ONE_MINUTE;
-        }
+        ledControllerClock = 0;
+        ledController.Update();
+    }
+
+    if(counter >= SECONDS_IN_MINUTE)
+    {
+        counter = 0;
 
         RtcDateTime now = rtc.GetDateTime();
         char str[20];   //declare a string as an array of chars
-        sprintf(str, "%d/%d/%d %d:%d:%d",     //%d allows to print an integer to the string
+        sprintf(str, "%d/%d/%d %02d:%02d:%02d",     //%d allows to print an integer to the string
                 now.Year(),   //get year method
                 now.Month(),  //get month method
                 now.Day(),    //get day method
