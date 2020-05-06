@@ -8,6 +8,7 @@
 #include <time.h>
 
 #include "LedController.h"
+#include "BCD2DecimalDecoder.h"
 
 #define UART_BAUDRATE   115200
 #define EEPROM_SIZE     512
@@ -22,6 +23,11 @@
 
 #define INTERRUPT_PIN   D7
 
+#define D0_PIN          D4
+#define D1_PIN          D8
+#define D2_PIN          D5
+#define D3_PIN          D6
+
 #define TIMER_PERIOD        1 //ms
 #define UPDATE_LED_PERIOD   4 //ms 255* 4 = ~1s
 
@@ -31,6 +37,7 @@ Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
 Adafruit_NeoPixel led(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 LedController ledController(led);
+BCD2DecimalDecoder bcd2decimalDecoder( D0_PIN, D1_PIN, D2_PIN, D3_PIN );
 ESP8266WebServer http_rest_server(HTTP_REST_PORT);
 
 uint32_t ledControllerClock = 0;
@@ -245,6 +252,10 @@ void setup() {
 
     Serial.printf("Initializing RGB led ... ");
     ledController.Initialize(r, g, b, a, static_cast<LedState>(state));
+    Serial.println("Done");
+
+    Serial.printf("Initializing BCD to decimal decoder ... ");
+    bcd2decimalDecoder.Initialize();
     Serial.println("Done");
 
     Serial.printf("Initializing real-time clock ... ");
