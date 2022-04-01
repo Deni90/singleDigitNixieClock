@@ -33,16 +33,30 @@
 
 #define SECONDS_IN_MINUTE   60
 
+enum TimeAnimationStates{
+    IDLE = 0,
+    INIT,
+    INTRO,
+    SHOW_TIME,
+    CLEANUP
+};
+
 Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
 Adafruit_NeoPixel led(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 LedController ledController(led);
-BCD2DecimalDecoder bcd2decimalDecoder( D0_PIN, D1_PIN, D2_PIN, D3_PIN );
+BCD2DecimalDecoder nixie( D0_PIN, D1_PIN, D2_PIN, D3_PIN );
 ESP8266WebServer http_rest_server(HTTP_REST_PORT);
 
+uint32_t globalClock = 0;
 uint32_t ledControllerClock = 0;
 
 volatile uint32_t counter= 0;
+
+/////////
+TimeAnimationStates timeAnimationState = IDLE;
+/////////
+
 
 void GetLedInfo() {
     Serial.println("HTTP GET /led -->");
@@ -204,6 +218,7 @@ void SetTime()
 
 void HandleTimer()
 {
+    globalClock++;
     ledControllerClock++;
 }
 
@@ -255,7 +270,7 @@ void setup() {
     Serial.println("Done");
 
     Serial.printf("Initializing BCD to decimal decoder ... ");
-    bcd2decimalDecoder.Initialize();
+    nixie.Initialize();
     Serial.println("Done");
 
     Serial.printf("Initializing real-time clock ... ");
@@ -296,7 +311,16 @@ void setup() {
     Serial.println("Done");
 }
 
+
+LedState tempLedState;
+#define ANIMATION_PERIOD    60 //mS
+#define DIGIT_DURATION      250 //ms
+#define TIME_REPLY          3
+
 void loop() {
+    static RtcDateTime now;
+    static uint8_t animationframe = 0;
+
     http_rest_server.handleClient();
 
     if(ledControllerClock >= UPDATE_LED_PERIOD)
@@ -309,7 +333,7 @@ void loop() {
     {
         counter = 0;
 
-        RtcDateTime now = rtc.GetDateTime();
+        now = rtc.GetDateTime();
         char str[20];   //declare a string as an array of chars
         sprintf(str, "%d/%d/%d %02d:%02d:%02d",     //%d allows to print an integer to the string
                 now.Year(),   //get year method
@@ -320,5 +344,88 @@ void loop() {
                 now.Second()  //get second method
                 );
         Serial.printf("Time: %s\n", str);
+
+        //TODO show time on nixie tube.
+        timeAnimationState = INIT;
+    }
+
+    switch(timeAnimationState)
+    {
+    default:
+    case IDLE:
+        //do nothing
+        break;
+    case INIT:
+    {
+        tempLedState = ledController.GetState();
+        if(tempLedState == BREATHE)
+        {
+            ledController.SetState(SOLID);
+        }
+        timeAnimationState = INTRO;
+        break;
+    }
+    case INTRO:
+    {
+        if(globalClock >= ANIMATION_PERIOD)
+        {
+            globalClock = 0;
+            if(animationframe > 9)  //end of animation?
+            {
+                animationframe = 0;
+                nixie.Decode(NONE);
+                timeAnimationState = SHOW_TIME;
+                break;
+            }
+            Serial.printf("Nixie animation: %d\n", animationframe);
+            nixie.Decode(animationframe);
+            animationframe++;
+        }
+        break;
+    }
+    case SHOW_TIME:
+    {
+        if(globalClock >= DIGIT_DURATION)
+        {
+            globalClock = 0;
+            if(animationframe == 0)
+            {
+                Serial.printf("Nixie time h1: %d\n", now.Hour() / 10);
+                nixie.Decode(now.Hour() / 10);
+            }
+            else if(animationframe == 2)
+            {
+                Serial.printf("Nixie time h2: %d\n", now.Hour() % 10);
+                nixie.Decode(now.Hour() % 10);
+            }
+            else if(animationframe == 4)
+            {
+                Serial.printf("Nixie time m1: %d\n", now.Minute() / 10);
+                nixie.Decode(now.Minute() / 10);
+            }
+            else if(animationframe == 6)
+            {
+                Serial.printf("Nixie time m2: %d\n", now.Minute() % 10);
+                nixie.Decode(now.Minute() % 10);
+            }
+            else if(animationframe == 1 || animationframe == 3 || animationframe == 5)
+            {
+                nixie.Decode(NONE);
+            }
+            else
+            {
+                nixie.Decode(NONE);
+                timeAnimationState = CLEANUP;
+                break;
+            }
+            animationframe++;
+        }
+        break;
+    }
+    case CLEANUP:
+        ledController.SetState(tempLedState);
+        animationframe = 0;
+        timeAnimationState = IDLE;
+        break;
     }
 }
