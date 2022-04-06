@@ -11,15 +11,17 @@
 #include "BCD2DecimalDecoder.h"
 #include "ClockFace.h"
 
+namespace
+{
+    constexpr uint8_t LED_PIN = D3;
+}
+
 #define UART_BAUDRATE   115200
 
 #define SOFT_AP_SSID    "NixieClock"
 #define SOFT_AP_PASS    "12345678"
 
 #define HTTP_REST_PORT  80
-
-#define LED_PIN         D3
-#define LED_COUNT       1
 
 #define INTERRUPT_PIN   D7
 
@@ -35,8 +37,7 @@
 
 Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
-Adafruit_NeoPixel led(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
-LedController ledController(led);
+LedController ledController(LED_PIN);
 BCD2DecimalDecoder nixieTube( D0_PIN, D1_PIN, D2_PIN, D3_PIN );
 ESP8266WebServer http_rest_server(HTTP_REST_PORT);
 ClockFace clockFace(ledController, nixieTube);

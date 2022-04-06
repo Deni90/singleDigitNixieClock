@@ -7,13 +7,13 @@
 class LedController
 {
 private:
-    Adafruit_NeoPixel& ledDriver;
+    Adafruit_NeoPixel ledDriver;
     LedInfo ledInfo;
     uint8_t counter;
     bool direction;
     uint8_t CalculateNewColor(uint8_t color, uint8_t brightness);
 public:
-    LedController(Adafruit_NeoPixel& ledDriver);
+    LedController(uint16_t ledPin);
     void Initialize(LedInfo ledInfo);
     void Reset();
     void Update();

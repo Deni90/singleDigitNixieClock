@@ -1,7 +1,11 @@
 #include "LedController.h"
 
-LedController::LedController(Adafruit_NeoPixel& led)
-: ledDriver(led)
+namespace{
+    constexpr uint16_t LED_COUNT = 1;
+}
+
+LedController::LedController(uint16_t ledPin)
+: ledDriver(LED_COUNT, ledPin, NEO_GRB + NEO_KHZ800)
 , counter(0)
 , direction(true)
 {
