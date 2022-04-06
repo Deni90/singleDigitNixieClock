@@ -9,6 +9,7 @@
 #include "ConfigStore.h"
 #include "LedController.h"
 #include "BCD2DecimalDecoder.h"
+#include "ClockFace.h"
 
 #define UART_BAUDRATE   115200
 
@@ -32,52 +33,33 @@
 
 #define SECONDS_IN_MINUTE   60
 
-LedState tempLedState;
-#define ANIMATION_PERIOD    60 //mS
-#define DIGIT_DURATION      250 //ms
-#define PAUSE_DURATION      1000 //mS
-#define NUMBER_OF_PAUSES    2
-
-enum TimeAnimationStates{
-    IDLE = 0,
-    INIT,
-    INTRO,
-    SHOW_TIME,
-    PAUSE,
-    CLEANUP
-};
-
 Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
 Adafruit_NeoPixel led(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 LedController ledController(led);
-BCD2DecimalDecoder nixie( D0_PIN, D1_PIN, D2_PIN, D3_PIN );
+BCD2DecimalDecoder nixieTube( D0_PIN, D1_PIN, D2_PIN, D3_PIN );
 ESP8266WebServer http_rest_server(HTTP_REST_PORT);
-
-uint32_t globalClock = 0;
-uint32_t ledControllerClock = 0;
+ClockFace clockFace(ledController, nixieTube);
 
 volatile uint32_t counter= 0;
 
-/////////
-TimeAnimationStates animationState = IDLE;
-/////////
-
+uint32_t globalClock = 0;
+uint32_t ledControllerClock = 0;
 
 void GetLedInfo() {
     Serial.println("HTTP GET /led -->");
     StaticJsonDocument<200> doc;
     char messageBuffer[200];
-/*
-    doc["R"] = ledController.GetR();
-    doc["G"] = ledController.GetG();
-    doc["B"] = ledController.GetB();
-    doc["A"] = ledController.GetA();
-    doc["state"] = ledController.GetState();
+
+    doc["R"] = ledController.GetLedInfo().GetR();
+    doc["G"] = ledController.GetLedInfo().GetG();
+    doc["B"] = ledController.GetLedInfo().GetB();
+    doc["A"] = ledController.GetLedInfo().GetA();
+    doc["state"] = static_cast<uint8_t>(ledController.GetLedInfo().GetState());
     serializeJsonPretty(doc, messageBuffer);
     Serial.printf("BODY:\n%s\n", messageBuffer);
     Serial.printf("RESP: %d\n", 200);
-    */
+
     http_rest_server.send(200, "application/json", messageBuffer);
     Serial.println("<--\n");
 }
@@ -256,7 +238,7 @@ void setup() {
     Serial.println("Done");
 
     Serial.printf("Initializing BCD to decimal decoder ... ");
-    nixie.Initialize();
+    nixieTube.Initialize();
     Serial.println("Done");
 
     Serial.printf("Initializing real-time clock ... ");
@@ -298,10 +280,6 @@ void setup() {
 }
 
 void loop() {
-    static RtcDateTime now;
-    static uint8_t animationframe = 0;
-    static uint8_t pauseCounter = 0;
-
     http_rest_server.handleClient();
 
     if(ledControllerClock >= UPDATE_LED_PERIOD)
@@ -314,7 +292,7 @@ void loop() {
     {
         counter = 0;
 
-        now = rtc.GetDateTime();
+        RtcDateTime now = rtc.GetDateTime();
         char str[20];   //declare a string as an array of chars
         sprintf(str, "%d/%d/%d %02d:%02d:%02d",     //%d allows to print an integer to the string
                 now.Year(),   //get year method
@@ -326,98 +304,9 @@ void loop() {
                 );
         Serial.printf("Time: %s\n", str);
 
-        //TODO show time on nixie tube.
-        animationState = INIT;
+        //show time on nixie tube.
+        clockFace.ShowTime(now);
     }
 
-    switch(animationState)
-    {
-    default:
-    case IDLE:
-        //do nothing
-        break;
-    case INIT:
-    {
-        tempLedState = ledController.GetLedInfo().GetState();
-        if(tempLedState == LedState::BREATHE)
-        {
-            ledController.GetLedInfo().SetState(LedState::SOLID);
-        }
-        animationState = INTRO;
-        break;
-    }
-    case INTRO:
-    {
-        if(globalClock >= ANIMATION_PERIOD)
-        {
-            globalClock = 0;
-            if(animationframe > 9)  //end of animation?
-            {
-                animationframe = 0;
-                nixie.Decode(NONE);
-                animationState = SHOW_TIME;
-                break;
-            }
-            nixie.Decode(animationframe);
-            animationframe++;
-        }
-        break;
-    }
-    case SHOW_TIME:
-    {
-        if(globalClock >= DIGIT_DURATION)
-        {
-            globalClock = 0;
-            if(animationframe == 0)
-            {
-                nixie.Decode(now.Hour() / 10);
-            }
-            else if(animationframe == 2)
-            {
-                nixie.Decode(now.Hour() % 10);
-            }
-            else if(animationframe == 4)
-            {
-                nixie.Decode(now.Minute() / 10);
-            }
-            else if(animationframe == 6)
-            {
-                nixie.Decode(now.Minute() % 10);
-            }
-            else if(animationframe == 1 || animationframe == 3 || animationframe == 5)
-            {
-                nixie.Decode(NONE);
-            }
-            else
-            {
-                animationframe = 0;
-                nixie.Decode(NONE);
-                animationState = PAUSE;
-                break;
-            }
-            animationframe++;
-        }
-        break;
-    }
-    case PAUSE:
-    {
-        if(pauseCounter >= NUMBER_OF_PAUSES)
-        {
-            animationState = CLEANUP;
-        }
-        if(globalClock >= PAUSE_DURATION) //FIXME
-        {
-            globalClock = 0;
-            pauseCounter++;
-            animationState = SHOW_TIME;
-        }
-        break;
-    }
-    case CLEANUP:
-        ledController.GetLedInfo().SetState(tempLedState);
-        animationframe = 0;
-        pauseCounter = 0;
-        animationState = IDLE;
-        break;
-    }
+    clockFace.Handle(globalClock);
 }
