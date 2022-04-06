@@ -4,14 +4,13 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
-#include <EEPROM.h>
 #include <time.h>
 
+#include "ConfigStore.h"
 #include "LedController.h"
 #include "BCD2DecimalDecoder.h"
 
 #define UART_BAUDRATE   115200
-#define EEPROM_SIZE     512
 
 #define SOFT_AP_SSID    "NixieClock"
 #define SOFT_AP_PASS    "12345678"
@@ -97,9 +96,10 @@ void ChangeLedConfig()
         http_rest_server.send(400);
         return;
     }
-/*
+
     uint8_t state = doc["state"];
-    if( state > LedState::BREATHE )
+
+    if( state > static_cast<uint8_t>(LedState::BREATHE) )
     {
         Serial.printf("RESP: %d\n", 409);
         Serial.println("<--\n");
@@ -107,23 +107,12 @@ void ChangeLedConfig()
         return;
     }
 
-    ledController.SetColor(doc["R"], doc["G"], doc["B"], doc["A"]);
-    ledController.SetState(static_cast<LedState>(state));
+    LedInfo li(doc["R"], doc["G"], doc["B"], doc["A"], static_cast<LedState>(state));
 
-    EEPROM.begin(512);  //Initialize EEPROM
-    uint16_t eepromAddr = 0;
-    EEPROM.write(eepromAddr, doc["R"]);
-    eepromAddr++;
-    EEPROM.write(eepromAddr, doc["G"]);
-    eepromAddr++;
-    EEPROM.write(eepromAddr, doc["B"]);
-    eepromAddr++;
-    EEPROM.write(eepromAddr, doc["A"]);
-    eepromAddr++;
-    EEPROM.write(eepromAddr, state);
-    eepromAddr++;
-    EEPROM.commit();    //Store data to EEPROM
-*/
+    ledController.SetLedInfo(li);
+
+    ConfigStore::SaveLedConfiguration(li);
+
     Serial.printf("RESP: %d\n", 200);
     http_rest_server.send(200);
     Serial.println("<--\n");
@@ -251,29 +240,16 @@ void setup() {
     Serial.printf("\n\nSINGLE TUBE NIXIE CLOCK\n\n");
 
     Serial.printf("Reading config from EEPROM ... ");
-    EEPROM.begin(EEPROM_SIZE);  //Initialize EEPROM
-    uint16_t eepromAddr = 0;
-    uint8_t r = EEPROM.read(eepromAddr);
-    eepromAddr++;
-    uint8_t g = EEPROM.read(eepromAddr);
-    eepromAddr++;
-    uint8_t b = EEPROM.read(eepromAddr);
-    eepromAddr++;
-    uint8_t a = EEPROM.read(eepromAddr);
-    eepromAddr++;
-    uint8_t state = EEPROM.read(eepromAddr);
-    eepromAddr++;
-    EEPROM.commit();    //Store data to EEPROM
+    LedInfo li;
+    ConfigStore::LoadLedConfiguration(li);
     Serial.println("Done");
 
     Serial.println("LED config:");
-    Serial.printf("    R: %d\n", r);
-    Serial.printf("    G: %d\n", g);
-    Serial.printf("    B: %d\n", b);
-    Serial.printf("    A: %d\n", a);
-    Serial.printf("    state: %d\n", state);
-
-    LedInfo li(r, g, b, a, static_cast<LedState>(state));
+    Serial.printf("    R: %d\n", li.GetR());
+    Serial.printf("    G: %d\n", li.GetG());
+    Serial.printf("    B: %d\n", li.GetB());
+    Serial.printf("    A: %d\n", li.GetA());
+    Serial.printf("    state: %d\n", li.GetState());
 
     Serial.printf("Initializing RGB led ... ");
     ledController.Initialize(li);
