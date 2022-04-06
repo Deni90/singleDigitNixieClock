@@ -13,27 +13,27 @@
 
 namespace
 {
+    //RGB led
     constexpr uint8_t LED_PIN = D3;
-}
+    //BCD2DEC encoder = Nixie tube
+    constexpr uint8_t D0_PIN = D4;
+    constexpr uint8_t D1_PIN = D8;
+    constexpr uint8_t D2_PIN = D5;
+    constexpr uint8_t D3_PIN = D6;
 
-#define UART_BAUDRATE   115200
+    constexpr uint8_t INTERRUPT_PIN = D7;
+
+    constexpr unsigned long UART_BAUDRATE = 115200;
+
+    constexpr uint32_t TIMER_PERIOD = 1; //ms
+    constexpr uint32_t UPDATE_LED_PERIOD = 4; //ms 255* 4 = ~1s
+    constexpr uint32_t SECONDS_IN_MINUTE = 60;
+}
 
 #define SOFT_AP_SSID    "NixieClock"
 #define SOFT_AP_PASS    "12345678"
 
 #define HTTP_REST_PORT  80
-
-#define INTERRUPT_PIN   D7
-
-#define D0_PIN          D4
-#define D1_PIN          D8
-#define D2_PIN          D5
-#define D3_PIN          D6
-
-#define TIMER_PERIOD        1 //ms
-#define UPDATE_LED_PERIOD   4 //ms 255* 4 = ~1s
-
-#define SECONDS_IN_MINUTE   60
 
 Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
@@ -220,19 +220,17 @@ void ConfigRestServerRouting() {
 void setup() {
     Serial.begin(UART_BAUDRATE);
 
-    Serial.printf("\n\nSINGLE TUBE NIXIE CLOCK\n\n");
+    Serial.println("");
+    Serial.println("   _  _ _____  _____ ___    ___ _    ___   ___ _  __");
+    Serial.println(" | \\| |_ _\\ \\/ /_ _| __|  / __| |  / _ \\ / __| |/ /");
+    Serial.println(" | .` || | >  < | || _|  | (__| |_| (_) | (__| \' < ");
+    Serial.println(" |_|\\_|___/_/\\_\\___|___|  \\___|____\\___/ \\___|_|\\_\\");
+    Serial.println("");
 
     Serial.printf("Reading config from EEPROM ... ");
     LedInfo li;
     ConfigStore::LoadLedConfiguration(li);
     Serial.println("Done");
-
-    Serial.println("LED config:");
-    Serial.printf("    R: %d\n", li.GetR());
-    Serial.printf("    G: %d\n", li.GetG());
-    Serial.printf("    B: %d\n", li.GetB());
-    Serial.printf("    A: %d\n", li.GetA());
-    Serial.printf("    state: %d\n", li.GetState());
 
     Serial.printf("Initializing RGB led ... ");
     ledController.Initialize(li);
@@ -278,6 +276,8 @@ void setup() {
     ConfigRestServerRouting();
     http_rest_server.begin();
     Serial.println("Done");
+
+    Serial.println();
 }
 
 void loop() {
