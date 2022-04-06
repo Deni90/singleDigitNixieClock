@@ -33,7 +33,7 @@ void LedController::Reset()
 
 uint8_t LedController::GetR() const
 {
-    return r;  
+    return r;
 }
 
 void LedController::SetR(const uint8_t value_)
@@ -116,7 +116,7 @@ void LedController::Update()
         else
         {
         counter--;
-        }    
+        }
     }
 
     switch(state)
@@ -135,7 +135,7 @@ void LedController::Update()
         }
         case BREATHE:
         {
-            uint8_t new_a = CalculateNewColor(a, counter);  
+            uint8_t new_a = CalculateNewColor(a, counter);
             uint8_t new_r = CalculateNewColor(r, new_a);
             uint8_t new_g = CalculateNewColor(g, new_a);
             uint8_t new_b = CalculateNewColor(b, new_a);
