@@ -30,9 +30,9 @@ void ClockFace::Handle(uint32_t& tick)
     case AnimationStates::INIT:
     {
         tempLedState = ledController.GetLedInfo().GetState();
-        if(tempLedState == LedState::BREATHE)
+        if(tempLedState == LedState::FADE)
         {
-            ledController.GetLedInfo().SetState(LedState::SOLID);
+            ledController.GetLedInfo().SetState(LedState::ON);
         }
         animationState = AnimationStates::INTRO;
         break;

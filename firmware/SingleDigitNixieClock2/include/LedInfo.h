@@ -5,8 +5,8 @@
 enum class LedState
 {
     OFF = 0,
-    SOLID,
-    BREATHE
+    ON,
+    FADE
 };
 
 class LedInfo

@@ -63,14 +63,14 @@ void LedController::Update()
             ledDriver.setBrightness(0);
             break;
         }
-        case LedState::SOLID:
+        case LedState::ON:
         {
             ledDriver.setBrightness(ledInfo.GetA());
             uint32_t color = ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB());
             ledDriver.setPixelColor(0, color);
             break;
         }
-        case LedState::BREATHE:
+        case LedState::FADE:
         {
             uint8_t new_a = CalculateNewColor(ledInfo.GetA(), counter);
             uint8_t new_r = CalculateNewColor(ledInfo.GetR(), new_a);
