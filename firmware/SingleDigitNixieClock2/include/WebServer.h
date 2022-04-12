@@ -19,8 +19,9 @@ private:
     void HandleRoot();
     void HandleWebRequests();
 
-    void HandleSetBacklightState();
     void HandleBacklight();
+    void HandleSetBacklightState();
+    void HandleSetBacklightColor();
 public:
     static WebServer& Instance();
     void Initialize(int port, ClockInterface* callback);

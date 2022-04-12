@@ -23,10 +23,9 @@ void WebServer::Initialize(int port, ClockInterface* callback)
     webServer = new ESP8266WebServer(port);
     webServer->onNotFound(std::bind(&WebServer::HandleWebRequests, this));
     webServer->on("/", HTTP_GET, std::bind(&WebServer::HandleRoot, this));
-    webServer->on("/backlight/state", HTTP_POST,
-    std::bind(&WebServer::HandleSetBacklightState, this));
-    webServer->on("/backlight", HTTP_GET,
-    std::bind(&WebServer::HandleBacklight, this));
+    webServer->on("/backlight", HTTP_GET, std::bind(&WebServer::HandleBacklight, this));
+    webServer->on("/backlight/state", HTTP_POST, std::bind(&WebServer::HandleSetBacklightState, this));
+    webServer->on("/backlight/color", HTTP_POST, std::bind(&WebServer::HandleSetBacklightColor, this));
     webServer->begin();
 }
 
@@ -140,34 +139,6 @@ void WebServer::HandleWebRequests()
     }
 }
 
-void WebServer::HandleSetBacklightState()
-{
-    Serial.println("HandleSetBacklightState: " + webServer->arg("plain"));
-
-    if(!webServer || !callback)
-    {
-        Serial.println("Error: Web server not initalized");
-        webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
-        return;
-    }
-
-    if(webServer->hasArg("state"))
-    {
-        uint8_t state = webServer->arg("state").toInt();
-        if(callback->OnSetBacklightState(state))
-        {
-            webServer->send(HTTP_200_OK, "");
-        }
-        else
-        {
-            webServer->send(HTTP_400_BAD_REQUEST, "");
-        }
-    } else {
-        Serial.println("Error handleSetLed: missing argument led!");
-        webServer->send(HTTP_400_BAD_REQUEST, "");
-    }
-}
-
 void WebServer::HandleBacklight()
 {
     if(!webServer || !callback)
@@ -193,4 +164,61 @@ void WebServer::HandleBacklight()
     webServer->send(HTTP_200_OK, "application/json", messageBuffer);
 
     Serial.printf("HandleBacklight: %s\n", messageBuffer);
+}
+
+void WebServer::HandleSetBacklightState()
+{
+    Serial.println("HandleSetBacklightState: " + webServer->arg("plain"));
+
+    if(!webServer || !callback)
+    {
+        Serial.println("Error: Web server not initalized");
+        webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
+        return;
+    }
+
+    if(webServer->hasArg("state"))
+    {
+        uint8_t state = webServer->arg("state").toInt();
+        if(callback->OnSetBacklightState(state))
+        {
+            webServer->send(HTTP_200_OK, "");
+        }
+        else
+        {
+            webServer->send(HTTP_400_BAD_REQUEST, "");
+        }
+    } else {
+        Serial.println("Error handleSetLed: missing argument state!");
+        webServer->send(HTTP_400_BAD_REQUEST, "");
+    }
+}
+
+void WebServer::HandleSetBacklightColor()
+{
+    Serial.println("HandleSetBacklightState: " + webServer->arg("plain"));
+
+        if(!webServer || !callback)
+    {
+        Serial.println("Error: Web server not initalized");
+        webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
+        return;
+    }
+
+    if(webServer->hasArg("R") && webServer->hasArg("G")
+        && webServer->hasArg("B") && webServer->hasArg("A"))
+    {
+        uint8_t r, g, b, a;
+        r = webServer->arg("R").toInt();
+        g = webServer->arg("G").toInt();
+        b = webServer->arg("B").toInt();
+        a = webServer->arg("A").toInt();
+        callback->OnSetBacklightColor(r, g, b, a);
+        webServer->send(HTTP_200_OK, "");
+    }
+    else
+    {
+        Serial.println("Error HandleSetBacklightColor: missing argument(s)!");
+        webServer->send(HTTP_400_BAD_REQUEST, "");
+    }
 }

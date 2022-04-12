@@ -20,3 +20,9 @@ bool NixieClockInterface::OnSetBacklightState(uint8_t state)
     ConfigStore::SaveLedConfiguration(ledController.GetLedInfo());
     return true;
 }
+
+void NixieClockInterface::OnSetBacklightColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    ledController.GetLedInfo().SetColor(r, g, b, 255);
+    // ConfigStore::SaveLedConfiguration(ledController.GetLedInfo());
+}
