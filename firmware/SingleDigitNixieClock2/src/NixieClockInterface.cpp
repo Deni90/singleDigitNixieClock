@@ -21,8 +21,8 @@ bool NixieClockInterface::OnSetBacklightState(uint8_t state)
     return true;
 }
 
-void NixieClockInterface::OnSetBacklightColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+void NixieClockInterface::OnSetBacklightColor(uint8_t r, uint8_t g, uint8_t b)
 {
-    ledController.GetLedInfo().SetColor(r, g, b, 255);
+    ledController.GetLedInfo().SetColor(r, g, b);
     // ConfigStore::SaveLedConfiguration(ledController.GetLedInfo());
 }

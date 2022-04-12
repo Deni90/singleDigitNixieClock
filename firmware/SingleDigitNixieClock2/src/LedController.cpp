@@ -2,6 +2,7 @@
 
 namespace{
     constexpr uint16_t LED_COUNT = 1;
+    constexpr uint8_t MAX_BRIGHTNESS = 255;
 }
 
 LedController::LedController(uint16_t ledPin)
@@ -15,7 +16,7 @@ void LedController::Initialize(LedInfo ledInfo)
 {
     this->ledInfo = ledInfo;
     ledDriver.begin();
-    ledDriver.setBrightness(ledInfo.GetA());
+    ledDriver.setBrightness(MAX_BRIGHTNESS);
     ledDriver.setPixelColor(0, ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB()));
     ledDriver.show();
 }
@@ -26,16 +27,11 @@ void LedController::Reset()
     direction = true;
 }
 
-uint8_t LedController::CalculateNewColor(uint8_t color, uint8_t brightness)
-{
-    return (color * brightness) / 255;
-}
-
 void LedController::Update()
 {
     if(direction)
     {
-        if(counter < 255)
+        if(counter < MAX_BRIGHTNESS)
         {
             counter++;
         }
@@ -65,22 +61,21 @@ void LedController::Update()
         }
         case LedState::ON:
         {
-            ledDriver.setBrightness(ledInfo.GetA());
+            ledDriver.setBrightness(MAX_BRIGHTNESS);
             uint32_t color = ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB());
             ledDriver.setPixelColor(0, color);
             break;
         }
         case LedState::FADE:
         {
-            uint8_t new_a = CalculateNewColor(ledInfo.GetA(), counter);
-            uint8_t new_r = CalculateNewColor(ledInfo.GetR(), new_a);
-            uint8_t new_g = CalculateNewColor(ledInfo.GetG(), new_a);
-            uint8_t new_b = CalculateNewColor(ledInfo.GetB(), new_a);
-            uint32_t color = ledDriver.Color(new_r, new_g, new_b);
-            ledDriver.setBrightness(ledInfo.GetA());
-            ledDriver.setPixelColor(0, ledDriver.gamma32(color));
+            ledDriver.setBrightness(ledDriver.gamma8(counter));
+            uint32_t color = ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB());
+            ledDriver.setPixelColor(0, color);
             break;
         }
+        case LedState::MAX:
+        default:
+            break;
     }
     ledDriver.show();
 }

@@ -18,8 +18,6 @@ void ConfigStore::SaveLedConfiguration(const LedInfo& ledInfo)
     eepromAddr++;
     EEPROM.write(eepromAddr, ledInfo.GetB());
     eepromAddr++;
-    EEPROM.write(eepromAddr, ledInfo.GetA());
-    eepromAddr++;
     EEPROM.write(eepromAddr, static_cast<uint8_t>(ledInfo.GetState()));
     eepromAddr++;
     EEPROM.commit();    //Store data to EEPROM
@@ -35,10 +33,8 @@ void ConfigStore::LoadLedConfiguration(LedInfo& ledInfo)
     eepromAddr++;
     uint8_t b = EEPROM.read(eepromAddr);
     eepromAddr++;
-    uint8_t a = EEPROM.read(eepromAddr);
-    eepromAddr++;
     uint8_t state = EEPROM.read(eepromAddr);
 
-    ledInfo.SetColor(r, g, b, a);
+    ledInfo.SetColor(r, g, b);
     ledInfo.SetState(static_cast<LedState>(state));
 }

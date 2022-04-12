@@ -157,7 +157,6 @@ void WebServer::HandleBacklight()
     doc["R"] = li.GetR();
     doc["G"] = li.GetG();
     doc["B"] = li.GetB();
-    doc["A"] = li.GetA();
 
     serializeJsonPretty(doc, messageBuffer);
 
@@ -206,14 +205,13 @@ void WebServer::HandleSetBacklightColor()
     }
 
     if(webServer->hasArg("R") && webServer->hasArg("G")
-        && webServer->hasArg("B") && webServer->hasArg("A"))
+        && webServer->hasArg("B"))
     {
         uint8_t r, g, b, a;
         r = webServer->arg("R").toInt();
         g = webServer->arg("G").toInt();
         b = webServer->arg("B").toInt();
-        a = webServer->arg("A").toInt();
-        callback->OnSetBacklightColor(r, g, b, a);
+        callback->OnSetBacklightColor(r, g, b);
         webServer->send(HTTP_200_OK, "");
     }
     else
