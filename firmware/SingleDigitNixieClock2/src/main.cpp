@@ -10,10 +10,11 @@
 #include "LedController.h"
 #include "BCD2DecimalDecoder.h"
 #include "ClockFace.h"
+#include "In18NixieTube.h"
 
 #include "WebServer.h"
 
-#include "NixieClockInterface.h""
+#include "NixieClockInterface.h"
 
 namespace
 {
@@ -40,7 +41,8 @@ namespace
 Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
 LedController ledController(LED_PIN);
-BCD2DecimalDecoder nixieTube( D0_PIN, D1_PIN, D2_PIN, D3_PIN );
+BCD2DecimalDecoder decoder( D0_PIN, D1_PIN, D2_PIN, D3_PIN );
+In18NixieTube nixieTube(decoder);
 ClockFace clockFace(ledController, nixieTube);
 DNSServer dnsServer;
 
@@ -87,7 +89,7 @@ void setup() {
     ledController.Initialize(li);
     Serial.println("Done");
 
-    Serial.printf("Initializing BCD to decimal decoder ... ");
+    Serial.printf("Initializing Nixie tube ... ");
     nixieTube.Initialize();
     Serial.println("Done");
 

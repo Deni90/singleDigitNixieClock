@@ -3,7 +3,7 @@
 #include <inttypes.h>
 #include <RtcDS3231.h>
 #include "LedController.h"
-#include "BCD2DecimalDecoder.h"
+#include "In18NixieTube.h"
 
 class ClockFace
 {
@@ -18,10 +18,10 @@ private:
     };
     AnimationStates animationState;
     LedController& ledController;
-    BCD2DecimalDecoder nixieTube;
+    In18NixieTube& nixieTube;
     RtcDateTime time;
 public:
-    ClockFace(LedController& ledController, BCD2DecimalDecoder& nixieTube);
+    ClockFace(LedController& ledController, In18NixieTube& nixieTube);
     void Handle(uint32_t& tick);
     void ShowTime(RtcDateTime now);
 };

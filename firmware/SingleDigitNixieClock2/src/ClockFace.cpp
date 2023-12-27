@@ -8,7 +8,7 @@ namespace
     constexpr uint16_t NUMBER_OF_PAUSES = 2;
 }
 
-ClockFace::ClockFace(LedController& ledController, BCD2DecimalDecoder& nixieTube)
+ClockFace::ClockFace(LedController& ledController, In18NixieTube& nixieTube)
 :animationState(AnimationStates::IDLE)
 ,ledController(ledController)
 ,nixieTube(nixieTube)
@@ -45,11 +45,11 @@ void ClockFace::Handle(uint32_t& tick)
             if(animationframe > 9)  //end of animation?
             {
                 animationframe = 0;
-                nixieTube.Decode(NONE);
+                nixieTube.HideDigit();
                 animationState = AnimationStates::SHOW_TIME;
                 break;
             }
-            nixieTube.Decode(animationframe);
+            nixieTube.ShowDigit(animationframe);
             animationframe++;
         }
         break;
@@ -61,28 +61,28 @@ void ClockFace::Handle(uint32_t& tick)
             tick = 0;
             if(animationframe == 0)
             {
-                nixieTube.Decode(time.Hour() / 10);
+                nixieTube.ShowDigit(time.Hour() / 10);
             }
             else if(animationframe == 2)
             {
-                nixieTube.Decode(time.Hour() % 10);
+                nixieTube.ShowDigit(time.Hour() % 10);
             }
             else if(animationframe == 4)
             {
-                nixieTube.Decode(time.Minute() / 10);
+                nixieTube.ShowDigit(time.Minute() / 10);
             }
             else if(animationframe == 6)
             {
-                nixieTube.Decode(time.Minute() % 10);
+                nixieTube.ShowDigit(time.Minute() % 10);
             }
             else if(animationframe == 1 || animationframe == 3 || animationframe == 5)
             {
-                nixieTube.Decode(NONE);
+                nixieTube.HideDigit();
             }
             else
             {
                 animationframe = 0;
-                nixieTube.Decode(NONE);
+                nixieTube.HideDigit();
                 animationState = AnimationStates::PAUSE;
                 break;
             }
