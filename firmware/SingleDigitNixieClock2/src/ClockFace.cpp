@@ -2,9 +2,9 @@
 
 namespace
 {
-    constexpr uint16_t ANIMATION_PERIOD = 60;
-    constexpr uint16_t DIGIT_DURATION = 250;
-    constexpr uint16_t PAUSE_DURATION = 1000;
+    constexpr uint16_t ANIMATION_PERIOD = 50;
+    constexpr uint16_t DIGIT_DURATION = 300;
+    constexpr uint16_t PAUSE_DURATION = 2000;
     constexpr uint16_t NUMBER_OF_PAUSES = 2;
 }
 
@@ -49,7 +49,7 @@ void ClockFace::Handle(uint32_t& tick)
                 animationState = AnimationStates::SHOW_TIME;
                 break;
             }
-            nixieTube.ShowDigit(animationframe);
+            nixieTube.ShowDigit(9 - animationframe);
             animationframe++;
         }
         break;
