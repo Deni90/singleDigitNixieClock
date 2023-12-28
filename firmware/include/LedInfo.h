@@ -2,27 +2,20 @@
 
 #include <inttypes.h>
 
-enum class LedState
-{
-    OFF = 0,
-    ON,
-    FADE,
-    MAX
-};
+enum class LedState { OFF = 0, ON, FADE, MAX };
 
-class LedInfo
-{
-private:
+class LedInfo {
+  private:
     uint8_t r;
     uint8_t g;
     uint8_t b;
     LedState state;
 
-public:
+  public:
     LedInfo();
     LedInfo(uint8_t r, uint8_t g, uint8_t b, LedState state);
     ~LedInfo() = default;
-    LedInfo(const LedInfo &ledInfo) = default;
+    LedInfo(const LedInfo& ledInfo) = default;
     uint8_t GetR() const;
     void SetR(const uint8_t value);
     uint8_t GetG() const;

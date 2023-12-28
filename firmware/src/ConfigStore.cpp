@@ -1,16 +1,15 @@
-#include <inttypes.h>
-#include <EEPROM.h>
 #include "ConfigStore.h"
+#include <EEPROM.h>
+#include <inttypes.h>
 
-namespace
-{
-    constexpr uint16_t EEPROM_SIZE = 512;
-    constexpr uint16_t EEPROM_START_ADDR = 0;
-}
+namespace {
+constexpr uint16_t EEPROM_SIZE = 512;
+constexpr uint16_t EEPROM_START_ADDR = 0;
+}   // namespace
 
-void ConfigStore::SaveLedConfiguration(const LedInfo &ledInfo)
-{
-    EEPROM.begin(EEPROM_SIZE); // Initialize EEPROM
+void
+ConfigStore::SaveLedConfiguration(const LedInfo& ledInfo) {
+    EEPROM.begin(EEPROM_SIZE);   // Initialize EEPROM
     uint16_t eepromAddr = EEPROM_START_ADDR;
     EEPROM.write(eepromAddr, ledInfo.GetR());
     eepromAddr++;
@@ -20,12 +19,12 @@ void ConfigStore::SaveLedConfiguration(const LedInfo &ledInfo)
     eepromAddr++;
     EEPROM.write(eepromAddr, static_cast<uint8_t>(ledInfo.GetState()));
     eepromAddr++;
-    EEPROM.commit(); // Store data to EEPROM
+    EEPROM.commit();   // Store data to EEPROM
 }
 
-void ConfigStore::LoadLedConfiguration(LedInfo &ledInfo)
-{
-    EEPROM.begin(EEPROM_SIZE); // Initialize EEPROM
+void
+ConfigStore::LoadLedConfiguration(LedInfo& ledInfo) {
+    EEPROM.begin(EEPROM_SIZE);   // Initialize EEPROM
     uint16_t eepromAddr = EEPROM_START_ADDR;
     uint8_t r = EEPROM.read(eepromAddr);
     eepromAddr++;

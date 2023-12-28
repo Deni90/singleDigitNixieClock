@@ -1,14 +1,14 @@
 #pragma once
 
-#include <inttypes.h>
 #include <RtcDS3231.h>
-#include "LedController.h"
-#include "In18NixieTube.h"
+#include <inttypes.h>
 
-class ClockFace
-{
-private:
-    enum class AnimationStates{
+#include "In18NixieTube.h"
+#include "LedController.h"
+
+class ClockFace {
+  private:
+    enum class AnimationStates {
         IDLE = 0,
         INIT,
         INTRO,
@@ -20,7 +20,8 @@ private:
     LedController& ledController;
     In18NixieTube& nixieTube;
     RtcDateTime time;
-public:
+
+  public:
     ClockFace(LedController& ledController, In18NixieTube& nixieTube);
     void Handle(uint32_t& tick);
     void ShowTime(RtcDateTime now);

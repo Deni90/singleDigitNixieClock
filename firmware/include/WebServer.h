@@ -1,19 +1,18 @@
 #pragma once
 
-#include <inttypes.h>
 #include <ESP8266WebServer.h>
+#include <inttypes.h>
 
 #include "ClockInterface.h"
 
-class WebServer
-{
-private:
-    ESP8266WebServer *webServer;
-    ClockInterface *callback;
+class WebServer {
+  private:
+    ESP8266WebServer* webServer;
+    ClockInterface* callback;
     WebServer();
     ~WebServer();
-    WebServer(const WebServer &) = delete;
-    WebServer &operator=(const WebServer &) = delete;
+    WebServer(const WebServer&) = delete;
+    WebServer& operator=(const WebServer&) = delete;
 
     bool LoadFromLittleFS(String path);
     void HandleRoot();
@@ -25,8 +24,8 @@ private:
 
     void HandleSetCurrentTime();
 
-public:
-    static WebServer &Instance();
-    void Initialize(int port, ClockInterface *callback);
+  public:
+    static WebServer& Instance();
+    void Initialize(int port, ClockInterface* callback);
     void Handle();
 };

@@ -1,42 +1,41 @@
-#include <Ticker.h>
-#include <Wire.h>
-#include <RtcDS3231.h>
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <LittleFS.h>
 #include <DNSServer.h>
+#include <ESP8266WiFi.h>
+#include <LittleFS.h>
+#include <RtcDS3231.h>
+#include <Ticker.h>
+#include <WiFiClient.h>
+#include <Wire.h>
 
-#include "ConfigStore.h"
-#include "LedController.h"
 #include "BCD2DecimalDecoder.h"
 #include "ClockFace.h"
+#include "ConfigStore.h"
 #include "In18NixieTube.h"
+#include "LedController.h"
 
 #include "WebServer.h"
 
 #include "NixieClockInterface.h"
 
-namespace
-{
-    // RGB led
-    constexpr uint8_t LED_PIN = D3;
-    // BCD2DEC encoder = Nixie tube
-    constexpr uint8_t D0_PIN = D4;
-    constexpr uint8_t D1_PIN = D8;
-    constexpr uint8_t D2_PIN = D5;
-    constexpr uint8_t D3_PIN = D6;
+namespace {
+// RGB led
+constexpr uint8_t LED_PIN = D3;
+// BCD2DEC encoder = Nixie tube
+constexpr uint8_t D0_PIN = D4;
+constexpr uint8_t D1_PIN = D8;
+constexpr uint8_t D2_PIN = D5;
+constexpr uint8_t D3_PIN = D6;
 
-    constexpr uint8_t INTERRUPT_PIN = D7;
+constexpr uint8_t INTERRUPT_PIN = D7;
 
-    constexpr unsigned long UART_BAUDRATE = 115200;
+constexpr unsigned long UART_BAUDRATE = 115200;
 
-    constexpr uint32_t TIMER_PERIOD = 1;      // ms
-    constexpr uint32_t UPDATE_LED_PERIOD = 4; // ms 255* 4 = ~1s
-    constexpr uint32_t SECONDS_IN_MINUTE = 60;
+constexpr uint32_t TIMER_PERIOD = 1;        // ms
+constexpr uint32_t UPDATE_LED_PERIOD = 4;   // ms 255* 4 = ~1s
+constexpr uint32_t SECONDS_IN_MINUTE = 60;
 
-    constexpr int WEBSERVER_PORT = 80;
-    constexpr uint8_t DNS_PORT = 53;
-}
+constexpr int WEBSERVER_PORT = 80;
+constexpr uint8_t DNS_PORT = 53;
+}   // namespace
 
 Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
@@ -54,32 +53,33 @@ uint32_t ledControllerClock = 0;
 // ITest* callback = new Test(ledController);
 
 NixieClockInterface nci(ledController, rtc);
-ClockInterface &ci = nci;
+ClockInterface& ci = nci;
 
-void HandleTimer()
-{
+void
+HandleTimer() {
     globalClock++;
     ledControllerClock++;
 }
 
-void IRAM_ATTR HandleInterrupt()
-{
+void IRAM_ATTR
+HandleInterrupt() {
     counter++;
 }
 
 /* Set these to your desired credentials. */
-const char *ssid = "ESPap";
-const char *password = "thereisnospoon";
+const char* ssid = "ESPap";
+const char* password = "thereisnospoon";
 
-void setup()
-{
+void
+setup() {
     Serial.begin(UART_BAUDRATE);
 
     Serial.println("");
     Serial.println("   _  _ _____  _____ ___    ___ _    ___   ___ _  __");
     Serial.println(" | \\| |_ _\\ \\/ /_ _| __|  / __| |  / _ \\ / __| |/ /");
     Serial.println(" | .` || | >  < | || _|  | (__| |_| (_) | (__| \' < ");
-    Serial.println(" |_|\\_|___/_/\\_\\___|___|  \\___|____\\___/ \\___|_|\\_\\");
+    Serial.println(
+        " |_|\\_|___/_/\\_\\___|___|  \\___|____\\___/ \\___|_|\\_\\");
     Serial.println("");
 
     Serial.printf("Reading config from EEPROM ... ");
@@ -103,13 +103,13 @@ void setup()
 
     Serial.printf("Enabling interrupt for SQW ... ");
     pinMode(INTERRUPT_PIN, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), HandleInterrupt, FALLING);
+    attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), HandleInterrupt,
+                    FALLING);
     Serial.println("Done");
 
     Serial.printf("Updating led state ... ");
     RtcDateTime previousDateTime = rtc.GetDateTime();
-    while (previousDateTime.Second() == rtc.GetDateTime().Second())
-    {
+    while (previousDateTime.Second() == rtc.GetDateTime().Second()) {
         delay(1);
     }
     timer.attach_ms(TIMER_PERIOD, HandleTimer);
@@ -117,12 +117,9 @@ void setup()
     Serial.println("Done");
 
     Serial.print("Mounting LittleFS...");
-    if (!LittleFS.begin())
-    {
+    if (!LittleFS.begin()) {
         Serial.println("Failed");
-    }
-    else
-    {
+    } else {
         Serial.println("Done");
     }
 
@@ -145,29 +142,28 @@ void setup()
     Serial.println(myIP);
 }
 
-void loop()
-{
+void
+loop() {
     dnsServer.processNextRequest();
     WebServer::Instance().Handle();
-    if (ledControllerClock >= UPDATE_LED_PERIOD)
-    {
+    if (ledControllerClock >= UPDATE_LED_PERIOD) {
         ledControllerClock = 0;
         ledController.Update();
     }
 
-    if (counter >= SECONDS_IN_MINUTE)
-    {
+    if (counter >= SECONDS_IN_MINUTE) {
         counter = 0;
 
         RtcDateTime now = rtc.GetDateTime();
-        char str[20];                           // declare a string as an array of chars
-        sprintf(str, "%d/%d/%d %02d:%02d:%02d", //%d allows to print an integer to the string
-                now.Year(),                     // get year method
-                now.Month(),                    // get month method
-                now.Day(),                      // get day method
-                now.Hour(),                     // get hour method
-                now.Minute(),                   // get minute method
-                now.Second()                    // get second method
+        char str[20];   // declare a string as an array of chars
+        sprintf(str, "%d/%d/%d %02d:%02d:%02d",   //%d allows to print an
+                                                  // integer to the string
+                now.Year(),                       // get year method
+                now.Month(),                      // get month method
+                now.Day(),                        // get day method
+                now.Hour(),                       // get hour method
+                now.Minute(),                     // get minute method
+                now.Second()                      // get second method
         );
         Serial.printf("Time: %s\n", str);
 

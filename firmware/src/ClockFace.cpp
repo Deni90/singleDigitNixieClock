@@ -1,46 +1,39 @@
 #include "ClockFace.h"
 
-namespace
-{
-    constexpr uint16_t ANIMATION_PERIOD = 50;
-    constexpr uint16_t DIGIT_DURATION = 300;
-    constexpr uint16_t PAUSE_DURATION = 2000;
-    constexpr uint16_t NUMBER_OF_PAUSES = 2;
-}
+namespace {
+constexpr uint16_t ANIMATION_PERIOD = 50;
+constexpr uint16_t DIGIT_DURATION = 300;
+constexpr uint16_t PAUSE_DURATION = 2000;
+constexpr uint16_t NUMBER_OF_PAUSES = 2;
+}   // namespace
 
-ClockFace::ClockFace(LedController &ledController, In18NixieTube &nixieTube)
-    : animationState(AnimationStates::IDLE), ledController(ledController), nixieTube(nixieTube)
-{
-}
+ClockFace::ClockFace(LedController& ledController, In18NixieTube& nixieTube)
+    : animationState(AnimationStates::IDLE), ledController(ledController),
+      nixieTube(nixieTube) {}
 
-void ClockFace::Handle(uint32_t &tick)
-{
+void
+ClockFace::Handle(uint32_t& tick) {
     static uint8_t animationframe = 0;
     static uint8_t pauseCounter = 0;
     static LedState tempLedState = LedState::OFF;
 
-    switch (animationState)
-    {
+    switch (animationState) {
     default:
     case AnimationStates::IDLE:
         // do nothing
         break;
-    case AnimationStates::INIT:
-    {
+    case AnimationStates::INIT: {
         tempLedState = ledController.GetLedInfo().GetState();
-        if (tempLedState == LedState::FADE)
-        {
+        if (tempLedState == LedState::FADE) {
             ledController.GetLedInfo().SetState(LedState::ON);
         }
         animationState = AnimationStates::INTRO;
         break;
     }
-    case AnimationStates::INTRO:
-    {
-        if (tick >= ANIMATION_PERIOD)
-        {
+    case AnimationStates::INTRO: {
+        if (tick >= ANIMATION_PERIOD) {
             tick = 0;
-            if (animationframe > 9) // end of animation?
+            if (animationframe > 9)   // end of animation?
             {
                 animationframe = 0;
                 nixieTube.HideDigit();
@@ -52,33 +45,21 @@ void ClockFace::Handle(uint32_t &tick)
         }
         break;
     }
-    case AnimationStates::SHOW_TIME:
-    {
-        if (tick >= DIGIT_DURATION)
-        {
+    case AnimationStates::SHOW_TIME: {
+        if (tick >= DIGIT_DURATION) {
             tick = 0;
-            if (animationframe == 0)
-            {
+            if (animationframe == 0) {
                 nixieTube.ShowDigit(time.Hour() / 10);
-            }
-            else if (animationframe == 2)
-            {
+            } else if (animationframe == 2) {
                 nixieTube.ShowDigit(time.Hour() % 10);
-            }
-            else if (animationframe == 4)
-            {
+            } else if (animationframe == 4) {
                 nixieTube.ShowDigit(time.Minute() / 10);
-            }
-            else if (animationframe == 6)
-            {
+            } else if (animationframe == 6) {
                 nixieTube.ShowDigit(time.Minute() % 10);
-            }
-            else if (animationframe == 1 || animationframe == 3 || animationframe == 5)
-            {
+            } else if (animationframe == 1 || animationframe == 3 ||
+                       animationframe == 5) {
                 nixieTube.HideDigit();
-            }
-            else
-            {
+            } else {
                 animationframe = 0;
                 nixieTube.HideDigit();
                 animationState = AnimationStates::PAUSE;
@@ -88,13 +69,11 @@ void ClockFace::Handle(uint32_t &tick)
         }
         break;
     }
-    case AnimationStates::PAUSE:
-    {
-        if (pauseCounter >= NUMBER_OF_PAUSES)
-        {
+    case AnimationStates::PAUSE: {
+        if (pauseCounter >= NUMBER_OF_PAUSES) {
             animationState = AnimationStates::CLEANUP;
         }
-        if (tick >= PAUSE_DURATION) // FIXME
+        if (tick >= PAUSE_DURATION)   // FIXME
         {
             tick = 0;
             pauseCounter++;
@@ -111,8 +90,8 @@ void ClockFace::Handle(uint32_t &tick)
     }
 }
 
-void ClockFace::ShowTime(RtcDateTime now)
-{
+void
+ClockFace::ShowTime(RtcDateTime now) {
     animationState = AnimationStates::INIT;
     time = now;
 }

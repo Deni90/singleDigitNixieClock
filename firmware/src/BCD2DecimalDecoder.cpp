@@ -1,13 +1,12 @@
 #include "BCD2DecimalDecoder.h"
 #include <Arduino.h>
 
-BCD2DecimalDecoder::BCD2DecimalDecoder(uint8_t pinA, uint8_t pinB, uint8_t pinC, uint8_t pinD)
-    : pinA(pinA), pinB(pinB), pinC(pinC), pinD(pinD)
-{
-}
+BCD2DecimalDecoder::BCD2DecimalDecoder(uint8_t pinA, uint8_t pinB, uint8_t pinC,
+                                       uint8_t pinD)
+    : pinA(pinA), pinB(pinB), pinC(pinC), pinD(pinD) {}
 
-void BCD2DecimalDecoder::Initialize()
-{
+void
+BCD2DecimalDecoder::Initialize() {
     pinMode(pinA, OUTPUT);
     pinMode(pinB, OUTPUT);
     pinMode(pinC, OUTPUT);
@@ -20,11 +19,10 @@ void BCD2DecimalDecoder::Initialize()
     digitalWrite(pinD, HIGH);
 }
 
-void BCD2DecimalDecoder::Decode(uint8_t value)
-{
-    if (value > NONE)
-    {
-        value = NONE; // clip value to 00001111
+void
+BCD2DecimalDecoder::Decode(uint8_t value) {
+    if (value > NONE) {
+        value = NONE;   // clip value to 00001111
     }
 
     digitalWrite(pinA, value & (1 << 0));
