@@ -8,29 +8,27 @@ namespace
     constexpr uint16_t NUMBER_OF_PAUSES = 2;
 }
 
-ClockFace::ClockFace(LedController& ledController, In18NixieTube& nixieTube)
-:animationState(AnimationStates::IDLE)
-,ledController(ledController)
-,nixieTube(nixieTube)
+ClockFace::ClockFace(LedController &ledController, In18NixieTube &nixieTube)
+    : animationState(AnimationStates::IDLE), ledController(ledController), nixieTube(nixieTube)
 {
 }
 
-void ClockFace::Handle(uint32_t& tick)
+void ClockFace::Handle(uint32_t &tick)
 {
     static uint8_t animationframe = 0;
     static uint8_t pauseCounter = 0;
     static LedState tempLedState = LedState::OFF;
 
-    switch(animationState)
+    switch (animationState)
     {
     default:
     case AnimationStates::IDLE:
-        //do nothing
+        // do nothing
         break;
     case AnimationStates::INIT:
     {
         tempLedState = ledController.GetLedInfo().GetState();
-        if(tempLedState == LedState::FADE)
+        if (tempLedState == LedState::FADE)
         {
             ledController.GetLedInfo().SetState(LedState::ON);
         }
@@ -39,10 +37,10 @@ void ClockFace::Handle(uint32_t& tick)
     }
     case AnimationStates::INTRO:
     {
-        if(tick >= ANIMATION_PERIOD)
+        if (tick >= ANIMATION_PERIOD)
         {
             tick = 0;
-            if(animationframe > 9)  //end of animation?
+            if (animationframe > 9) // end of animation?
             {
                 animationframe = 0;
                 nixieTube.HideDigit();
@@ -56,26 +54,26 @@ void ClockFace::Handle(uint32_t& tick)
     }
     case AnimationStates::SHOW_TIME:
     {
-        if(tick >= DIGIT_DURATION)
+        if (tick >= DIGIT_DURATION)
         {
             tick = 0;
-            if(animationframe == 0)
+            if (animationframe == 0)
             {
                 nixieTube.ShowDigit(time.Hour() / 10);
             }
-            else if(animationframe == 2)
+            else if (animationframe == 2)
             {
                 nixieTube.ShowDigit(time.Hour() % 10);
             }
-            else if(animationframe == 4)
+            else if (animationframe == 4)
             {
                 nixieTube.ShowDigit(time.Minute() / 10);
             }
-            else if(animationframe == 6)
+            else if (animationframe == 6)
             {
                 nixieTube.ShowDigit(time.Minute() % 10);
             }
-            else if(animationframe == 1 || animationframe == 3 || animationframe == 5)
+            else if (animationframe == 1 || animationframe == 3 || animationframe == 5)
             {
                 nixieTube.HideDigit();
             }
@@ -92,11 +90,11 @@ void ClockFace::Handle(uint32_t& tick)
     }
     case AnimationStates::PAUSE:
     {
-        if(pauseCounter >= NUMBER_OF_PAUSES)
+        if (pauseCounter >= NUMBER_OF_PAUSES)
         {
             animationState = AnimationStates::CLEANUP;
         }
-        if(tick >= PAUSE_DURATION) //FIXME
+        if (tick >= PAUSE_DURATION) // FIXME
         {
             tick = 0;
             pauseCounter++;

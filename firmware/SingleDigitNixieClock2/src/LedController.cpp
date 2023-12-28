@@ -1,14 +1,13 @@
 #include "LedController.h"
 
-namespace{
+namespace
+{
     constexpr uint16_t LED_COUNT = 1;
     constexpr uint8_t MAX_BRIGHTNESS = 255;
 }
 
 LedController::LedController(uint16_t ledPin)
-: ledDriver(LED_COUNT, ledPin, NEO_GRB + NEO_KHZ800)
-, counter(0)
-, direction(true)
+    : ledDriver(LED_COUNT, ledPin, NEO_GRB + NEO_KHZ800), counter(0), direction(true)
 {
 }
 
@@ -29,9 +28,9 @@ void LedController::Reset()
 
 void LedController::Update()
 {
-    if(direction)
+    if (direction)
     {
-        if(counter < MAX_BRIGHTNESS)
+        if (counter < MAX_BRIGHTNESS)
         {
             counter++;
         }
@@ -42,40 +41,40 @@ void LedController::Update()
     }
     else
     {
-        if(counter == 0)
+        if (counter == 0)
         {
-        direction = true;
+            direction = true;
         }
         else
         {
-        counter--;
+            counter--;
         }
     }
 
-    switch(ledInfo.GetState())
+    switch (ledInfo.GetState())
     {
-        case LedState::OFF:
-        {
-            ledDriver.setBrightness(0);
-            break;
-        }
-        case LedState::ON:
-        {
-            ledDriver.setBrightness(MAX_BRIGHTNESS);
-            uint32_t color = ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB());
-            ledDriver.setPixelColor(0, color);
-            break;
-        }
-        case LedState::FADE:
-        {
-            ledDriver.setBrightness(ledDriver.gamma8(counter));
-            uint32_t color = ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB());
-            ledDriver.setPixelColor(0, color);
-            break;
-        }
-        case LedState::MAX:
-        default:
-            break;
+    case LedState::OFF:
+    {
+        ledDriver.setBrightness(0);
+        break;
+    }
+    case LedState::ON:
+    {
+        ledDriver.setBrightness(MAX_BRIGHTNESS);
+        uint32_t color = ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB());
+        ledDriver.setPixelColor(0, color);
+        break;
+    }
+    case LedState::FADE:
+    {
+        ledDriver.setBrightness(ledDriver.gamma8(counter));
+        uint32_t color = ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB());
+        ledDriver.setPixelColor(0, color);
+        break;
+    }
+    case LedState::MAX:
+    default:
+        break;
     }
     ledDriver.show();
 }
@@ -84,7 +83,7 @@ void LedController::SetLedInfo(const LedInfo li)
 {
     ledInfo = li;
 }
-LedInfo& LedController::GetLedInfo()
+LedInfo &LedController::GetLedInfo()
 {
     return ledInfo;
 }

@@ -6,9 +6,10 @@
 class NixieClockInterface : public ClockInterface
 {
 private:
-    LedController& ledController;
+    LedController &ledController;
+
 public:
-    NixieClockInterface(LedController& lc);
+    NixieClockInterface(LedController &ledController);
 
     LedInfo OnGetBacklightData() const;
     bool OnSetBacklightState(uint8_t state);

@@ -1,10 +1,7 @@
 #include "LedInfo.h"
 
 LedInfo::LedInfo()
-: r(0)
-, g(0)
-, b(0)
-, state(LedState::OFF)
+    : r(0), g(0), b(0), state(LedState::OFF)
 {
 }
 

@@ -8,12 +8,12 @@
 class WebServer
 {
 private:
-    ESP8266WebServer* webServer;
-    ClockInterface* callback;
+    ESP8266WebServer *webServer;
+    ClockInterface *callback;
     WebServer();
     ~WebServer();
-    WebServer(const WebServer&) = delete;
-    WebServer& operator=(const WebServer&) = delete;
+    WebServer(const WebServer &) = delete;
+    WebServer &operator=(const WebServer &) = delete;
 
     bool LoadFromLittleFS(String path);
     void HandleRoot();
@@ -22,8 +22,9 @@ private:
     void HandleBacklight();
     void HandleSetBacklightState();
     void HandleSetBacklightColor();
+
 public:
-    static WebServer& Instance();
-    void Initialize(int port, ClockInterface* callback);
+    static WebServer &Instance();
+    void Initialize(int port, ClockInterface *callback);
     void Handle();
 };

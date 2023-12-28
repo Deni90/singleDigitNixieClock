@@ -5,6 +5,6 @@
 class ConfigStore
 {
 public:
-    static void SaveLedConfiguration(const LedInfo& ledInfo);
-    static void LoadLedConfiguration(LedInfo& ledInfo);
+    static void SaveLedConfiguration(const LedInfo &ledInfo);
+    static void LoadLedConfiguration(LedInfo &ledInfo);
 };

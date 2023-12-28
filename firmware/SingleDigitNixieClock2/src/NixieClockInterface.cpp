@@ -1,8 +1,8 @@
 #include "NixieClockInterface.h"
 #include "ConfigStore.h"
 
-NixieClockInterface::NixieClockInterface(LedController& lc)
-:ledController(lc)
+NixieClockInterface::NixieClockInterface(LedController &ledController)
+    : ledController(ledController)
 {
 }
 
@@ -12,7 +12,7 @@ LedInfo NixieClockInterface::OnGetBacklightData() const
 }
 bool NixieClockInterface::OnSetBacklightState(uint8_t state)
 {
-    if(state >= static_cast<uint8_t>(LedState::MAX))
+    if (state >= static_cast<uint8_t>(LedState::MAX))
     {
         return false;
     }
@@ -24,5 +24,5 @@ bool NixieClockInterface::OnSetBacklightState(uint8_t state)
 void NixieClockInterface::OnSetBacklightColor(uint8_t r, uint8_t g, uint8_t b)
 {
     ledController.GetLedInfo().SetColor(r, g, b);
-    // ConfigStore::SaveLedConfiguration(ledController.GetLedInfo());
+    ConfigStore::SaveLedConfiguration(ledController.GetLedInfo());
 }

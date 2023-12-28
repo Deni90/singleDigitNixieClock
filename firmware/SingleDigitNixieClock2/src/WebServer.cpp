@@ -10,13 +10,13 @@ namespace
     constexpr int HTTP_500_INTERNAL_SERVER_ERROR = 500;
 }
 
-WebServer& WebServer::Instance()
+WebServer &WebServer::Instance()
 {
     static WebServer ws;
     return ws;
 }
 
-void WebServer::Initialize(int port, ClockInterface* callback)
+void WebServer::Initialize(int port, ClockInterface *callback)
 {
     this->callback = callback;
 
@@ -31,19 +31,18 @@ void WebServer::Initialize(int port, ClockInterface* callback)
 
 void WebServer::Handle()
 {
-    if(webServer)
+    if (webServer)
         webServer->handleClient();
 }
 
 WebServer::WebServer()
-:webServer(nullptr)
-,callback(nullptr)
+    : webServer(nullptr), callback(nullptr)
 {
 }
 
 WebServer::~WebServer()
 {
-    if(webServer)
+    if (webServer)
     {
         delete webServer;
     }
@@ -51,7 +50,7 @@ WebServer::~WebServer()
 
 bool WebServer::LoadFromLittleFS(String path)
 {
-    if(!webServer)
+    if (!webServer)
     {
         return false;
     }
@@ -60,38 +59,40 @@ bool WebServer::LoadFromLittleFS(String path)
     Serial.println("Load path: " + path);
     String dataType = "text/plain";
 
-    if(path.endsWith("/")) path += "index.html";
+    if (path.endsWith("/"))
+        path += "index.html";
 
-    if(path.endsWith(".src"))
+    if (path.endsWith(".src"))
         path = path.substring(0, path.lastIndexOf("."));
-    else if(path.endsWith(".html"))
+    else if (path.endsWith(".html"))
         dataType = "text/html";
-    else if(path.endsWith(".htm"))
+    else if (path.endsWith(".htm"))
         dataType = "text/html";
-    else if(path.endsWith(".css"))
+    else if (path.endsWith(".css"))
         dataType = "text/css";
-    else if(path.endsWith(".js"))
+    else if (path.endsWith(".js"))
         dataType = "application/javascript";
-    else if(path.endsWith(".png"))
+    else if (path.endsWith(".png"))
         dataType = "image/png";
-    else if(path.endsWith(".gif"))
+    else if (path.endsWith(".gif"))
         dataType = "image/gif";
-    else if(path.endsWith(".jpg"))
+    else if (path.endsWith(".jpg"))
         dataType = "image/jpeg";
-    else if(path.endsWith(".ico"))
+    else if (path.endsWith(".ico"))
         dataType = "image/x-icon";
-    else if(path.endsWith(".xml"))
+    else if (path.endsWith(".xml"))
         dataType = "text/xml";
-    else if(path.endsWith(".pdf"))
+    else if (path.endsWith(".pdf"))
         dataType = "application/pdf";
-    else if(path.endsWith(".zip"))
+    else if (path.endsWith(".zip"))
         dataType = "application/zip";
     if (LittleFS.exists(path))
     {
         File dataFile = LittleFS.open(path.c_str(), "r");
-        if(webServer->hasArg("download")) dataType = "application/octet-stream";
+        if (webServer->hasArg("download"))
+            dataType = "application/octet-stream";
 
-        if(webServer->streamFile(dataFile, dataType) != dataFile.size())
+        if (webServer->streamFile(dataFile, dataType) != dataFile.size())
         {
             // Serial.println("Error: streamed file has different size!");
             // returnValue = false;
@@ -114,11 +115,11 @@ void WebServer::HandleRoot()
 
 void WebServer::HandleWebRequests()
 {
-    if(!webServer)
+    if (!webServer)
     {
         return;
     }
-    if(!LoadFromLittleFS(webServer->uri()))
+    if (!LoadFromLittleFS(webServer->uri()))
     {
         Serial.println("Error: handleWebRequests");
         String message = "File Not Detected\n\n";
@@ -129,10 +130,10 @@ void WebServer::HandleWebRequests()
         message += "\nArguments: ";
         message += webServer->args();
         message += "\n";
-        for(uint8_t i = 0; i < webServer->args(); i++)
+        for (uint8_t i = 0; i < webServer->args(); i++)
         {
             message += " NAME:" + webServer->argName(i) +
-            "\n VALUE:" + webServer->arg(i) + "\n";
+                       "\n VALUE:" + webServer->arg(i) + "\n";
         }
         webServer->send(404, "text/plain", message);
         Serial.println(message);
@@ -141,7 +142,7 @@ void WebServer::HandleWebRequests()
 
 void WebServer::HandleBacklight()
 {
-    if(!webServer || !callback)
+    if (!webServer || !callback)
     {
         Serial.println("Error: Web server not initalized");
         webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
@@ -169,17 +170,17 @@ void WebServer::HandleSetBacklightState()
 {
     Serial.println("HandleSetBacklightState: " + webServer->arg("plain"));
 
-    if(!webServer || !callback)
+    if (!webServer || !callback)
     {
         Serial.println("Error: Web server not initalized");
         webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
         return;
     }
 
-    if(webServer->hasArg("state"))
+    if (webServer->hasArg("state"))
     {
         uint8_t state = webServer->arg("state").toInt();
-        if(callback->OnSetBacklightState(state))
+        if (callback->OnSetBacklightState(state))
         {
             webServer->send(HTTP_200_OK, "");
         }
@@ -187,7 +188,9 @@ void WebServer::HandleSetBacklightState()
         {
             webServer->send(HTTP_400_BAD_REQUEST, "");
         }
-    } else {
+    }
+    else
+    {
         Serial.println("Error handleSetLed: missing argument state!");
         webServer->send(HTTP_400_BAD_REQUEST, "");
     }
@@ -197,15 +200,14 @@ void WebServer::HandleSetBacklightColor()
 {
     Serial.println("HandleSetBacklightState: " + webServer->arg("plain"));
 
-        if(!webServer || !callback)
+    if (!webServer || !callback)
     {
         Serial.println("Error: Web server not initalized");
         webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
         return;
     }
 
-    if(webServer->hasArg("R") && webServer->hasArg("G")
-        && webServer->hasArg("B"))
+    if (webServer->hasArg("R") && webServer->hasArg("G") && webServer->hasArg("B"))
     {
         uint8_t r, g, b, a;
         r = webServer->arg("R").toInt();

@@ -1,7 +1,7 @@
 #include "In18NixieTube.h"
 
-In18NixieTube::In18NixieTube(BCD2DecimalDecoder &d)
-    : decoder(d)
+In18NixieTube::In18NixieTube(BCD2DecimalDecoder &decoder)
+    : decoder(decoder)
 {
 }
 
