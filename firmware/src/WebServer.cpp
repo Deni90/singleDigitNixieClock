@@ -26,6 +26,7 @@ void WebServer::Initialize(int port, ClockInterface *callback)
     webServer->on("/backlight", HTTP_GET, std::bind(&WebServer::HandleBacklight, this));
     webServer->on("/backlight/state", HTTP_POST, std::bind(&WebServer::HandleSetBacklightState, this));
     webServer->on("/backlight/color", HTTP_POST, std::bind(&WebServer::HandleSetBacklightColor, this));
+    webServer->on("/clock/time", HTTP_POST, std::bind(&WebServer::HandleSetCurrentTime, this));
     webServer->begin();
 }
 
@@ -212,6 +213,37 @@ void WebServer::HandleSetBacklightColor()
         g = webServer->arg("G").toInt();
         b = webServer->arg("B").toInt();
         callback->OnSetBacklightColor(r, g, b);
+        webServer->send(HTTP_200_OK, "");
+    }
+    else
+    {
+        Serial.println("Error HandleSetBacklightColor: missing argument(s)!");
+        webServer->send(HTTP_400_BAD_REQUEST, "");
+    }
+}
+
+void WebServer::HandleSetCurrentTime()
+{
+    Serial.println("HandleSetCurrentTime: " + webServer->arg("plain"));
+
+    if (!webServer || !callback)
+    {
+        Serial.println("Error: Web server not initalized");
+        webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
+        return;
+    }
+
+    if (webServer->hasArg("year") && webServer->hasArg("month") && webServer->hasArg("day") && webServer->hasArg("hour") && webServer->hasArg("minute") && webServer->hasArg("second"))
+    {
+        uint16_t year;
+        uint8_t month, day, hour, minute, second;
+        year = webServer->arg("year").toInt();
+        month = webServer->arg("month").toInt();
+        day = webServer->arg("day").toInt();
+        hour = webServer->arg("hour").toInt();
+        minute = webServer->arg("minute").toInt();
+        second = webServer->arg("second").toInt();
+        callback->OnSetCurrentTime(year, month, day, hour, minute, second);
         webServer->send(HTTP_200_OK, "");
     }
     else

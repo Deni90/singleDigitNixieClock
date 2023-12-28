@@ -85,6 +85,16 @@ function RGBtoHSV(r, g, b) {
     };
 }
 
+function showCurrentTime() {
+    var lbl = document.getElementById("currentTime");
+    var millisecondsToWait = 500;
+    var interval = setInterval(function(){
+        var now = new Date();
+        lbl.innerHTML = now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate()+" "+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
+    }, millisecondsToWait);
+}
+
+
 $(document).on('pagebeforecreate', '#index', function(){
     var interval = setInterval(function(){
         $.mobile.loading('show');
@@ -167,4 +177,15 @@ $(document).ready(function() {
                 console.log(result);
         });
     });
+
+    $("button[name='setTimeButton'").on('click', function(){
+        var now = new Date();
+        var jsonObj = {"year": now.getFullYear(), "month": (now.getMonth()+1), "day": now.getDate(), "hour": now.getHours(), "minute": now.getMinutes(), "second": now.getSeconds()}
+        $.ajax({url: "/clock/time", type: "POST", dataType: "json", data: jsonObj})
+            .success(function(result){
+                console.log(result);
+        });
+    });
+
+    showCurrentTime();
 });

@@ -53,7 +53,7 @@ uint32_t ledControllerClock = 0;
 
 // ITest* callback = new Test(ledController);
 
-NixieClockInterface nci(ledController);
+NixieClockInterface nci(ledController, rtc);
 ClockInterface &ci = nci;
 
 void HandleTimer()

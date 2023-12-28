@@ -23,6 +23,8 @@ private:
     void HandleSetBacklightState();
     void HandleSetBacklightColor();
 
+    void HandleSetCurrentTime();
+
 public:
     static WebServer &Instance();
     void Initialize(int port, ClockInterface *callback);

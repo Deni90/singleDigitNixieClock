@@ -27,9 +27,16 @@
 		<div id="tabClock" class="ui-body-d ui-content">
 			<form>
 				<div class="ui-field-contain">
+					<label for="currentTime">Current time:</label>
+					<label id="currentTime"></label>
+				</div>
+				<div class="ui-field-contain">
 					<label for="formatSwitch">Format:</label>
 					<input type="checkbox" data-role="flipswitch" name="formatSwitch" id="formatSwitch"
 						data-on-text="12H" data-off-text="24h">
+				</div>
+				<div class="ui-field-contain">
+					<button type="button" name="setTimeButton">Update time</button>
 				</div>
 			</form>
 		</div>
