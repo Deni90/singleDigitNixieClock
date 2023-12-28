@@ -1,17 +1,19 @@
 ﻿<!doctype html>
 <html>
+
 <head>
-    <title>Nixie Clock</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/my-custom-theme.min.css"/>
-    <link rel="stylesheet" href="css/jquery.mobile.struc.min.css"/>
-    <script src="./jquery-2.2.4.min.js"></script>
-    <script src="./jquery.mobile-1.4.5.min.js"></script>
+	<title>Nixie Clock</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/my-custom-theme.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.struc.min.css" />
+	<script src="./jquery-2.2.4.min.js"></script>
+	<script src="./jquery.mobile-1.4.5.min.js"></script>
 	<script src="./server.js"></script>
 </head>
+
 <body>
 	<div data-role="header">
-	<h1>Nixie Clock</h1>
+		<h1>Nixie Clock</h1>
 	</div>
 
 	<div data-role="tabs" id="tabs">
@@ -26,7 +28,8 @@
 			<form>
 				<div class="ui-field-contain">
 					<label for="formatSwitch">Format:</label>
-					<input type="checkbox" data-role="flipswitch" name="formatSwitch" id="formatSwitch" data-on-text="12H" data-off-text="24h">
+					<input type="checkbox" data-role="flipswitch" name="formatSwitch" id="formatSwitch"
+						data-on-text="12H" data-off-text="24h">
 				</div>
 			</form>
 		</div>
@@ -45,8 +48,29 @@
 					</fieldset>
 				</div>
 			</form>
+			<form class="full-width-slider">
+				<div class="ui-field-contain">
+					<label for="hueSlider">Hue:</label>
+					<input type="range" name="hueSlider" id="hueSlider" min="0" max="360" data-highlight="true"
+						class="ui-hidden-accessible">
+				</div>
+			</form>
+			<form class="full-width-slider">
+				<div class="ui-field-contain">
+					<label for="saturationSlider">Saturation:</label>
+					<input type="range" name="saturationSlider" id="saturationSlider" min="0" max="100"
+						data-highlight="true" class="ui-hidden-accessible">
+				</div>
+			</form>
+			<form class="full-width-slider">
+				<div class="ui-field-contain">
+					<label for="valueSlider">Value:</label>
+					<input type="range" name="valueSlider" id="valueSlider" min="0" max="100" data-highlight="true"
+						class="ui-hidden-accessible">
+				</div>
+			</form>
 		</div>
-
 	</div>
- </body>
+</body>
+
 </html>

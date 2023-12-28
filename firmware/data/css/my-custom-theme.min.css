@@ -221,3 +221,11 @@ html .ui-alt-icon .ui-radio-off:after {
 	padding-bottom:.22em;
 	width: 35px;
 }
+
+/* Hide the number input */
+.full-width-slider input {
+    display: none;
+}
+.full-width-slider .ui-slider-track {
+    margin-left: 15px;
+}

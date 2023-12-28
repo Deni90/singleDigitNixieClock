@@ -198,8 +198,6 @@ void WebServer::HandleSetBacklightState()
 
 void WebServer::HandleSetBacklightColor()
 {
-    Serial.println("HandleSetBacklightState: " + webServer->arg("plain"));
-
     if (!webServer || !callback)
     {
         Serial.println("Error: Web server not initalized");
@@ -209,7 +207,7 @@ void WebServer::HandleSetBacklightColor()
 
     if (webServer->hasArg("R") && webServer->hasArg("G") && webServer->hasArg("B"))
     {
-        uint8_t r, g, b, a;
+        uint8_t r, g, b;
         r = webServer->arg("R").toInt();
         g = webServer->arg("G").toInt();
         b = webServer->arg("B").toInt();
