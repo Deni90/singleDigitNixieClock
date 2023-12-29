@@ -2,8 +2,9 @@
 #include "ConfigStore.h"
 
 NixieClockInterface::NixieClockInterface(LedController& ledController,
-                                         RtcDS3231<TwoWire>& rtc)
-    : ledController(ledController), rtc(rtc) {}
+                                         RtcDS3231<TwoWire>& rtc,
+                                         ClockFace& clock)
+    : ledController(ledController), rtc(rtc), clock(clock) {}
 
 LedInfo NixieClockInterface::OnGetBacklightData() const {
     return ledController.GetLedInfo();
@@ -34,4 +35,5 @@ void NixieClockInterface::OnSetCurrentTime(uint16_t year, uint8_t month,
     Serial.printf("Set current date and time: %d/%d/%d %d:%d:%d\n", year, month,
                   dayOfMonth, hour, minute, second);
     rtc.SetDateTime(RtcDateTime(year, month, dayOfMonth, hour, minute, second));
+    clock.ShowTime(rtc.GetDateTime());
 }

@@ -33,6 +33,8 @@ constexpr uint32_t SECONDS_IN_MINUTE = 60;
 
 constexpr int WEBSERVER_PORT = 80;
 constexpr uint8_t DNS_PORT = 53;
+
+constexpr uint8_t CURRENT_TIME_REPEAT_NUM = 3;
 }   // namespace
 
 Ticker timer;
@@ -42,7 +44,7 @@ BCD2DecimalDecoder decoder(D0_PIN, D1_PIN, D2_PIN, D3_PIN);
 In18NixieTube nixieTube(decoder);
 ClockFace clockFace(ledController, nixieTube);
 DNSServer dnsServer;
-NixieClockInterface nci(ledController, rtc);
+NixieClockInterface nci(ledController, rtc, clockFace);
 ClockInterface& ci = nci;
 WebServer webServer(WEBSERVER_PORT, ci);
 
@@ -156,7 +158,7 @@ void loop() {
         Serial.printf("Time: %s\n", str);
 
         // show time on nixie tube.
-        clockFace.ShowTime(now);
+        clockFace.ShowTime(now, CURRENT_TIME_REPEAT_NUM);
     }
 
     clockFace.Handle(globalClock);

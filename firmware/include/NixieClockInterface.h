@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ClockFace.h"
 #include "ClockInterface.h"
 #include "LedController.h"
 #include <RtcDS3231.h>
@@ -9,9 +10,11 @@ class NixieClockInterface : public ClockInterface {
   private:
     LedController& ledController;
     RtcDS3231<TwoWire>& rtc;
+    ClockFace& clock;
 
   public:
-    NixieClockInterface(LedController& ledController, RtcDS3231<TwoWire>& rtc);
+    NixieClockInterface(LedController& ledController, RtcDS3231<TwoWire>& rtc,
+                        ClockFace& clock);
 
     LedInfo OnGetBacklightData() const;
     bool OnSetBacklightState(uint8_t state);

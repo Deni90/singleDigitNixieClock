@@ -4,7 +4,6 @@ namespace {
 constexpr uint16_t ANIMATION_PERIOD = 50;
 constexpr uint16_t DIGIT_DURATION = 300;
 constexpr uint16_t PAUSE_DURATION = 2000;
-constexpr uint16_t NUMBER_OF_PAUSES = 2;
 }   // namespace
 
 ClockFace::ClockFace(LedController& ledController, In18NixieTube& nixieTube)
@@ -69,7 +68,7 @@ void ClockFace::Handle(uint32_t& tick) {
         break;
     }
     case AnimationStates::PAUSE: {
-        if (pauseCounter >= NUMBER_OF_PAUSES) {
+        if (pauseCounter >= repeatNumber - 1) {
             animationState = AnimationStates::CLEANUP;
         }
         if (tick >= PAUSE_DURATION)   // FIXME
@@ -89,7 +88,8 @@ void ClockFace::Handle(uint32_t& tick) {
     }
 }
 
-void ClockFace::ShowTime(RtcDateTime now) {
+void ClockFace::ShowTime(RtcDateTime now, uint8_t times) {
     animationState = AnimationStates::INIT;
     time = now;
+    repeatNumber = times;
 }

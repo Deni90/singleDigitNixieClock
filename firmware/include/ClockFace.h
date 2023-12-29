@@ -20,9 +20,17 @@ class ClockFace {
     LedController& ledController;
     In18NixieTube& nixieTube;
     RtcDateTime time;
+    uint8_t repeatNumber;
 
   public:
     ClockFace(LedController& ledController, In18NixieTube& nixieTube);
     void Handle(uint32_t& tick);
-    void ShowTime(RtcDateTime now);
+    /**
+     * @brief  Show time on the nixie tube
+     *
+     * @param now The current time
+     * @param times The number of times the time is shown on the nixie
+     * tube
+     */
+    void ShowTime(RtcDateTime now, uint8_t times = 1);
 };
