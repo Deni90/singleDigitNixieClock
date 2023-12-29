@@ -3,144 +3,72 @@
 
 #include "WebServer.h"
 
+using namespace std::placeholders;
+
 namespace {
 constexpr int HTTP_200_OK = 200;
 constexpr int HTTP_400_BAD_REQUEST = 400;
 constexpr int HTTP_500_INTERNAL_SERVER_ERROR = 500;
 }   // namespace
 
-WebServer&
-WebServer::Instance() {
-    static WebServer ws;
-    return ws;
+WebServer::WebServer(int port, ClockInterface& callback)
+    : server(port), callback(callback) {}
+
+void
+WebServer::Initialize() {
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(LittleFS, "/index.html");
+    });
+    server.on("/css/my-custom-theme.min.css", HTTP_GET,
+              [](AsyncWebServerRequest* request) {
+                  request->send(LittleFS, "/css/my-custom-theme.min.css",
+                                "text/css");
+              });
+    server.on("/css/jquery.mobile.struc.min.css", HTTP_GET,
+              [](AsyncWebServerRequest* request) {
+                  request->send(LittleFS, "/css/jquery.mobile.struc.min.css",
+                                "text/css");
+              });
+    server.on(
+        "/jquery-2.2.4.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+            request->send(LittleFS, "/jquery-2.2.4.min.js", "text/javascript");
+        });
+    server.on("/jquery.mobile-1.4.5.min.js", HTTP_GET,
+              [](AsyncWebServerRequest* request) {
+                  request->send(LittleFS, "/jquery.mobile-1.4.5.min.js",
+                                "text/javascript");
+              });
+    server.on("/server.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(LittleFS, "/server.js", "text/javascript");
+    });
+    server.on("/css/images/ajax-loader.gif", HTTP_GET,
+              [](AsyncWebServerRequest* request) {
+                  request->send(LittleFS, "/css/images/ajax-loader.gif",
+                                "text/image");
+              });
+    server.onNotFound(
+        [](AsyncWebServerRequest* request) { request->send(404); });
+
+    server.on("/backlight", HTTP_GET, [&](AsyncWebServerRequest* request) {
+        this->HandleBacklight(request);
+    });
+    server.on("/backlight/state", HTTP_POST,
+              [&](AsyncWebServerRequest* request) {
+                  this->HandleSetBacklightState(request);
+              });
+    server.on("/backlight/color", HTTP_POST,
+              [&](AsyncWebServerRequest* request) {
+                  this->HandleSetBacklightColor(request);
+              });
+    server.on("/clock/time", HTTP_POST, [&](AsyncWebServerRequest* request) {
+        this->HandleSetCurrentTime(request);
+    });
+    server.begin();
 }
 
 void
-WebServer::Initialize(int port, ClockInterface* callback) {
-    this->callback = callback;
-
-    webServer = new ESP8266WebServer(port);
-    webServer->onNotFound(std::bind(&WebServer::HandleWebRequests, this));
-    webServer->on("/", HTTP_GET, std::bind(&WebServer::HandleRoot, this));
-    webServer->on("/backlight", HTTP_GET,
-                  std::bind(&WebServer::HandleBacklight, this));
-    webServer->on("/backlight/state", HTTP_POST,
-                  std::bind(&WebServer::HandleSetBacklightState, this));
-    webServer->on("/backlight/color", HTTP_POST,
-                  std::bind(&WebServer::HandleSetBacklightColor, this));
-    webServer->on("/clock/time", HTTP_POST,
-                  std::bind(&WebServer::HandleSetCurrentTime, this));
-    webServer->begin();
-}
-
-void
-WebServer::Handle() {
-    if (webServer)
-        webServer->handleClient();
-}
-
-WebServer::WebServer() : webServer(nullptr), callback(nullptr) {}
-
-WebServer::~WebServer() {
-    if (webServer) {
-        delete webServer;
-    }
-}
-
-bool
-WebServer::LoadFromLittleFS(String path) {
-    if (!webServer) {
-        return false;
-    }
-
-    bool returnValue = true;
-    Serial.println("Load path: " + path);
-    String dataType = "text/plain";
-
-    if (path.endsWith("/"))
-        path += "index.html";
-
-    if (path.endsWith(".src"))
-        path = path.substring(0, path.lastIndexOf("."));
-    else if (path.endsWith(".html"))
-        dataType = "text/html";
-    else if (path.endsWith(".htm"))
-        dataType = "text/html";
-    else if (path.endsWith(".css"))
-        dataType = "text/css";
-    else if (path.endsWith(".js"))
-        dataType = "application/javascript";
-    else if (path.endsWith(".png"))
-        dataType = "image/png";
-    else if (path.endsWith(".gif"))
-        dataType = "image/gif";
-    else if (path.endsWith(".jpg"))
-        dataType = "image/jpeg";
-    else if (path.endsWith(".ico"))
-        dataType = "image/x-icon";
-    else if (path.endsWith(".xml"))
-        dataType = "text/xml";
-    else if (path.endsWith(".pdf"))
-        dataType = "application/pdf";
-    else if (path.endsWith(".zip"))
-        dataType = "application/zip";
-    if (LittleFS.exists(path)) {
-        File dataFile = LittleFS.open(path.c_str(), "r");
-        if (webServer->hasArg("download"))
-            dataType = "application/octet-stream";
-
-        if (webServer->streamFile(dataFile, dataType) != dataFile.size()) {
-            // Serial.println("Error: streamed file has different size!");
-            // returnValue = false;
-        }
-        dataFile.close();
-    } else {
-        Serial.println(
-            "Error: Path does not exist and will be redirect to root:");
-        Serial.println(path);
-        returnValue = LoadFromLittleFS("/");
-    }
-    return returnValue;
-}
-
-void
-WebServer::HandleRoot() {
-    HandleWebRequests();
-}
-
-void
-WebServer::HandleWebRequests() {
-    if (!webServer) {
-        return;
-    }
-    if (!LoadFromLittleFS(webServer->uri())) {
-        Serial.println("Error: handleWebRequests");
-        String message = "File Not Detected\n\n";
-        message += "URI: ";
-        message += webServer->uri();
-        message += "\nMethod: ";
-        message += (webServer->method() == HTTP_GET) ? "GET" : "POST";
-        message += "\nArguments: ";
-        message += webServer->args();
-        message += "\n";
-        for (uint8_t i = 0; i < webServer->args(); i++) {
-            message += " NAME:" + webServer->argName(i) +
-                       "\n VALUE:" + webServer->arg(i) + "\n";
-        }
-        webServer->send(404, "text/plain", message);
-        Serial.println(message);
-    }
-}
-
-void
-WebServer::HandleBacklight() {
-    if (!webServer || !callback) {
-        Serial.println("Error: Web server not initalized");
-        webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
-        return;
-    }
-
-    LedInfo li = callback->OnGetBacklightData();
+WebServer::HandleBacklight(AsyncWebServerRequest* request) {
+    LedInfo li = callback.OnGetBacklightData();
 
     StaticJsonDocument<200> doc;
     char messageBuffer[200];
@@ -152,81 +80,57 @@ WebServer::HandleBacklight() {
 
     serializeJsonPretty(doc, messageBuffer);
 
-    webServer->send(HTTP_200_OK, "application/json", messageBuffer);
-
-    Serial.printf("HandleBacklight: %s\n", messageBuffer);
+    request->send(HTTP_200_OK, "application/json", messageBuffer);
 }
 
 void
-WebServer::HandleSetBacklightState() {
-    Serial.println("HandleSetBacklightState: " + webServer->arg("plain"));
-
-    if (!webServer || !callback) {
-        Serial.println("Error: Web server not initalized");
-        webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
-        return;
-    }
-
-    if (webServer->hasArg("state")) {
-        uint8_t state = webServer->arg("state").toInt();
-        if (callback->OnSetBacklightState(state)) {
-            webServer->send(HTTP_200_OK, "");
+WebServer::HandleSetBacklightState(AsyncWebServerRequest* request) {
+    if (request->hasArg("state")) {
+        uint8_t state = request->arg("state").toInt();
+        if (callback.OnSetBacklightState(state)) {
+            request->send(HTTP_200_OK, "");
         } else {
-            webServer->send(HTTP_400_BAD_REQUEST, "");
+            request->send(HTTP_400_BAD_REQUEST,
+                          "Error handleSetLedState: Invalid state");
         }
     } else {
-        Serial.println("Error handleSetLed: missing argument state!");
-        webServer->send(HTTP_400_BAD_REQUEST, "");
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error handleSetLedState: missing argument state!");
     }
 }
 
 void
-WebServer::HandleSetBacklightColor() {
-    if (!webServer || !callback) {
-        Serial.println("Error: Web server not initalized");
-        webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
-        return;
-    }
-
-    if (webServer->hasArg("R") && webServer->hasArg("G") &&
-        webServer->hasArg("B")) {
+WebServer::HandleSetBacklightColor(AsyncWebServerRequest* request) {
+    if (request->hasArg("R") && request->hasArg("G") && request->hasArg("B")) {
         uint8_t r, g, b;
-        r = webServer->arg("R").toInt();
-        g = webServer->arg("G").toInt();
-        b = webServer->arg("B").toInt();
-        callback->OnSetBacklightColor(r, g, b);
-        webServer->send(HTTP_200_OK, "");
+        r = request->arg("R").toInt();
+        g = request->arg("G").toInt();
+        b = request->arg("B").toInt();
+        callback.OnSetBacklightColor(r, g, b);
+        request->send(HTTP_200_OK, "");
     } else {
-        Serial.println("Error HandleSetBacklightColor: missing argument(s)!");
-        webServer->send(HTTP_400_BAD_REQUEST, "");
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetBacklightColor: missing argument(s)!");
     }
 }
 
 void
-WebServer::HandleSetCurrentTime() {
-    Serial.println("HandleSetCurrentTime: " + webServer->arg("plain"));
-
-    if (!webServer || !callback) {
-        Serial.println("Error: Web server not initalized");
-        webServer->send(HTTP_500_INTERNAL_SERVER_ERROR, "");
-        return;
-    }
-
-    if (webServer->hasArg("year") && webServer->hasArg("month") &&
-        webServer->hasArg("day") && webServer->hasArg("hour") &&
-        webServer->hasArg("minute") && webServer->hasArg("second")) {
+WebServer::HandleSetCurrentTime(AsyncWebServerRequest* request) {
+    if (request->hasArg("year") && request->hasArg("month") &&
+        request->hasArg("day") && request->hasArg("hour") &&
+        request->hasArg("minute") && request->hasArg("second")) {
         uint16_t year;
         uint8_t month, day, hour, minute, second;
-        year = webServer->arg("year").toInt();
-        month = webServer->arg("month").toInt();
-        day = webServer->arg("day").toInt();
-        hour = webServer->arg("hour").toInt();
-        minute = webServer->arg("minute").toInt();
-        second = webServer->arg("second").toInt();
-        callback->OnSetCurrentTime(year, month, day, hour, minute, second);
-        webServer->send(HTTP_200_OK, "");
+        year = request->arg("year").toInt();
+        month = request->arg("month").toInt();
+        day = request->arg("day").toInt();
+        hour = request->arg("hour").toInt();
+        minute = request->arg("minute").toInt();
+        second = request->arg("second").toInt();
+        callback.OnSetCurrentTime(year, month, day, hour, minute, second);
+        request->send(HTTP_200_OK, "");
     } else {
-        Serial.println("Error HandleSetBacklightColor: missing argument(s)!");
-        webServer->send(HTTP_400_BAD_REQUEST, "");
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetCurrentTime: missing argument(s)!");
     }
 }

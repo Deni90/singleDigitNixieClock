@@ -54,6 +54,7 @@ uint32_t ledControllerClock = 0;
 
 NixieClockInterface nci(ledController, rtc);
 ClockInterface& ci = nci;
+WebServer webServer(WEBSERVER_PORT, ci);
 
 void
 HandleTimer() {
@@ -133,7 +134,7 @@ setup() {
     Serial.println("Done");
 
     Serial.print("Initializing web server...");
-    WebServer::Instance().Initialize(WEBSERVER_PORT, &ci);
+    webServer.Initialize();
     Serial.println("Done");
 
     Serial.println();
@@ -145,7 +146,6 @@ setup() {
 void
 loop() {
     dnsServer.processNextRequest();
-    WebServer::Instance().Handle();
     if (ledControllerClock >= UPDATE_LED_PERIOD) {
         ledControllerClock = 0;
         ledController.Update();
