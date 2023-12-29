@@ -11,8 +11,8 @@ void In18NixieTube::ShowDigit(uint8_t digit) {
     }
     // The part that I used in EAGLE when creating my PCB layout was incorrect
     // (at least for my tubes). My tubes seem to have a different pinout.
-    uint8_t truth_table[] = {1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    decoder.Decode(truth_table[digit]);
+    const uint8_t truthTable[] = {1, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    decoder.Decode(truthTable[digit]);
 }
 
 void In18NixieTube::HideDigit() { decoder.Decode(NONE); }
