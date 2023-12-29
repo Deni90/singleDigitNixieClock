@@ -3,6 +3,7 @@
 namespace {
 constexpr uint16_t LED_COUNT = 1;
 constexpr uint8_t MAX_BRIGHTNESS = 255;
+constexpr uint8_t PULSE_TIME = 10;
 }   // namespace
 
 LedController::LedController(uint16_t ledPin)
@@ -57,6 +58,17 @@ LedController::Update() {
         ledDriver.setBrightness(ledDriver.gamma8(counter));
         uint32_t color =
             ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB());
+        ledDriver.setPixelColor(0, color);
+        break;
+    }
+    case LedState::PULSE: {
+        uint32_t color =
+            ledDriver.Color(ledInfo.GetR(), ledInfo.GetG(), ledInfo.GetB());
+        if (counter < PULSE_TIME || counter >= MAX_BRIGHTNESS - PULSE_TIME) {
+            ledDriver.setBrightness(MAX_BRIGHTNESS);
+        } else {
+            ledDriver.setBrightness(0);
+        }
         ledDriver.setPixelColor(0, color);
         break;
     }

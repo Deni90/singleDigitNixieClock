@@ -2,7 +2,7 @@
 
 #include <inttypes.h>
 
-enum class LedState { OFF = 0, ON, FADE, MAX };
+enum class LedState { OFF = 0, ON, FADE, PULSE, MAX };
 
 class LedInfo {
   private:
