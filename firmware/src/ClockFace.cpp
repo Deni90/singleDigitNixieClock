@@ -11,8 +11,7 @@ ClockFace::ClockFace(LedController& ledController, In18NixieTube& nixieTube)
     : animationState(AnimationStates::IDLE), ledController(ledController),
       nixieTube(nixieTube) {}
 
-void
-ClockFace::Handle(uint32_t& tick) {
+void ClockFace::Handle(uint32_t& tick) {
     static uint8_t animationframe = 0;
     static uint8_t pauseCounter = 0;
     static LedState tempLedState = LedState::OFF;
@@ -90,8 +89,7 @@ ClockFace::Handle(uint32_t& tick) {
     }
 }
 
-void
-ClockFace::ShowTime(RtcDateTime now) {
+void ClockFace::ShowTime(RtcDateTime now) {
     animationState = AnimationStates::INIT;
     time = now;
 }

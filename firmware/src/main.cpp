@@ -11,10 +11,8 @@
 #include "ConfigStore.h"
 #include "In18NixieTube.h"
 #include "LedController.h"
-
-#include "WebServer.h"
-
 #include "NixieClockInterface.h"
+#include "WebServer.h"
 
 namespace {
 // RGB led
@@ -44,35 +42,26 @@ BCD2DecimalDecoder decoder(D0_PIN, D1_PIN, D2_PIN, D3_PIN);
 In18NixieTube nixieTube(decoder);
 ClockFace clockFace(ledController, nixieTube);
 DNSServer dnsServer;
-
-volatile uint32_t counter = 0;
-
-uint32_t globalClock = 0;
-uint32_t ledControllerClock = 0;
-
-// ITest* callback = new Test(ledController);
-
 NixieClockInterface nci(ledController, rtc);
 ClockInterface& ci = nci;
 WebServer webServer(WEBSERVER_PORT, ci);
 
-void
-HandleTimer() {
+volatile uint32_t counter = 0;
+uint32_t globalClock = 0;
+uint32_t ledControllerClock = 0;
+
+void HandleTimer() {
     globalClock++;
     ledControllerClock++;
 }
 
-void IRAM_ATTR
-HandleInterrupt() {
-    counter++;
-}
+void IRAM_ATTR HandleInterrupt() { counter++; }
 
 /* Set these to your desired credentials. */
 const char* ssid = "ESPap";
 const char* password = "thereisnospoon";
 
-void
-setup() {
+void setup() {
     Serial.begin(UART_BAUDRATE);
 
     Serial.println("");
@@ -143,8 +132,7 @@ setup() {
     Serial.println(myIP);
 }
 
-void
-loop() {
+void loop() {
     dnsServer.processNextRequest();
     if (ledControllerClock >= UPDATE_LED_PERIOD) {
         ledControllerClock = 0;

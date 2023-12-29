@@ -14,8 +14,7 @@ constexpr int HTTP_500_INTERNAL_SERVER_ERROR = 500;
 WebServer::WebServer(int port, ClockInterface& callback)
     : server(port), callback(callback) {}
 
-void
-WebServer::Initialize() {
+void WebServer::Initialize() {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
         request->send(LittleFS, "/index.html");
     });
@@ -66,8 +65,7 @@ WebServer::Initialize() {
     server.begin();
 }
 
-void
-WebServer::HandleBacklight(AsyncWebServerRequest* request) {
+void WebServer::HandleBacklight(AsyncWebServerRequest* request) {
     LedInfo li = callback.OnGetBacklightData();
 
     StaticJsonDocument<200> doc;
@@ -83,8 +81,7 @@ WebServer::HandleBacklight(AsyncWebServerRequest* request) {
     request->send(HTTP_200_OK, "application/json", messageBuffer);
 }
 
-void
-WebServer::HandleSetBacklightState(AsyncWebServerRequest* request) {
+void WebServer::HandleSetBacklightState(AsyncWebServerRequest* request) {
     if (request->hasArg("state")) {
         uint8_t state = request->arg("state").toInt();
         if (callback.OnSetBacklightState(state)) {
@@ -99,8 +96,7 @@ WebServer::HandleSetBacklightState(AsyncWebServerRequest* request) {
     }
 }
 
-void
-WebServer::HandleSetBacklightColor(AsyncWebServerRequest* request) {
+void WebServer::HandleSetBacklightColor(AsyncWebServerRequest* request) {
     if (request->hasArg("R") && request->hasArg("G") && request->hasArg("B")) {
         uint8_t r, g, b;
         r = request->arg("R").toInt();
@@ -114,8 +110,7 @@ WebServer::HandleSetBacklightColor(AsyncWebServerRequest* request) {
     }
 }
 
-void
-WebServer::HandleSetCurrentTime(AsyncWebServerRequest* request) {
+void WebServer::HandleSetCurrentTime(AsyncWebServerRequest* request) {
     if (request->hasArg("year") && request->hasArg("month") &&
         request->hasArg("day") && request->hasArg("hour") &&
         request->hasArg("minute") && request->hasArg("second")) {

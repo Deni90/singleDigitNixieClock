@@ -10,8 +10,7 @@ LedController::LedController(uint16_t ledPin)
     : ledDriver(LED_COUNT, ledPin, NEO_GRB + NEO_KHZ800), counter(0),
       direction(true) {}
 
-void
-LedController::Initialize(LedInfo ledInfo) {
+void LedController::Initialize(LedInfo ledInfo) {
     this->ledInfo = ledInfo;
     ledDriver.begin();
     ledDriver.setBrightness(MAX_BRIGHTNESS);
@@ -20,14 +19,12 @@ LedController::Initialize(LedInfo ledInfo) {
     ledDriver.show();
 }
 
-void
-LedController::Reset() {
+void LedController::Reset() {
     counter = 0;
     direction = true;
 }
 
-void
-LedController::Update() {
+void LedController::Update() {
     if (direction) {
         if (counter < MAX_BRIGHTNESS) {
             counter++;
@@ -79,11 +76,5 @@ LedController::Update() {
     ledDriver.show();
 }
 
-void
-LedController::SetLedInfo(const LedInfo li) {
-    ledInfo = li;
-}
-LedInfo&
-LedController::GetLedInfo() {
-    return ledInfo;
-}
+void LedController::SetLedInfo(const LedInfo li) { ledInfo = li; }
+LedInfo& LedController::GetLedInfo() { return ledInfo; }
