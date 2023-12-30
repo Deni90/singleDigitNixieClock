@@ -9,7 +9,7 @@
 #include "BCD2DecimalDecoder.h"
 #include "ClockFace.h"
 #include "ConfigStore.h"
-#include "In18NixieTube.h"
+#include "In14NixieTube.h"
 #include "LedController.h"
 #include "NixieClockInterface.h"
 #include "WebServer.h"
@@ -41,7 +41,7 @@ Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
 LedController ledController(LED_PIN);
 BCD2DecimalDecoder decoder(D0_PIN, D1_PIN, D2_PIN, D3_PIN);
-In18NixieTube nixieTube(decoder);
+In14NixieTube nixieTube(decoder);
 ClockFace clockFace(ledController, nixieTube);
 DNSServer dnsServer;
 NixieClockInterface nci(ledController, rtc, clockFace);

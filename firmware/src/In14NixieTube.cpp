@@ -1,10 +1,10 @@
-#include "In18NixieTube.h"
+#include "In14NixieTube.h"
 
-In18NixieTube::In18NixieTube(BCD2DecimalDecoder& decoder) : decoder(decoder) {}
+In14NixieTube::In14NixieTube(BCD2DecimalDecoder& decoder) : decoder(decoder) {}
 
-void In18NixieTube::Initialize() { decoder.Initialize(); }
+void In14NixieTube::Initialize() { decoder.Initialize(); }
 
-void In18NixieTube::ShowDigit(uint8_t digit) {
+void In14NixieTube::ShowDigit(uint8_t digit) {
     // It is posible to show only digits between 0 and 9
     if (digit > 9) {
         return;
@@ -15,4 +15,4 @@ void In18NixieTube::ShowDigit(uint8_t digit) {
     decoder.Decode(truthTable[digit]);
 }
 
-void In18NixieTube::HideDigit() { decoder.Decode(NONE); }
+void In14NixieTube::HideDigit() { decoder.Decode(NONE); }

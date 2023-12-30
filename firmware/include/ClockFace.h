@@ -3,7 +3,7 @@
 #include <RtcDS3231.h>
 #include <inttypes.h>
 
-#include "In18NixieTube.h"
+#include "In14NixieTube.h"
 #include "LedController.h"
 
 class ClockFace {
@@ -18,12 +18,12 @@ class ClockFace {
     };
     AnimationStates animationState;
     LedController& ledController;
-    In18NixieTube& nixieTube;
+    In14NixieTube& nixieTube;
     RtcDateTime time;
     uint8_t repeatNumber;
 
   public:
-    ClockFace(LedController& ledController, In18NixieTube& nixieTube);
+    ClockFace(LedController& ledController, In14NixieTube& nixieTube);
     void Handle(uint32_t& tick);
     /**
      * @brief  Show time on the nixie tube

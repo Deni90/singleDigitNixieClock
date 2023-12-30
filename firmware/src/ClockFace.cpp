@@ -6,7 +6,7 @@ constexpr uint16_t DIGIT_DURATION = 300;
 constexpr uint16_t PAUSE_DURATION = 2000;
 }   // namespace
 
-ClockFace::ClockFace(LedController& ledController, In18NixieTube& nixieTube)
+ClockFace::ClockFace(LedController& ledController, In14NixieTube& nixieTube)
     : animationState(AnimationStates::IDLE), ledController(ledController),
       nixieTube(nixieTube) {}
 
