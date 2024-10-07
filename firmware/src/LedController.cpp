@@ -19,11 +19,6 @@ void LedController::Initialize(LedInfo ledInfo) {
     ledDriver.show();
 }
 
-void LedController::Reset() {
-    counter = 0;
-    direction = true;
-}
-
 void LedController::Update() {
     if (direction) {
         if (counter < MAX_BRIGHTNESS) {

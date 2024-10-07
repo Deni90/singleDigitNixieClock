@@ -15,15 +15,14 @@
 #include "WebServer.h"
 
 namespace {
-// RGB led
-constexpr uint8_t LED_PIN = D3;
+constexpr uint8_t LED_PIN = D3;   // RGB led
 // BCD2DEC encoder = Nixie tube
 constexpr uint8_t D0_PIN = D4;
 constexpr uint8_t D1_PIN = D8;
 constexpr uint8_t D2_PIN = D5;
 constexpr uint8_t D3_PIN = D6;
 
-constexpr uint8_t INTERRUPT_PIN = D7;
+constexpr uint8_t INTERRUPT_PIN = D7;   // DS3231's SQW pin
 
 constexpr unsigned long UART_BAUDRATE = 115200;
 
@@ -52,17 +51,30 @@ volatile uint32_t counter = 0;
 uint32_t globalClock = 0;
 uint32_t ledControllerClock = 0;
 
+/**
+ * @brief Function that is called every millisecond
+ */
 void HandleTimer() {
     globalClock++;
     ledControllerClock++;
 }
 
+/**
+ * @brief Interrupt handler for the INTERRUPT_PIN connected to RTC
+ *
+ * Function is incrementing a counter every time an interupt is generated.
+ * Since DS3231's SQW pin is the source of the interupt, the counter will be
+ * incremented every second.
+ */
 void IRAM_ATTR HandleInterrupt() { counter++; }
 
 /* Set these to your desired credentials. */
 const char* ssid = "ESPap";
 const char* password = "thereisnospoon";
 
+/**
+ * @brief Initialize necessary modules
+ */
 void setup() {
     Serial.begin(UART_BAUDRATE);
 
@@ -134,6 +146,9 @@ void setup() {
     Serial.println(myIP);
 }
 
+/**
+ * @brief Do things in loop
+ */
 void loop() {
     dnsServer.processNextRequest();
     if (ledControllerClock >= UPDATE_LED_PERIOD) {
