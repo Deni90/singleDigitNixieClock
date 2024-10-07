@@ -33,6 +33,10 @@ constexpr int WEBSERVER_PORT = 80;
 constexpr uint8_t DNS_PORT = 53;
 
 constexpr uint8_t CURRENT_TIME_REPEAT_NUM = 3;
+
+// Wifi credentials. TODO move this to config
+constexpr const char* SSID = "NixieClock";
+constexpr const char* PASSWORD = "thereisnospoon";
 }   // namespace
 
 Ticker timer;
@@ -64,10 +68,6 @@ void HandleTimer() {
  * incremented every second.
  */
 void IRAM_ATTR HandleInterrupt() { counter++; }
-
-/* Set these to your desired credentials. */
-const char* ssid = "ESPap";
-const char* password = "thereisnospoon";
 
 /**
  * @brief Initialize necessary modules
@@ -125,7 +125,7 @@ void setup() {
     }
 
     Serial.print("Configuring access point...");
-    WiFi.softAP(ssid, password);
+    WiFi.softAP(SSID, PASSWORD);
     IPAddress myIP = WiFi.softAPIP();
     Serial.println("Done");
 
@@ -148,6 +148,7 @@ void setup() {
  */
 void loop() {
     dnsServer.processNextRequest();
+
     if (ledControllerClock >= UPDATE_LED_PERIOD) {
         ledControllerClock = 0;
         ledController.Update();
