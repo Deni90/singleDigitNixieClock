@@ -44,8 +44,7 @@ In14NixieTube nixieTube(decoder);
 ClockFace clockFace(ledController, nixieTube);
 DNSServer dnsServer;
 NixieClockInterface nci(ledController, rtc, clockFace);
-ClockInterface& ci = nci;
-WebServer webServer(WEBSERVER_PORT, ci);
+WebServer webServer(WEBSERVER_PORT, nci);
 
 volatile uint32_t counter = 0;
 uint32_t globalClock = 0;
