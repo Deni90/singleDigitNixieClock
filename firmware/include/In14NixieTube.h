@@ -11,15 +11,18 @@
  */
 class In14NixieTube {
   private:
-    BCD2DecimalDecoder& decoder;
+    BCD2DecimalDecoder decoder;
 
   public:
     /**
      * @brief Construct a new In 14 Nixie Tube object
      *
-     * @param decoder reference to BCD2DecimalDecoder object
+     * @param pinA BCD's input A pin
+     * @param pinB BCD's input B pin
+     * @param pinC BCD's input C pin
+     * @param pinD BCD's input D pin
      */
-    In14NixieTube(BCD2DecimalDecoder& decoder);
+    In14NixieTube(uint8_t pinA, uint8_t pinB, uint8_t pinC, uint8_t pinD);
 
     /**
      * @brief Initialize the adapter

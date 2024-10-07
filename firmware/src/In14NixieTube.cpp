@@ -1,6 +1,8 @@
 #include "In14NixieTube.h"
 
-In14NixieTube::In14NixieTube(BCD2DecimalDecoder& decoder) : decoder(decoder) {}
+In14NixieTube::In14NixieTube(uint8_t pinA, uint8_t pinB, uint8_t pinC,
+                             uint8_t pinD)
+    : decoder(pinA, pinB, pinC, pinD) {}
 
 void In14NixieTube::Initialize() { decoder.Initialize(); }
 

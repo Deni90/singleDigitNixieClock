@@ -6,7 +6,6 @@
 #include <WiFiClient.h>
 #include <Wire.h>
 
-#include "BCD2DecimalDecoder.h"
 #include "ClockFace.h"
 #include "ConfigStore.h"
 #include "In14NixieTube.h"
@@ -39,8 +38,7 @@ constexpr uint8_t CURRENT_TIME_REPEAT_NUM = 3;
 Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
 LedController ledController(LED_PIN);
-BCD2DecimalDecoder decoder(D0_PIN, D1_PIN, D2_PIN, D3_PIN);
-In14NixieTube nixieTube(decoder);
+In14NixieTube nixieTube(D0_PIN, D1_PIN, D2_PIN, D3_PIN);
 ClockFace clockFace(ledController, nixieTube);
 DNSServer dnsServer;
 NixieClockInterface nci(ledController, rtc, clockFace);
