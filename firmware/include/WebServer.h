@@ -13,9 +13,8 @@ class WebServer {
     AsyncWebServer server;
     ClockInterface& callback;
 
-    void HandleBacklight(AsyncWebServerRequest* request);
-    void HandleSetBacklightState(AsyncWebServerRequest* request);
-    void HandleSetBacklightColor(AsyncWebServerRequest* request);
+    void HandleGetLedInfo(AsyncWebServerRequest* request);
+    void HandleSetLedInfo(AsyncWebServerRequest* request);
     void HandleSetCurrentTime(AsyncWebServerRequest* request);
 
   public:

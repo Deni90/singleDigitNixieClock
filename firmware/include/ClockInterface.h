@@ -21,25 +21,14 @@ class ClockInterface {
      *
      * @return LedInfo object containing led info
      */
-    virtual LedInfo OnGetBacklightData() const = 0;
+    virtual LedInfo OnGetLedInfo() const = 0;
 
     /**
-     * @brief Set backlight state and save change in the config
+     * @brief Set led info and save changes in config store
      *
-     * @param state LedState value
-     * @return true successfully set led state
-     * @return false failed to set led state. Bad led state provided.
+     * @param ledInfo led info
      */
-    virtual bool OnSetBacklightState(uint8_t state) = 0;
-
-    /**
-     * @brief Set backlight color and save changes in the config
-     *
-     * @param r red value
-     * @param g green value
-     * @param b blue value
-     */
-    virtual void OnSetBacklightColor(uint8_t r, uint8_t g, uint8_t b) = 0;
+    virtual void OnSetLedInfo(const LedInfo& ledInfo) = 0;
 
     /**
      * @brief Set current date and time to RTC

@@ -31,25 +31,14 @@ class NixieClockInterface : public ClockInterface {
      *
      * @return LedInfo object containing led info
      */
-    LedInfo OnGetBacklightData() const;
+    LedInfo OnGetLedInfo() const;
 
     /**
-     * @brief Set backlight state and save change in the config
+     * @brief Set led info and save changes in config store
      *
-     * @param state LedState value
-     * @return true successfully set led state
-     * @return false failed to set led state. Bad led state provided.
+     * @param ledInfo led info
      */
-    bool OnSetBacklightState(uint8_t state);
-
-    /**
-     * @brief Set backlight color and save changes in the config
-     *
-     * @param r red value
-     * @param g green value
-     * @param b blue value
-     */
-    void OnSetBacklightColor(uint8_t r, uint8_t g, uint8_t b);
+    void OnSetLedInfo(const LedInfo& ledInfo);
 
     /**
      * @brief Set current date and time to RTC

@@ -43,7 +43,7 @@ class ClockFace {
      * @brief  Show time on the nixie tube
      *
      * @param now The current time
-     * @param times The number of times the time is shown on the nixie tube
+     * @param repeat The number of times the time is shown on the nixie tube
      */
-    void ShowTime(RtcDateTime now, uint8_t times = 1);
+    void ShowTime(RtcDateTime now, uint8_t repeat = 1);
 };

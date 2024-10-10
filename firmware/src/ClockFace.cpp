@@ -1,4 +1,5 @@
 #include "ClockFace.h"
+#include "ConfigStore.h"
 
 namespace {
 constexpr uint16_t ANIMATION_PERIOD = 50;
@@ -13,7 +14,6 @@ ClockFace::ClockFace(LedController& ledController, In14NixieTube& nixieTube)
 void ClockFace::Handle(uint32_t& tick) {
     static uint8_t animationframe = 0;
     static uint8_t pauseCounter = 0;
-    static LedState tempLedState = LedState::OFF;
 
     switch (animationState) {
     default:
@@ -21,10 +21,12 @@ void ClockFace::Handle(uint32_t& tick) {
         // do nothing
         break;
     case AnimationStates::INIT: {
-        tempLedState = ledController.GetLedInfo().GetState();
-        if (tempLedState > LedState::ON) {
-            ledController.GetLedInfo().SetState(LedState::ON);
+        if (ledController.GetLedInfo().GetState() > LedState::ON) {
+            LedInfo li = ledController.GetLedInfo();
+            li.SetState(LedState::ON);
+            ledController.SetLedInfo(li);
         }
+        ledController.Lock();
         animationState = AnimationStates::INTRO;
         break;
     }
@@ -80,7 +82,10 @@ void ClockFace::Handle(uint32_t& tick) {
         break;
     }
     case AnimationStates::CLEANUP:
-        ledController.GetLedInfo().SetState(tempLedState);
+        ledController.Unlock();
+        LedInfo li;
+        ConfigStore::LoadLedConfiguration(li);
+        ledController.SetLedInfo(li);
         animationframe = 0;
         pauseCounter = 0;
         animationState = AnimationStates::IDLE;
@@ -88,8 +93,8 @@ void ClockFace::Handle(uint32_t& tick) {
     }
 }
 
-void ClockFace::ShowTime(RtcDateTime now, uint8_t times) {
+void ClockFace::ShowTime(RtcDateTime now, uint8_t repeat) {
     animationState = AnimationStates::INIT;
     time = now;
-    repeatNumber = times;
+    repeatNumber = repeat;
 }

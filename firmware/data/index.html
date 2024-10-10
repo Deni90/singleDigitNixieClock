@@ -39,7 +39,7 @@
 		<div id="tabBacklight" class="ui-body-d ui-content">
 			<form>
 				<div class="ui-field-contain">
-					<label for="backlightRadio">Backlight:</label>
+					<label for="backlightRadio">Backlight type:</label>
 					<fieldset data-role="controlgroup" data-type="horizontal" name="backlightRadio">
 						<input type="radio" name="backlightType" id="radioChoice1a" value="0">
 						<label for="radioChoice1a">Off</label>
@@ -52,6 +52,9 @@
 					</fieldset>
 				</div>
 			</form>
+			<label>Color:</label>
+			<div id="colorBox" class="ui-shadow ui-corner-all" style="height: 50px; margin: auto;">
+			</div>
 			<form class="full-width-slider">
 				<div class="ui-field-contain">
 					<label for="hueSlider">Hue:</label>
@@ -73,6 +76,9 @@
 						class="ui-hidden-accessible">
 				</div>
 			</form>
+			<div class="ui-field-contain">
+				<button type="button" name="setBacklightButton">Update</button>
+			</div>
 		</div>
 	</div>
 </body>

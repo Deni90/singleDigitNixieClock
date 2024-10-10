@@ -1,40 +1,56 @@
 class Backlight {
-    constructor(state, r, g, b, a) {
-      this.state = state;
-      this.r = r;
-      this.g = g;
-      this.b = b;
-      this.a = a;
-    }
-    SetColor(r, g, b) {
+    constructor(state, r, g, b) {
+        this.state = state;
         this.r = r;
         this.g = g;
         this.b = b;
     }
-    SetBrightness(brightness)
-    {
+
+    setColor(r, g, b) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+
+    setBrightness(brightness) {
         this.a = brightness;
+    }
+
+    toJson() {
+        return {
+            "R": this.r,
+            "G": this.g,
+            "B": this.b,
+            "state": this.state
+        }
+    }
+
+    fromJson(message) {
+        this.r = message.R;
+        this.g = message.G;
+        this.b = message.B;
+        this.state = message.state;
     }
 }
 
 class HSV {
-    constructor(h,s,v) {
+    constructor(h, s, v) {
         this.h = h;
         this.s = s;
         this.v = v;
     }
 
-    Print() {
+    print() {
         console.log("H:" + this.h + " S:" + this.s + " V:" + this.v);
     }
 
-    ToRGB() {
+    toRGB() {
         return HSVtoRGB(this.h, this.s, this.v);
     }
 }
 
-let backlight = new Backlight(0,0,0,0,0);
-let hsvColor = new HSV(0,0,0)
+let backlight = new Backlight(0, 0, 0, 0, 0);
+let hsvColor = new HSV(0, 0, 0)
 
 function HSVtoRGB(h, s, v) {
     var r, g, b, i, f, p, q, t;
@@ -73,7 +89,7 @@ function RGBtoHSV(r, g, b) {
 
     switch (max) {
         case min: h = 0; break;
-        case r: h = (g - b) + d * (g < b ? 6: 0); h /= 6 * d; break;
+        case r: h = (g - b) + d * (g < b ? 6 : 0); h /= 6 * d; break;
         case g: h = (b - r) + d * 2; h /= 6 * d; break;
         case b: h = (r - g) + d * 4; h /= 6 * d; break;
     }
@@ -88,103 +104,94 @@ function RGBtoHSV(r, g, b) {
 function showCurrentTime() {
     var lbl = document.getElementById("currentTime");
     var millisecondsToWait = 500;
-    var interval = setInterval(function(){
+    var interval = setInterval(function () {
         var now = new Date();
-        lbl.innerHTML = now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate()+" "+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
+        lbl.innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
     }, millisecondsToWait);
 }
 
+function updateColorBox(hsvColor) {
+    var color = "hsla(" + hsvColor.h * 360 + "," + hsvColor.s * 100 + "%," + "50%," + hsvColor.v + ")";
+    $('#colorBox').css('background-color', color);
+}
 
-$(document).on('pagebeforecreate', '#index', function(){
-    var interval = setInterval(function(){
+$(document).on('pagebeforecreate', '#index', function () {
+    var interval = setInterval(function () {
         $.mobile.loading('show');
         clearInterval(interval);
-    },1);
+    }, 1);
 });
 
-$(document).on('pageshow', '#index', function(){
-    var interval = setInterval(function(){
+$(document).on('pageshow', '#index', function () {
+    var interval = setInterval(function () {
         $.mobile.loading('hide');
         clearInterval(interval);
-    },1);
+    }, 1);
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
     console.log("page ready");
 
-    $.ajax({url: "/backlight", type: "GET", dataType: "json"})
-    .success(function(result){
-        console.log(result);
-        backlight.state = result.state;
-        backlight.r = result.R;
-        backlight.g = result.G;
-        backlight.b = result.B;
-        backlight.a = result.A;
+    $.ajax({ url: "/backlight", type: "GET", dataType: "json" })
+        .success(function (result) {
+            console.log(result);
+            backlight.fromJson(result);
 
-        var hsv = RGBtoHSV(backlight.r, backlight.g, backlight.b);
-        hsvColor.h = hsv.h;
-        hsvColor.s = hsv.s;
-        hsvColor.v = hsv.v;
-        $(function() {
-            $('input:radio[name="backlightType"]').filter('[value="'+ backlight.state + '"]').attr("checked",true).checkboxradio("refresh");
-            $("input[name='hueSlider']").val(hsvColor.h * 360).slider('refresh');
-            $("input[name='saturationSlider']").val(hsvColor.s * 100).slider('refresh');
-            $("input[name='valueSlider']").val(hsvColor.v * 100).slider('refresh');
+            var hsv = RGBtoHSV(backlight.r, backlight.g, backlight.b);
+            hsvColor.h = hsv.h;
+            hsvColor.s = hsv.s;
+            hsvColor.v = hsv.v;
+            $(function () {
+                $('input:radio[name="backlightType"]').filter('[value="' + backlight.state + '"]').attr("checked", true).checkboxradio("refresh");
+                $("input[name='hueSlider']").val(hsvColor.h * 360).slider('refresh');
+                $("input[name='saturationSlider']").val(hsvColor.s * 100).slider('refresh');
+                $("input[name='valueSlider']").val(hsvColor.v * 100).slider('refresh');
+            });
         });
-    });
 
-    $("input[name='backlightType']").on('change', function(){
+    $("input[name='backlightType']").on('change', function () {
         backlight.state = $(this).val();
-        var jsonObj = {"state": backlight.state}
-        $.ajax({url: "/backlight/state", type: "POST", dataType: "json", data: jsonObj})
-            .success(function(result){
-                console.log(result);
-        });
     });
 
-    $("input[name='hueSlider']").on('change', function(){
+    $("input[name='hueSlider']").on('change', function () {
         hsvColor.h = $(this).val() / 360.0;
-        var rgbColor = hsvColor.ToRGB();
-        backlight.SetColor(rgbColor.r, rgbColor.g, rgbColor.b);
-
-        var jsonObj = {"R": backlight.r, "G": backlight.g, "B": backlight.b, "A": backlight.a}
-        $.ajax({url: "/backlight/color", type: "POST", dataType: "json", data: jsonObj})
-            .success(function(result){
-                console.log(result);
-        });
+        updateColorBox(hsvColor);
     });
 
-    $("input[name='saturationSlider']").on('change', function(){
+    $("input[name='saturationSlider']").on('change', function () {
         hsvColor.s = $(this).val() / 100.0;
-        var rgbColor = hsvColor.ToRGB();
-        backlight.SetColor(rgbColor.r, rgbColor.g, rgbColor.b);
-
-        var jsonObj = {"R": backlight.r, "G": backlight.g, "B": backlight.b, "A": backlight.a}
-        $.ajax({url: "/backlight/color", type: "POST", dataType: "json", data: jsonObj})
-            .success(function(result){
-                console.log(result);
-        });
+        updateColorBox(hsvColor);
     });
 
-    $("input[name='valueSlider']").on('change', function(){
+    $("input[name='valueSlider']").on('change', function () {
         hsvColor.v = $(this).val() / 100.0;
-        var rgbColor = hsvColor.ToRGB();
-        backlight.SetColor(rgbColor.r, rgbColor.g, rgbColor.b);
-
-        var jsonObj = {"R": backlight.r, "G": backlight.g, "B": backlight.b, "A": backlight.a}
-        $.ajax({url: "/backlight/color", type: "POST", dataType: "json", data: jsonObj})
-            .success(function(result){
-                console.log(result);
-        });
+        updateColorBox(hsvColor);
     });
 
-    $("button[name='setTimeButton'").on('click', function(){
-        var now = new Date();
-        var jsonObj = {"year": now.getFullYear(), "month": (now.getMonth()+1), "day": now.getDate(), "hour": now.getHours(), "minute": now.getMinutes(), "second": now.getSeconds()}
-        $.ajax({url: "/clock/time", type: "POST", dataType: "json", data: jsonObj})
-            .success(function(result){
+    $("button[name='setBacklightButton'").on('click', function () {
+        var rgbColor = hsvColor.toRGB();
+        backlight.setColor(rgbColor.r, rgbColor.g, rgbColor.b);
+        var jsonObj = backlight.toJson();
+        $.ajax({ url: "/backlight", type: "POST", dataType: "json", data: jsonObj })
+            .success(function (result) {
                 console.log(result);
-        });
+            });
+    });
+
+    $("button[name='setTimeButton'").on('click', function () {
+        var now = new Date();
+        var jsonObj = {
+            "year": now.getFullYear(),
+            "month": (now.getMonth() + 1),
+            "day": now.getDate(),
+            "hour": now.getHours(),
+            "minute": now.getMinutes(),
+            "second": now.getSeconds()
+        }
+        $.ajax({ url: "/clock/time", type: "POST", dataType: "json", data: jsonObj })
+            .success(function (result) {
+                console.log(result);
+            });
     });
 
     showCurrentTime();

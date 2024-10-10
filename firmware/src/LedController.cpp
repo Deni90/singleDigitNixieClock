@@ -8,7 +8,7 @@ constexpr uint8_t PULSE_TIME = 10;
 
 LedController::LedController(uint16_t ledPin)
     : ledDriver(LED_COUNT, ledPin, NEO_GRB + NEO_KHZ800), counter(0),
-      direction(true) {}
+      direction(true), lock(false) {}
 
 void LedController::Initialize(LedInfo ledInfo) {
     this->ledInfo = ledInfo;
@@ -71,5 +71,15 @@ void LedController::Update() {
     ledDriver.show();
 }
 
-void LedController::SetLedInfo(const LedInfo li) { ledInfo = li; }
-LedInfo& LedController::GetLedInfo() { return ledInfo; }
+void LedController::SetLedInfo(const LedInfo& li) {
+    if (lock) {
+        return;
+    }
+    ledInfo = li;
+}
+
+LedInfo LedController::GetLedInfo() { return ledInfo; }
+
+void LedController::Lock() { lock = true; }
+
+void LedController::Unlock() { lock = false; }

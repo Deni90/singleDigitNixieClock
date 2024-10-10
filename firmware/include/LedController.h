@@ -14,6 +14,7 @@ class LedController {
     LedInfo ledInfo;
     uint8_t counter;
     bool direction;
+    bool lock;
 
   public:
     /**
@@ -44,12 +45,16 @@ class LedController {
      *
      * @param li led info
      */
-    void SetLedInfo(const LedInfo li);
+    void SetLedInfo(const LedInfo& li);
 
     /**
      * @brief Get the Led Info object
      *
-     * @return LedInfo& reference to led info
+     * @return led info
      */
-    LedInfo& GetLedInfo();
+    LedInfo GetLedInfo();
+
+    void Lock();
+
+    void Unlock();
 };

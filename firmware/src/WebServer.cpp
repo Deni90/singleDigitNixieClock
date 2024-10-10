@@ -18,6 +18,9 @@ void WebServer::Initialize() {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
         request->send(LittleFS, "/index.html");
     });
+    server.onNotFound([](AsyncWebServerRequest* request) {
+        request->send(LittleFS, "/index.html");
+    });
     server.on("/css/my-custom-theme.min.css", HTTP_GET,
               [](AsyncWebServerRequest* request) {
                   request->send(LittleFS, "/css/my-custom-theme.min.css",
@@ -45,28 +48,20 @@ void WebServer::Initialize() {
                   request->send(LittleFS, "/css/images/ajax-loader.gif",
                                 "text/image");
               });
-    server.onNotFound(
-        [](AsyncWebServerRequest* request) { request->send(404); });
-
     server.on("/backlight", HTTP_GET, [&](AsyncWebServerRequest* request) {
-        this->HandleBacklight(request);
+        this->HandleGetLedInfo(request);
     });
-    server.on("/backlight/state", HTTP_POST,
-              [&](AsyncWebServerRequest* request) {
-                  this->HandleSetBacklightState(request);
-              });
-    server.on("/backlight/color", HTTP_POST,
-              [&](AsyncWebServerRequest* request) {
-                  this->HandleSetBacklightColor(request);
-              });
+    server.on("/backlight", HTTP_POST, [&](AsyncWebServerRequest* request) {
+        this->HandleSetLedInfo(request);
+    });
     server.on("/clock/time", HTTP_POST, [&](AsyncWebServerRequest* request) {
         this->HandleSetCurrentTime(request);
     });
     server.begin();
 }
 
-void WebServer::HandleBacklight(AsyncWebServerRequest* request) {
-    LedInfo li = callback.OnGetBacklightData();
+void WebServer::HandleGetLedInfo(AsyncWebServerRequest* request) {
+    LedInfo li = callback.OnGetLedInfo();
 
     StaticJsonDocument<200> doc;
     char messageBuffer[200];
@@ -81,32 +76,25 @@ void WebServer::HandleBacklight(AsyncWebServerRequest* request) {
     request->send(HTTP_200_OK, "application/json", messageBuffer);
 }
 
-void WebServer::HandleSetBacklightState(AsyncWebServerRequest* request) {
-    if (request->hasArg("state")) {
-        uint8_t state = request->arg("state").toInt();
-        if (callback.OnSetBacklightState(state)) {
-            request->send(HTTP_200_OK, "");
-        } else {
-            request->send(HTTP_400_BAD_REQUEST,
-                          "Error handleSetLedState: Invalid state");
-        }
-    } else {
-        request->send(HTTP_400_BAD_REQUEST,
-                      "Error handleSetLedState: missing argument state!");
-    }
-}
-
-void WebServer::HandleSetBacklightColor(AsyncWebServerRequest* request) {
-    if (request->hasArg("R") && request->hasArg("G") && request->hasArg("B")) {
+void WebServer::HandleSetLedInfo(AsyncWebServerRequest* request) {
+    if (request->hasArg("R") && request->hasArg("G") && request->hasArg("B") &&
+        request->hasArg("state")) {
         uint8_t r, g, b;
         r = request->arg("R").toInt();
         g = request->arg("G").toInt();
         b = request->arg("B").toInt();
-        callback.OnSetBacklightColor(r, g, b);
+        uint8_t state = request->arg("state").toInt();
+        if (state >= static_cast<uint8_t>(LedState::MAX)) {
+            request->send(HTTP_400_BAD_REQUEST,
+                          "Error HandleSetLedInfo: Invalid state");
+            return;
+        }
+        LedInfo li(r, g, b, static_cast<LedState>(state));
+        callback.OnSetLedInfo(li);
         request->send(HTTP_200_OK, "");
     } else {
         request->send(HTTP_400_BAD_REQUEST,
-                      "Error HandleSetBacklightColor: missing argument(s)!");
+                      "Error HandleSetLedInfo: missing argument(s)!");
     }
 }
 
