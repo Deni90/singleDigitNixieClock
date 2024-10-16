@@ -63,15 +63,15 @@ void WebServer::Initialize() {
 void WebServer::HandleGetLedInfo(AsyncWebServerRequest* request) {
     LedInfo li = callback.OnGetLedInfo();
 
-    StaticJsonDocument<200> doc;
-    char messageBuffer[200];
+    JsonDocument doc;
+    String messageBuffer;
 
     doc["state"] = static_cast<uint8_t>(li.GetState());
     doc["R"] = li.GetR();
     doc["G"] = li.GetG();
     doc["B"] = li.GetB();
 
-    serializeJsonPretty(doc, messageBuffer);
+    serializeJson(doc, messageBuffer);
 
     request->send(HTTP_200_OK, "application/json", messageBuffer);
 }
