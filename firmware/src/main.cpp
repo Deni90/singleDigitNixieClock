@@ -47,8 +47,6 @@ ClockFace clockFace(ledController, nixieTube);
 DNSServer dnsServer;
 NixieClockInterface nci(ledController, rtc, clockFace);
 WebServer webServer(WEBSERVER_PORT, nci);
-
-volatile uint32_t secondsCounter = 0;
 uint32_t globalClock = 0;
 uint32_t ledControllerClock = 0;
 
@@ -63,11 +61,25 @@ void HandleTimer() {
 /**
  * @brief Interrupt handler for the INTERRUPT_PIN connected to RTC
  *
- * Function is incrementing a counter every time an interupt is generated.
- * Since DS3231's SQW pin is the source of the interupt, the counter will be
- * incremented every second.
+ * Show time on the nixie tube every minute
  */
-void IRAM_ATTR HandleInterrupt() { secondsCounter++; }
+void IRAM_ATTR HandleInterrupt() {
+    RtcDateTime now = rtc.GetDateTime();
+    char str[25];
+    sprintf(str, "%d/%d/%d %02d:%02d:%02d",
+            now.Year(),     // get year method
+            now.Month(),    // get month method
+            now.Day(),      // get day method
+            now.Hour(),     // get hour method
+            now.Minute(),   // get minute method
+            now.Second()    // get second method
+    );
+    if (now.Second() == 0) {
+        // show time on nixie tube.
+        Serial.printf("Current date & time: %s\n", str);
+        clockFace.ShowTime(now, CURRENT_TIME_REPEAT_NUM);
+    }
+}
 
 /**
  * @brief Initialize necessary modules
@@ -114,7 +126,6 @@ void setup() {
         delay(1);
     }
     timer.attach_ms(TIMER_PERIOD, HandleTimer);
-    secondsCounter = rtc.GetDateTime().Second();
     Serial.println("Done");
 
     Serial.print("Mounting LittleFS...");
@@ -152,25 +163,6 @@ void loop() {
     if (ledControllerClock >= UPDATE_LED_PERIOD) {
         ledControllerClock = 0;
         ledController.Update();
-    }
-
-    if (secondsCounter >= SECONDS_IN_MINUTE) {
-        secondsCounter = 0;
-
-        RtcDateTime now = rtc.GetDateTime();
-        char str[25];
-        sprintf(str, "%d/%d/%d %02d:%02d:%02d",
-                now.Year(),     // get year method
-                now.Month(),    // get month method
-                now.Day(),      // get day method
-                now.Hour(),     // get hour method
-                now.Minute(),   // get minute method
-                now.Second()    // get second method
-        );
-        Serial.printf("Current date & time: %s\n", str);
-
-        // show time on nixie tube.
-        clockFace.ShowTime(now, CURRENT_TIME_REPEAT_NUM);
     }
 
     clockFace.Handle(globalClock);
