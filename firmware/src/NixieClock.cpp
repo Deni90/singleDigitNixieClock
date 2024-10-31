@@ -1,4 +1,4 @@
-#include "ClockFace.h"
+#include "NixieClock.h"
 #include "ConfigStore.h"
 
 namespace {
@@ -7,11 +7,12 @@ constexpr uint16_t DIGIT_DURATION = 300;
 constexpr uint16_t PAUSE_DURATION = 2000;
 }   // namespace
 
-ClockFace::ClockFace(LedController& ledController, In14NixieTube& nixieTube)
+NixieClock::NixieClock(LedController& ledController, In14NixieTube& nixieTube,
+                       RtcDS3231<TwoWire>& rtc)
     : animationState(AnimationStates::IDLE), ledController(ledController),
-      nixieTube(nixieTube) {}
+      nixieTube(nixieTube), rtc(rtc) {}
 
-void ClockFace::Handle(uint32_t& tick) {
+void NixieClock::Handle(uint32_t& tick) {
     static uint8_t animationframe = 0;
     static uint8_t pauseCounter = 0;
 
@@ -93,8 +94,24 @@ void ClockFace::Handle(uint32_t& tick) {
     }
 }
 
-void ClockFace::ShowTime(RtcDateTime now, uint8_t repeat) {
+void NixieClock::ShowTime(RtcDateTime now, uint8_t repeat) {
     animationState = AnimationStates::INIT;
     time = now;
     repeatNumber = repeat;
+}
+
+LedInfo NixieClock::OnGetLedInfo() const { return ledController.GetLedInfo(); }
+
+void NixieClock::OnSetLedInfo(const LedInfo& ledInfo) {
+    ledController.SetLedInfo(ledInfo);
+    ConfigStore::SaveLedConfiguration(ledInfo);
+}
+
+void NixieClock::OnSetCurrentTime(uint16_t year, uint8_t month,
+                                  uint8_t dayOfMonth, uint8_t hour,
+                                  uint8_t minute, uint8_t second) {
+    Serial.printf("Set current date and time: %d/%d/%d %d:%d:%d\n", year, month,
+                  dayOfMonth, hour, minute, second);
+    rtc.SetDateTime(RtcDateTime(year, month, dayOfMonth, hour, minute, second));
+    ShowTime(rtc.GetDateTime());
 }

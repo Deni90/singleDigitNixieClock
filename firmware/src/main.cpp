@@ -6,11 +6,10 @@
 #include <WiFiClient.h>
 #include <Wire.h>
 
-#include "ClockFace.h"
 #include "ConfigStore.h"
 #include "In14NixieTube.h"
 #include "LedController.h"
-#include "NixieClockInterface.h"
+#include "NixieClock.h"
 #include "WebServer.h"
 
 namespace {
@@ -43,10 +42,9 @@ Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
 LedController ledController(LED_PIN);
 In14NixieTube nixieTube(D0_PIN, D1_PIN, D2_PIN, D3_PIN);
-ClockFace clockFace(ledController, nixieTube);
+NixieClock nixieClock(ledController, nixieTube, rtc);
 DNSServer dnsServer;
-NixieClockInterface nci(ledController, rtc, clockFace);
-WebServer webServer(WEBSERVER_PORT, nci);
+WebServer webServer(WEBSERVER_PORT, nixieClock);
 uint32_t globalClock = 0;
 uint32_t ledControllerClock = 0;
 
@@ -77,7 +75,7 @@ void IRAM_ATTR HandleInterrupt() {
     if (now.Second() == 0) {
         // show time on nixie tube.
         Serial.printf("Current date & time: %s\n", str);
-        clockFace.ShowTime(now, CURRENT_TIME_REPEAT_NUM);
+        nixieClock.ShowTime(now, CURRENT_TIME_REPEAT_NUM);
     }
 }
 
@@ -165,5 +163,5 @@ void loop() {
         ledController.Update();
     }
 
-    clockFace.Handle(globalClock);
+    nixieClock.Handle(globalClock);
 }
