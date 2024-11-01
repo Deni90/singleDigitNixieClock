@@ -63,18 +63,16 @@ void HandleTimer() {
  */
 void IRAM_ATTR HandleInterrupt() {
     RtcDateTime now = rtc.GetDateTime();
-    char str[25];
-    sprintf(str, "%d/%d/%d %02d:%02d:%02d",
-            now.Year(),     // get year method
-            now.Month(),    // get month method
-            now.Day(),      // get day method
-            now.Hour(),     // get hour method
-            now.Minute(),   // get minute method
-            now.Second()    // get second method
-    );
     if (now.Second() == 0) {
         // show time on nixie tube.
-        Serial.printf("Current date & time: %s\n", str);
+        Serial.printf("Current date & time: %d/%d/%d %02d:%02d:%02d\n",
+                      now.Year(),     // get year method
+                      now.Month(),    // get month method
+                      now.Day(),      // get day method
+                      now.Hour(),     // get hour method
+                      now.Minute(),   // get minute method
+                      now.Second()    // get second method
+        );
         nixieClock.ShowTime(now, CURRENT_TIME_REPEAT_NUM);
     }
 }

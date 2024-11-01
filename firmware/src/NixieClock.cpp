@@ -114,8 +114,8 @@ void NixieClock::OnSetLedInfo(const LedInfo& ledInfo) {
 void NixieClock::OnSetCurrentTime(uint16_t year, uint8_t month,
                                   uint8_t dayOfMonth, uint8_t hour,
                                   uint8_t minute, uint8_t second) {
-    Serial.printf("Set current date and time: %d/%d/%d %d:%d:%d\n", year, month,
-                  dayOfMonth, hour, minute, second);
+    Serial.printf("Set current date and time: %d/%d/%d %02d:%02d:%02d\n", year,
+                  month, dayOfMonth, hour, minute, second);
     rtc.SetDateTime(RtcDateTime(year, month, dayOfMonth, hour, minute, second));
     ShowTime(rtc.GetDateTime());
 }
