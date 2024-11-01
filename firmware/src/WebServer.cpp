@@ -61,6 +61,10 @@ void WebServer::Initialize() {
 }
 
 void WebServer::HandleGetLedInfo(AsyncWebServerRequest* request) {
+    if (!request) {
+        return;
+    }
+
     LedInfo li = callback.OnGetLedInfo();
 
     JsonDocument doc;
@@ -77,6 +81,10 @@ void WebServer::HandleGetLedInfo(AsyncWebServerRequest* request) {
 }
 
 void WebServer::HandleSetLedInfo(AsyncWebServerRequest* request) {
+    if (!request) {
+        return;
+    }
+
     if (request->hasArg("R") && request->hasArg("G") && request->hasArg("B") &&
         request->hasArg("state")) {
         uint8_t r, g, b;
@@ -99,6 +107,10 @@ void WebServer::HandleSetLedInfo(AsyncWebServerRequest* request) {
 }
 
 void WebServer::HandleSetCurrentTime(AsyncWebServerRequest* request) {
+    if (!request) {
+        return;
+    }
+
     if (request->hasArg("year") && request->hasArg("month") &&
         request->hasArg("day") && request->hasArg("hour") &&
         request->hasArg("minute") && request->hasArg("second")) {
