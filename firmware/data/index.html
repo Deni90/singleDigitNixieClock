@@ -26,18 +26,20 @@
 
 		<div id="tabClock" class="ui-body-d ui-content">
 			<form>
+				<h2>Time configuration</h2>
 				<div class="ui-field-contain">
 					<label for="currentTime">Current time:</label>
 					<label id="currentTime"></label>
 				</div>
 				<div class="ui-field-contain">
-					<button type="button" name="setTimeButton">Update time</button>
+					<button type="button" name="setTimeButton">Update current time</button>
 				</div>
 			</form>
 		</div>
 
 		<div id="tabBacklight" class="ui-body-d ui-content">
 			<form>
+				<h2>Backlight configuration</h2>
 				<div class="ui-field-contain">
 					<label for="backlightRadio">Backlight type:</label>
 					<fieldset data-role="controlgroup" data-type="horizontal" name="backlightRadio">
@@ -51,34 +53,28 @@
 						<label for="radioChoice1d">Pulse</label>
 					</fieldset>
 				</div>
-			</form>
-			<label>Color preview:</label>
-			<div id="colorBox" class="ui-shadow ui-corner-all" style="height: 50px; margin: auto;">
-			</div>
-			<form class="full-width-slider">
+				<label>Color preview:</label>
+				<div id="colorBox" class="ui-shadow ui-corner-all" style="height: 50px; margin: auto;">
+				</div>
 				<div class="ui-field-contain">
 					<label for="hueSlider">Hue:</label>
 					<input type="range" name="hueSlider" id="hueSlider" min="0" max="360" data-highlight="true"
 						class="ui-hidden-accessible">
 				</div>
-			</form>
-			<form class="full-width-slider">
 				<div class="ui-field-contain">
 					<label for="saturationSlider">Saturation:</label>
 					<input type="range" name="saturationSlider" id="saturationSlider" min="0" max="100"
 						data-highlight="true" class="ui-hidden-accessible">
 				</div>
-			</form>
-			<form class="full-width-slider">
 				<div class="ui-field-contain">
 					<label for="valueSlider">Value:</label>
 					<input type="range" name="valueSlider" id="valueSlider" min="0" max="100" data-highlight="true"
 						class="ui-hidden-accessible">
 				</div>
+				<div class="ui-field-contain">
+					<button type="button" name="setBacklightButton">Update backlight configuration</button>
+				</div>
 			</form>
-			<div class="ui-field-contain">
-				<button type="button" name="setBacklightButton">Update</button>
-			</div>
 		</div>
 	</div>
 </body>
