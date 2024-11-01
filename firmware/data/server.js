@@ -1,9 +1,9 @@
-class Backlight {
-    constructor(state, r, g, b) {
-        this.state = state;
+class LedInfo {
+    constructor(r, g, b, state) {
         this.r = r;
         this.g = g;
         this.b = b;
+        this.state = state;
     }
 
     setColor(r, g, b) {
@@ -49,7 +49,7 @@ class HSV {
     }
 }
 
-let backlight = new Backlight(0, 0, 0, 0, 0);
+let ledInfo = new LedInfo(0, 0, 0, 0, 0);
 let hsvColor = new HSV(0, 0, 0)
 
 function HSVtoRGB(h, s, v) {
@@ -135,14 +135,14 @@ $(document).ready(function () {
     $.ajax({ url: "/backlight", type: "GET", dataType: "json" })
         .success(function (result) {
             console.log(result);
-            backlight.fromJson(result);
+            ledInfo.fromJson(result);
 
-            var hsv = RGBtoHSV(backlight.r, backlight.g, backlight.b);
+            var hsv = RGBtoHSV(ledInfo.r, ledInfo.g, ledInfo.b);
             hsvColor.h = hsv.h;
             hsvColor.s = hsv.s;
             hsvColor.v = hsv.v;
             $(function () {
-                $('input:radio[name="backlightType"]').filter('[value="' + backlight.state + '"]').attr("checked", true).checkboxradio("refresh");
+                $('input:radio[name="backlightType"]').filter('[value="' + ledInfo.state + '"]').attr("checked", true).checkboxradio("refresh");
                 $("input[name='hueSlider']").val(hsvColor.h * 360).slider('refresh');
                 $("input[name='saturationSlider']").val(hsvColor.s * 100).slider('refresh');
                 $("input[name='valueSlider']").val(hsvColor.v * 100).slider('refresh');
@@ -150,7 +150,7 @@ $(document).ready(function () {
         });
 
     $("input[name='backlightType']").on('change', function () {
-        backlight.state = $(this).val();
+        ledInfo.state = $(this).val();
     });
 
     $("input[name='hueSlider']").on('change', function () {
@@ -170,8 +170,8 @@ $(document).ready(function () {
 
     $("button[name='setBacklightButton'").on('click', function () {
         var rgbColor = hsvColor.toRGB();
-        backlight.setColor(rgbColor.r, rgbColor.g, rgbColor.b);
-        var jsonObj = backlight.toJson();
+        ledInfo.setColor(rgbColor.r, rgbColor.g, rgbColor.b);
+        var jsonObj = ledInfo.toJson();
         $.ajax({ url: "/backlight", type: "POST", dataType: "json", data: jsonObj })
             .success(function (result) {
                 console.log(result);
