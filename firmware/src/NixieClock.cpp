@@ -100,7 +100,11 @@ void NixieClock::ShowTime(RtcDateTime now, uint8_t repeat) {
     repeatNumber = repeat;
 }
 
-LedInfo NixieClock::OnGetLedInfo() const { return ledController.GetLedInfo(); }
+LedInfo NixieClock::OnGetLedInfo() const {
+    LedInfo li;
+    ConfigStore::LoadLedConfiguration(li);
+    return li;
+}
 
 void NixieClock::OnSetLedInfo(const LedInfo& ledInfo) {
     ledController.SetLedInfo(ledInfo);
