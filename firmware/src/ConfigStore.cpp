@@ -8,7 +8,7 @@ constexpr uint16_t EEPROM_LED_INFO_START_ADDR = 0;
 constexpr uint16_t EEPROM_SLEEP_INFO_START_ADDR = 100;
 }   // namespace
 
-void ConfigStore::SaveLedConfiguration(const LedInfo& ledInfo) {
+void ConfigStore::SaveLedInfo(const LedInfo& ledInfo) {
     EEPROM.begin(EEPROM_SIZE);   // Initialize EEPROM
     uint16_t eepromAddr = EEPROM_LED_INFO_START_ADDR;
     EEPROM.write(eepromAddr, ledInfo.GetR());
@@ -21,7 +21,7 @@ void ConfigStore::SaveLedConfiguration(const LedInfo& ledInfo) {
     EEPROM.commit();   // Store data to EEPROM
 }
 
-void ConfigStore::LoadLedConfiguration(LedInfo& ledInfo) {
+void ConfigStore::LoadLedInfo(LedInfo& ledInfo) {
     EEPROM.begin(EEPROM_SIZE);   // Initialize EEPROM
     uint16_t eepromAddr = EEPROM_LED_INFO_START_ADDR;
     uint8_t r = EEPROM.read(eepromAddr);

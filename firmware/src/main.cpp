@@ -96,7 +96,7 @@ void setup() {
 
     Serial.printf("Reading config from EEPROM ... ");
     LedInfo li;
-    ConfigStore::LoadLedConfiguration(li);
+    ConfigStore::LoadLedInfo(li);
     Serial.println("Done");
 
     Serial.printf("Initializing RGB led ... ");

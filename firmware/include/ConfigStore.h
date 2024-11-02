@@ -13,14 +13,14 @@ class ConfigStore {
      *
      * @param ledInfo led info
      */
-    static void SaveLedConfiguration(const LedInfo& ledInfo);
+    static void SaveLedInfo(const LedInfo& ledInfo);
 
     /**
      * @brief Load led info from EEPROM
      *
      * @param ledInfo led info
      */
-    static void LoadLedConfiguration(LedInfo& ledInfo);
+    static void LoadLedInfo(LedInfo& ledInfo);
 
     /**
      * @brief Save sleep info to EEPROM

@@ -32,7 +32,7 @@ void NixieClock::Handle(uint32_t& tick) {
         break;
     case AnimationStates::INIT: {
         LedInfo li;
-        ConfigStore::LoadLedConfiguration(li);
+        ConfigStore::LoadLedInfo(li);
         if (IsInSleepMode()) {
             Serial.println("Sleep mode");
             li.SetState(LedState::OFF);
@@ -102,7 +102,7 @@ void NixieClock::Handle(uint32_t& tick) {
     case AnimationStates::CLEANUP:
         ledController.Unlock();
         LedInfo li;
-        ConfigStore::LoadLedConfiguration(li);
+        ConfigStore::LoadLedInfo(li);
         ledController.SetLedInfo(li);
         animationframe = 0;
         pauseCounter = 0;
@@ -119,13 +119,13 @@ void NixieClock::ShowTime(RtcDateTime now, uint8_t repeat) {
 
 LedInfo NixieClock::OnGetLedInfo() const {
     LedInfo li;
-    ConfigStore::LoadLedConfiguration(li);
+    ConfigStore::LoadLedInfo(li);
     return li;
 }
 
 void NixieClock::OnSetLedInfo(const LedInfo& ledInfo) {
     ledController.SetLedInfo(ledInfo);
-    ConfigStore::SaveLedConfiguration(ledInfo);
+    ConfigStore::SaveLedInfo(ledInfo);
 }
 
 void NixieClock::OnSetCurrentTime(uint16_t year, uint8_t month,
