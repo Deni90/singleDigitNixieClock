@@ -49,8 +49,29 @@ class HSV {
     }
 }
 
+class SleepInfo {
+    constructor(sleepBefore, sleepAfter) {
+        this.sleepBefore = sleepBefore;
+        this.sleepAfter = sleepAfter;
+    }
+
+    toJson() {
+        return {
+            "sleep_before": this.sleepBefore,
+            "sleep_after": this.sleepAfter,
+        };
+    }
+
+    fromJson(message) {
+        this.sleepBefore = message.sleep_before;
+        this.sleepAfter = message.sleep_after;
+    }
+}
+
 let ledInfo = new LedInfo(0, 0, 0, 0, 0);
 let hsvColor = new HSV(0, 0, 0)
+let sleepInfo = new SleepInfo(0, 0)
+
 
 function HSVtoRGB(h, s, v) {
     var r, g, b, i, f, p, q, t;
@@ -189,6 +210,32 @@ $(document).ready(function () {
             "second": now.getSeconds()
         }
         $.ajax({ url: "/clock/time", type: "POST", dataType: "json", data: jsonObj })
+            .success(function (result) {
+                console.log(result);
+            });
+    });
+
+    $.ajax({ url: "/clock/sleep_info", type: "GET", dataType: "json" })
+        .success(function (result) {
+            console.log(result);
+            sleepInfo.fromJson(result);
+            $(function () {
+                $("input[name='sleepBeforeSlider']").val(sleepInfo.sleepBefore).slider('refresh');
+                $("input[name='sleepAfterSlider']").val(sleepInfo.sleepAfter).slider('refresh');
+            });
+        });
+
+    $("input[name='sleepBeforeSlider']").on('change', function () {
+        sleepInfo.sleepBefore = $(this).val();
+    });
+
+    $("input[name='sleepAfterSlider']").on('change', function () {
+        sleepInfo.sleepAfter = $(this).val();
+    });
+
+    $("button[name='setSleepTimes'").on('click', function () {
+        var jsonObj = sleepInfo.toJson();
+        $.ajax({ url: "/clock/sleep_info", type: "POST", dataType: "json", data: jsonObj })
             .success(function (result) {
                 console.log(result);
             });

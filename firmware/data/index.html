@@ -34,6 +34,22 @@
 				<div class="ui-field-contain">
 					<button type="button" name="setTimeButton">Update current time</button>
 				</div>
+				<h2>Sleep configuration</h2>
+				<div class="ui-field-contain">
+					<label for="sleepBeforeSlider">Sleep before(Hour):</label>
+					<input type="number" data-type="range" name="sleepBeforeSlider" id="sleepBeforeSlider" min="0"
+						max="23" data-highlight="true"
+						class="ui-input-text ui-body-c ui-corner-all ui-shadow-inset ui-slider-input">
+				</div>
+				<div class="ui-field-contain">
+					<label for="sleepAfterSlider">Sleep after(Hour):</label>
+					<input type="number" data-type="range" name="sleepAfterSlider" id="sleepAfterSlider" min="0"
+						max="23" data-highlight="true"
+						class="ui-input-text ui-body-c ui-corner-all ui-shadow-inset ui-slider-input">
+				</div>
+				<div class="ui-field-contain">
+					<button type="button" name="setSleepTimes">Update sleep configuration</button>
+				</div>
 			</form>
 		</div>
 

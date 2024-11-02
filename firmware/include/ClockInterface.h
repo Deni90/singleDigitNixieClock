@@ -3,6 +3,7 @@
 #include <inttypes.h>
 
 #include "LedInfo.h"
+#include "SleepInfo.h"
 
 /**
  * @brief Definition of clock interface
@@ -43,4 +44,18 @@ class ClockInterface {
     virtual void OnSetCurrentTime(uint16_t year, uint8_t month,
                                   uint8_t dayOfMonth, uint8_t hour,
                                   uint8_t minute, uint8_t second) = 0;
+
+    /**
+     * @brief Return sleep info
+     *
+     * @return SleepInfo object containing sleep info
+     */
+    virtual SleepInfo OnGetSleepInfo() const = 0;
+
+    /**
+     * @brief Set sleep info and save changes in config store
+     *
+     * @param sleepInfo sleep info
+     */
+    virtual void OnSetSleepInfo(const SleepInfo& sleepInfo) = 0;
 };

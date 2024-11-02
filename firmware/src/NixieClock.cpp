@@ -10,7 +10,16 @@ constexpr uint16_t PAUSE_DURATION = 2000;
 NixieClock::NixieClock(LedController& ledController, In14NixieTube& nixieTube,
                        RtcDS3231<TwoWire>& rtc)
     : animationState(AnimationStates::IDLE), ledController(ledController),
-      nixieTube(nixieTube), rtc(rtc) {}
+      nixieTube(nixieTube), rtc(rtc) {
+    ConfigStore::LoadSleepInfo(sleepInfo);
+    Serial.printf("NixieClock() - SleepInfo: sb = %d\tsa = %d\n",
+                  sleepInfo.GetSleepBefore(), sleepInfo.GetSleepAfter());
+}
+
+void NixieClock::Initialize(RtcDateTime time) {
+    this->time = time;
+    animationState = AnimationStates::INIT;
+}
 
 void NixieClock::Handle(uint32_t& tick) {
     static uint8_t animationframe = 0;
@@ -22,8 +31,16 @@ void NixieClock::Handle(uint32_t& tick) {
         // do nothing
         break;
     case AnimationStates::INIT: {
-        if (ledController.GetLedInfo().GetState() > LedState::ON) {
-            LedInfo li = ledController.GetLedInfo();
+        LedInfo li;
+        ConfigStore::LoadLedConfiguration(li);
+        if (IsInSleepMode()) {
+            Serial.println("Sleep mode");
+            li.SetState(LedState::OFF);
+            ledController.SetLedInfo(li);
+            animationState = AnimationStates::IDLE;
+            break;
+        }
+        if (li.GetState() > LedState::ON) {
             li.SetState(LedState::ON);
             ledController.SetLedInfo(li);
         }
@@ -118,4 +135,33 @@ void NixieClock::OnSetCurrentTime(uint16_t year, uint8_t month,
                   month, dayOfMonth, hour, minute, second);
     rtc.SetDateTime(RtcDateTime(year, month, dayOfMonth, hour, minute, second));
     ShowTime(rtc.GetDateTime());
+}
+
+SleepInfo NixieClock::OnGetSleepInfo() const {
+    SleepInfo si;
+    ConfigStore::LoadSleepInfo(si);
+    return si;
+}
+
+void NixieClock::OnSetSleepInfo(const SleepInfo& sleepInfo) {
+    this->sleepInfo = sleepInfo;
+    ConfigStore::SaveSleepInfo(sleepInfo);
+    Serial.printf("OnSetSleepInfo() - SleepInfo: sb = %d\tsa = %d\n",
+                  this->sleepInfo.GetSleepBefore(),
+                  this->sleepInfo.GetSleepAfter());
+}
+
+bool NixieClock::IsInSleepMode() {
+    if (sleepInfo.GetSleepBefore() < sleepInfo.GetSleepAfter()) {
+        if (time.Hour() < sleepInfo.GetSleepBefore() ||
+            time.Hour() > sleepInfo.GetSleepAfter()) {
+            return true;
+        }
+    } else {
+        if (time.Hour() <= sleepInfo.GetSleepBefore() ||
+            time.Hour() >= sleepInfo.GetSleepAfter()) {
+            return true;
+        }
+    }
+    return false;
 }

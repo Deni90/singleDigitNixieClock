@@ -57,6 +57,14 @@ void WebServer::Initialize() {
     server.on("/clock/time", HTTP_POST, [&](AsyncWebServerRequest* request) {
         this->HandleSetCurrentTime(request);
     });
+    server.on("/clock/sleep_info", HTTP_GET,
+              [&](AsyncWebServerRequest* request) {
+                  this->HandleGetSleepInfo(request);
+              });
+    server.on("/clock/sleep_info", HTTP_POST,
+              [&](AsyncWebServerRequest* request) {
+                  this->HandleSetSleepInfo(request);
+              });
     server.begin();
 }
 
@@ -127,5 +135,41 @@ void WebServer::HandleSetCurrentTime(AsyncWebServerRequest* request) {
     } else {
         request->send(HTTP_400_BAD_REQUEST,
                       "Error HandleSetCurrentTime: missing argument(s)!");
+    }
+}
+
+void WebServer::HandleGetSleepInfo(AsyncWebServerRequest* request) {
+    if (!request) {
+        return;
+    }
+
+    SleepInfo si = callback.OnGetSleepInfo();
+
+    JsonDocument doc;
+    String messageBuffer;
+
+    doc["sleep_before"] = si.GetSleepBefore();
+    doc["sleep_after"] = si.GetSleepAfter();
+
+    serializeJson(doc, messageBuffer);
+
+    request->send(HTTP_200_OK, "application/json", messageBuffer);
+}
+
+void WebServer::HandleSetSleepInfo(AsyncWebServerRequest* request) {
+    if (!request) {
+        return;
+    }
+
+    if (request->hasArg("sleep_before") && request->hasArg("sleep_after")) {
+        uint8_t sb, sa;
+        sb = request->arg("sleep_before").toInt();
+        sa = request->arg("sleep_after").toInt();
+        SleepInfo si(sb, sa);
+        callback.OnSetSleepInfo(si);
+        request->send(HTTP_200_OK, "");
+    } else {
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetLedInfo: missing argument(s)!");
     }
 }

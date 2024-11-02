@@ -16,6 +16,8 @@ class WebServer {
     void HandleGetLedInfo(AsyncWebServerRequest* request);
     void HandleSetLedInfo(AsyncWebServerRequest* request);
     void HandleSetCurrentTime(AsyncWebServerRequest* request);
+    void HandleGetSleepInfo(AsyncWebServerRequest* request);
+    void HandleSetSleepInfo(AsyncWebServerRequest* request);
 
   public:
     /**

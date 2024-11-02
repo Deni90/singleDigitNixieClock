@@ -63,6 +63,9 @@ void HandleTimer() {
  */
 void IRAM_ATTR HandleInterrupt() {
     RtcDateTime now = rtc.GetDateTime();
+    if (now.Year() == c_OriginYear) {
+        return;
+    }
     if (now.Second() == 0) {
         // show time on nixie tube.
         Serial.printf("Current date & time: %d/%d/%d %02d:%02d:%02d\n",
@@ -122,6 +125,10 @@ void setup() {
         delay(1);
     }
     timer.attach_ms(TIMER_PERIOD, HandleTimer);
+    Serial.println("Done");
+
+    Serial.printf("Initializing NixieClock ... ");
+    nixieClock.Initialize(rtc.GetDateTime());
     Serial.println("Done");
 
     Serial.print("Mounting LittleFS...");
