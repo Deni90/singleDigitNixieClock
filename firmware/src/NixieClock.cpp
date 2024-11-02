@@ -124,7 +124,9 @@ LedInfo NixieClock::OnGetLedInfo() const {
 }
 
 void NixieClock::OnSetLedInfo(const LedInfo& ledInfo) {
-    ledController.SetLedInfo(ledInfo);
+    if (!IsInSleepMode()) {
+        ledController.SetLedInfo(ledInfo);
+    }
     ConfigStore::SaveLedInfo(ledInfo);
 }
 
