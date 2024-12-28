@@ -74,16 +74,8 @@ void WebServer::HandleGetLedInfo(AsyncWebServerRequest* request) {
     }
 
     LedInfo li = callback.OnGetLedInfo();
-
-    JsonDocument doc;
     String messageBuffer;
-
-    doc["state"] = static_cast<uint8_t>(li.GetState());
-    doc["R"] = li.GetR();
-    doc["G"] = li.GetG();
-    doc["B"] = li.GetB();
-
-    serializeJson(doc, messageBuffer);
+    serializeJson(li.ToJson(), messageBuffer);
 
     request->send(HTTP_200_OK, "application/json", messageBuffer);
 }
@@ -144,14 +136,8 @@ void WebServer::HandleGetSleepInfo(AsyncWebServerRequest* request) {
     }
 
     SleepInfo si = callback.OnGetSleepInfo();
-
-    JsonDocument doc;
     String messageBuffer;
-
-    doc["sleep_before"] = si.GetSleepBefore();
-    doc["sleep_after"] = si.GetSleepAfter();
-
-    serializeJson(doc, messageBuffer);
+    serializeJson(si.ToJson(), messageBuffer);
 
     request->send(HTTP_200_OK, "application/json", messageBuffer);
 }

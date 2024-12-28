@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ArduinoJson.h>
 #include <inttypes.h>
 
 /**
@@ -63,4 +64,11 @@ class SleepInfo {
      * @param value value
      */
     void SetSleepAfter(const uint8_t value);
+
+    /**
+     * @brief Convert SleepInfo to JSON format
+     *
+     * @return JsonDocument JSON object containing SleepInfo
+     */
+    JsonDocument ToJson() const;
 };

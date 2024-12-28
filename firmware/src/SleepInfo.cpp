@@ -10,3 +10,10 @@ void SleepInfo::SetSleepBefore(const uint8_t value) { sleepBefore = value; }
 uint8_t SleepInfo::GetSleepAfter() const { return sleepAfter; }
 
 void SleepInfo::SetSleepAfter(const uint8_t value) { sleepAfter = value; }
+
+JsonDocument SleepInfo::ToJson() const {
+    JsonDocument doc;
+    doc["sleep_before"] = sleepBefore;
+    doc["sleep_after"] = sleepAfter;
+    return doc;
+}

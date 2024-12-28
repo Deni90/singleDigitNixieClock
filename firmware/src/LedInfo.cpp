@@ -30,3 +30,12 @@ void LedInfo::SetColor(uint8_t r, uint8_t g, uint8_t b) {
     this->g = g;
     this->b = b;
 }
+
+JsonDocument LedInfo::ToJson() const {
+    JsonDocument doc;
+    doc["state"] = static_cast<uint8_t>(state);
+    doc["R"] = r;
+    doc["G"] = g;
+    doc["B"] = b;
+    return doc;
+}

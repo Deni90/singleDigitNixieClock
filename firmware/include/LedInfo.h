@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ArduinoJson.h>
 #include <inttypes.h>
 
 /**
@@ -109,4 +110,11 @@ class LedInfo {
      * @param b blue value
      */
     void SetColor(uint8_t r, uint8_t g, uint8_t b);
+
+    /**
+     * @brief Convert LedInfo to JSON format
+     *
+     * @return JsonDocument JSON object containing LedInfo
+     */
+    JsonDocument ToJson() const;
 };
