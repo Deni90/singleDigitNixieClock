@@ -43,4 +43,11 @@ class ConfigStore {
      * @param wifiInfo wifi info
      */
     static void LoadWifiInfo(WifiInfo& sleepInfo);
+
+    /**
+     * @brief Save wifi info
+     *
+     * @param wifiInfo wifi info
+     */
+    static void SaveWifiInfo(const WifiInfo& wifiInfo);
 };

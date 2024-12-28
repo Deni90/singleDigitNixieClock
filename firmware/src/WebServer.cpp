@@ -70,6 +70,14 @@ void WebServer::Initialize() {
               [&](AsyncWebServerRequest* request) {
                   this->HandleSetSleepInfo(request);
               });
+    server.on("/wifi", HTTP_GET,
+              [&](AsyncWebServerRequest* request) {
+                  this->HandleGetWifiInfo(request);
+              });
+    server.on("/wifi", HTTP_POST,
+              [&](AsyncWebServerRequest* request) {
+                  this->HandleSetWifiInfo(request);
+              });
     server.begin();
 }
 
@@ -158,6 +166,36 @@ void WebServer::HandleSetSleepInfo(AsyncWebServerRequest* request) {
         sa = request->arg("sleep_after").toInt();
         SleepInfo si(sb, sa);
         callback.OnSetSleepInfo(si);
+        request->send(HTTP_200_OK, "");
+    } else {
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetLedInfo: missing argument(s)!");
+    }
+}
+
+void WebServer::HandleGetWifiInfo(AsyncWebServerRequest* request) {
+    if (!request) {
+        return;
+    }
+
+    WifiInfo wi = callback.OnGetWifiInfo();
+    String messageBuffer;
+    serializeJson(wi.ToJson(), messageBuffer);
+
+    request->send(HTTP_200_OK, "application/json", messageBuffer);
+}
+
+void WebServer::HandleSetWifiInfo(AsyncWebServerRequest* request) {
+    if (!request) {
+        return;
+    }
+
+    if (request->hasArg("SSID") && request->hasArg("password")) {
+        String ssid, password;
+        ssid = request->arg("SSID");
+        password = request->arg("password");
+        WifiInfo wi(ssid, password);
+        callback.OnSetWifiInfo(wi);
         request->send(HTTP_200_OK, "");
     } else {
         request->send(HTTP_400_BAD_REQUEST,

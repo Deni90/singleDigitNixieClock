@@ -21,6 +21,7 @@
 			<ul>
 				<li><a href="#tabClock" data-ajax="false">Clock</a></li>
 				<li><a href="#tabBacklight" data-ajax="false">Backlight</a></li>
+				<li><a href="#tabWifi" data-ajax="false">Wifi</a></li>
 			</ul>
 		</div>
 
@@ -92,6 +93,31 @@
 				</div>
 			</form>
 		</div>
+
+		<div id="tabWifi" class="ui-body-d ui-content">
+			<form>
+				<h2>Wifi configuration</h2>
+				<div class="ui-field-contain">
+					<label for="apSsid">AP SSID:</label>
+					<input type="text" name="apSsid" id="apSsid" value=""/>
+				</div>
+				<div class="ui-field-contain">
+					<label for="apPassword">AP Password:</label>
+					<input type="password" name="apPassword" id="apPassword" value=""/>
+				</div>
+				<div class="ui-field-contain">
+					<label for="apPasswordVerify">AP Password (verify):</label>
+					<input type="password" name="apPasswordVerify" id="apPasswordVerify" value=""/>
+				</div>
+				<div class="ui-field-contain">
+					<button type="button" name="setWifiConfigButton">Update wifi config</button>
+				</div>
+				<div class="ui-field-contain">
+					<label id="wifiErrors"></label>
+				</div>
+			</form>
+		</div>
+
 	</div>
 </body>
 

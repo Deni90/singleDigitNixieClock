@@ -67,3 +67,11 @@ void ConfigStore::LoadWifiInfo(WifiInfo& wifiInfo) {
     wifiInfo.SetSSID(doc["SSID"]);
     wifiInfo.SetPassword(doc["password"]);
 }
+
+void ConfigStore::SaveWifiInfo(const WifiInfo& wifiInfo) {
+    String messageBuffer;
+    serializeJson(wifiInfo.ToJson(), messageBuffer);
+    File file = LittleFS.open(WIFI_INFO_FILE, "w");
+    file.print(messageBuffer);
+    file.close();
+}

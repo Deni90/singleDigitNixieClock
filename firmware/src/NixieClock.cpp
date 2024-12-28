@@ -144,9 +144,17 @@ SleepInfo NixieClock::OnGetSleepInfo() const {
 void NixieClock::OnSetSleepInfo(const SleepInfo& sleepInfo) {
     this->sleepInfo = sleepInfo;
     ConfigStore::SaveSleepInfo(sleepInfo);
-    Serial.printf("OnSetSleepInfo() - SleepInfo: sb = %d\tsa = %d\n",
-                  this->sleepInfo.GetSleepBefore(),
-                  this->sleepInfo.GetSleepAfter());
+}
+
+WifiInfo NixieClock::OnGetWifiInfo() const {
+    WifiInfo wi;
+    ConfigStore::LoadWifiInfo(wi);
+    return wi;
+}
+
+void NixieClock::OnSetWifiInfo(const WifiInfo& wifiInfo) {
+    ConfigStore::SaveWifiInfo(wifiInfo);
+    ESP.restart();
 }
 
 bool NixieClock::IsInSleepMode() {

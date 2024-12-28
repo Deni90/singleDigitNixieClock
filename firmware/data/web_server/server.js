@@ -68,9 +68,29 @@ class SleepInfo {
     }
 }
 
+class WifiInfo {
+    constructor(apSsid, apPassword) {
+        this.apSsid = apSsid;
+        this.apPassword = apPassword;
+    }
+
+    toJson() {
+        return {
+            "SSID": this.apSsid,
+            "password": this.apPassword,
+        };
+    }
+
+    fromJson(message) {
+        this.apSsid = message.SSID;
+        this.apPassword = message.password;
+    }
+}
+
 let ledInfo = new LedInfo(0, 0, 0, 0, 0);
 let hsvColor = new HSV(0, 0, 0)
 let sleepInfo = new SleepInfo(0, 0)
+let wifiInfo = new WifiInfo("", "")
 
 
 function HSVtoRGB(h, s, v) {
@@ -240,6 +260,38 @@ $(document).ready(function () {
                 console.log(result);
             });
     });
+
+    $.ajax({ url: "/wifi", type: "GET", dataType: "json" })
+        .success(function (result) {
+            console.log(result);
+            wifiInfo.fromJson(result);
+            $(function () {
+                $("input[name='apSsid']").val(wifiInfo.apSsid);
+                var decodedPassword = atob(wifiInfo.apPassword);
+                $("input[name='apPassword']").val(decodedPassword);
+                $("input[name='apPasswordVerify']").val(decodedPassword);
+            });
+        });
+
+    $("input[name='apSsid']").on('change', function () {
+            wifiInfo.apSsid = $(this).val();
+        });
+
+    $("button[name='setWifiConfigButton'").on('click', function () {
+        if($("input[name='apPassword']").val() != $("input[name='apPasswordVerify']").val()) {
+            console.log("Passwords are not matching");
+            $("#wifiErrors").text("ERROR: Passwords are not matching.").css("color", "red");
+            return;
+        } else {
+            $("#wifiErrors").text("");
+        }
+        wifiInfo.apPassword = btoa($("input[name='apPassword']").val())
+        var jsonObj = wifiInfo.toJson();
+            $.ajax({ url: "/wifi", type: "POST", dataType: "json", data: jsonObj })
+                .success(function (result) {
+                    console.log(result);
+                });
+        });
 
     showCurrentTime();
 });
