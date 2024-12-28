@@ -1,4 +1,5 @@
 #include <ArduinoJson.h>
+#include <Base64.h>
 #include <DNSServer.h>
 #include <ESP8266WiFi.h>
 #include <LittleFS.h>
@@ -33,10 +34,6 @@ constexpr int WEBSERVER_PORT = 80;
 constexpr uint8_t DNS_PORT = 53;
 
 constexpr uint8_t CURRENT_TIME_REPEAT_NUM = 3;
-
-// Wifi credentials. TODO move this to config
-constexpr const char* SSID = "NixieClock";
-constexpr const char* PASSWORD = "thereisnospoon";
 }   // namespace
 
 Ticker timer;
@@ -140,7 +137,13 @@ void setup() {
     Serial.println("Done");
 
     Serial.print("Configuring Access Point...");
-    WiFi.softAP(SSID, PASSWORD);
+    WifiInfo wi;
+    ConfigStore::LoadWifiInfo(wi);
+    char decodedPassword[128];
+    Base64.decode(decodedPassword, const_cast<char*>(wi.GetPassword().c_str()),
+                  wi.GetPassword().length());
+
+    WiFi.softAP(wi.GetSSID(), decodedPassword);
     IPAddress myIP = WiFi.softAPIP();
     Serial.println("Done");
 
@@ -161,10 +164,10 @@ void setup() {
     Serial.printf("LedInfo:\n%s\n\n", buffer.c_str());
     serializeJsonPretty(si.ToJson(), buffer);
     Serial.printf("SleepInfo:\n%s\n\n", buffer.c_str());
-
+    serializeJsonPretty(wi.ToJson(), buffer);
+    Serial.printf("WifiInfo:\n%s\n\n", buffer.c_str());
     Serial.printf("Wifi AP IP address: %s\n", myIP.toString().c_str());
-    Serial.printf("Wifi SSID: %s\n", SSID);
-    Serial.printf("Wifi password: %s\n", PASSWORD);
+    Serial.printf("Wifi decoded password: %s\n", decodedPassword);
     Serial.println("---------------------------------------------------");
     Serial.println();
 }

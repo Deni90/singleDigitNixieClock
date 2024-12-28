@@ -6,6 +6,7 @@
 namespace {
 constexpr const char* LED_INFO_FILE = "/config/led_info.json";
 constexpr const char* SLEEP_INFO_FILE = "/config/sleep_info.json";
+constexpr const char* WIFI_INFO_FILE = "/config/wifi_info.json";
 }   // namespace
 
 void ConfigStore::SaveLedInfo(const LedInfo& ledInfo) {
@@ -51,4 +52,18 @@ void ConfigStore::LoadSleepInfo(SleepInfo& sleepInfo) {
     file.close();
     sleepInfo.SetSleepBefore(doc["sleep_before"]);
     sleepInfo.SetSleepAfter(doc["sleep_after"]);
+}
+
+void ConfigStore::LoadWifiInfo(WifiInfo& wifiInfo) {
+    File file = LittleFS.open(WIFI_INFO_FILE, "r");
+    if (!file) {
+        Serial.printf("Failed to open %s file.\n", WIFI_INFO_FILE);
+        return;
+    }
+    JsonDocument doc;
+    if (deserializeJson(doc, file))
+        Serial.printf("Failed to read %s file.\n", WIFI_INFO_FILE);
+    file.close();
+    wifiInfo.SetSSID(doc["SSID"]);
+    wifiInfo.SetPassword(doc["password"]);
 }

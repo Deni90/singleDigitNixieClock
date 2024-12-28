@@ -2,6 +2,7 @@
 
 #include "LedInfo.h"
 #include "SleepInfo.h"
+#include "WifiInfo.h"
 
 /**
  * @brief Class used for reading and writing config parameters
@@ -35,4 +36,11 @@ class ConfigStore {
      * @param sleepInfo sleep info
      */
     static void LoadSleepInfo(SleepInfo& sleepInfo);
+
+    /**
+     * @brief Load wifi info
+     *
+     * @param wifiInfo wifi info
+     */
+    static void LoadWifiInfo(WifiInfo& sleepInfo);
 };
