@@ -143,11 +143,10 @@ function RGBtoHSV(r, g, b) {
 }
 
 function showCurrentTime() {
-    var lbl = document.getElementById("currentTime");
     var millisecondsToWait = 500;
-    var interval = setInterval(function () {
+    setInterval(function () {
         var now = new Date();
-        lbl.innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+        $("#currentTime").text(now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds());
     }, millisecondsToWait);
 }
 
@@ -182,6 +181,7 @@ $(document).ready(function () {
             hsvColor.h = hsv.h;
             hsvColor.s = hsv.s;
             hsvColor.v = hsv.v;
+            updateColorBox(hsvColor);
             $(function () {
                 $('input:radio[name="backlightType"]').filter('[value="' + ledInfo.state + '"]').attr("checked", true).checkboxradio("refresh");
                 $("input[name='hueSlider']").val(hsvColor.h * 360).slider('refresh');
