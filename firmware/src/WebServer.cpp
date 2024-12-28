@@ -16,36 +16,41 @@ WebServer::WebServer(int port, ClockInterface& callback)
 
 void WebServer::Initialize() {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
-        request->send(LittleFS, "/index.html");
+        request->send(LittleFS, "/web_server/index.html");
     });
     server.onNotFound([](AsyncWebServerRequest* request) {
-        request->send(LittleFS, "/index.html");
+        request->send(LittleFS, "/web_server/index.html");
     });
     server.on("/css/my-custom-theme.min.css", HTTP_GET,
               [](AsyncWebServerRequest* request) {
-                  request->send(LittleFS, "/css/my-custom-theme.min.css",
+                  request->send(LittleFS,
+                                "/web_server/css/my-custom-theme.min.css",
                                 "text/css");
               });
     server.on("/css/jquery.mobile.struc.min.css", HTTP_GET,
               [](AsyncWebServerRequest* request) {
-                  request->send(LittleFS, "/css/jquery.mobile.struc.min.css",
+                  request->send(LittleFS,
+                                "/web_server/css/jquery.mobile.struc.min.css",
                                 "text/css");
               });
-    server.on(
-        "/jquery-2.2.4.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
-            request->send(LittleFS, "/jquery-2.2.4.min.js", "text/javascript");
-        });
+    server.on("/jquery-2.2.4.min.js", HTTP_GET,
+              [](AsyncWebServerRequest* request) {
+                  request->send(LittleFS, "/web_server/jquery-2.2.4.min.js",
+                                "text/javascript");
+              });
     server.on("/jquery.mobile-1.4.5.min.js", HTTP_GET,
               [](AsyncWebServerRequest* request) {
-                  request->send(LittleFS, "/jquery.mobile-1.4.5.min.js",
+                  request->send(LittleFS,
+                                "/web_server/jquery.mobile-1.4.5.min.js",
                                 "text/javascript");
               });
     server.on("/server.js", HTTP_GET, [](AsyncWebServerRequest* request) {
-        request->send(LittleFS, "/server.js", "text/javascript");
+        request->send(LittleFS, "/web_server/server.js", "text/javascript");
     });
     server.on("/css/images/ajax-loader.gif", HTTP_GET,
               [](AsyncWebServerRequest* request) {
-                  request->send(LittleFS, "/css/images/ajax-loader.gif",
+                  request->send(LittleFS,
+                                "/web_server/css/images/ajax-loader.gif",
                                 "text/image");
               });
     server.on("/backlight", HTTP_GET, [&](AsyncWebServerRequest* request) {
