@@ -1,3 +1,4 @@
+#include <ArduinoJson.h>
 #include <DNSServer.h>
 #include <ESP8266WiFi.h>
 #include <LittleFS.h>
@@ -94,39 +95,36 @@ void setup() {
         " |_|\\_|___/_/\\_\\___|___|  \\___|____\\___/ \\___|_|\\_\\");
     Serial.println("");
 
-    Serial.print("Mounting LittleFS...");
+    Serial.print("Mounting LittleFS... ");
     if (!LittleFS.begin()) {
         Serial.println("Failed");
     } else {
         Serial.println("Done");
     }
 
-    Serial.printf("Reading config from EEPROM ... ");
+    Serial.printf("Initializing RGB led... ");
     LedInfo li;
     ConfigStore::LoadLedInfo(li);
-    Serial.println("Done");
-
-    Serial.printf("Initializing RGB led ... ");
     ledController.Initialize(li);
     Serial.println("Done");
 
-    Serial.printf("Initializing Nixie tube ... ");
+    Serial.printf("Initializing Nixie tube... ");
     nixieTube.Initialize();
     Serial.println("Done");
 
-    Serial.printf("Initializing real-time clock ... ");
+    Serial.printf("Initializing Real-Time Clock... ");
     rtc.Begin();
     rtc.SetSquareWavePinClockFrequency(DS3231SquareWaveClock_1Hz);
     rtc.SetSquareWavePin(DS3231SquareWavePin_ModeClock, false);
     Serial.println("Done");
 
-    Serial.printf("Enabling interrupt for SQW ... ");
+    Serial.printf("Enabling interrupt for SQW... ");
     pinMode(INTERRUPT_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), HandleInterrupt,
                     FALLING);
     Serial.println("Done");
 
-    Serial.printf("Updating led state ... ");
+    Serial.printf("Initializing timer(s)... ");
     RtcDateTime previousDateTime = rtc.GetDateTime();
     while (previousDateTime.Second() == rtc.GetDateTime().Second()) {
         delay(1);
@@ -134,16 +132,14 @@ void setup() {
     timer.attach_ms(TIMER_PERIOD, HandleTimer);
     Serial.println("Done");
 
-    Serial.printf("Initializing NixieClock ... ");
-    SleepInfo sleepInfo;
-    ConfigStore::LoadSleepInfo(sleepInfo);
-    Serial.printf("NixieClock() - SleepInfo: sb = %d\tsa = %d\n",
-                  sleepInfo.GetSleepBefore(), sleepInfo.GetSleepAfter());
-    nixieClock.Initialize(sleepInfo);
+    Serial.printf("Initializing NixieClock... ");
+    SleepInfo si;
+    ConfigStore::LoadSleepInfo(si);
+    nixieClock.Initialize(si);
     nixieClock.ShowTime(rtc.GetDateTime(), 1);
     Serial.println("Done");
 
-    Serial.print("Configuring access point...");
+    Serial.print("Configuring Access Point...");
     WiFi.softAP(SSID, PASSWORD);
     IPAddress myIP = WiFi.softAPIP();
     Serial.println("Done");
@@ -152,14 +148,25 @@ void setup() {
     dnsServer.start(DNS_PORT, "*", myIP);
     Serial.println("Done");
 
-    Serial.print("Initializing web server...");
+    Serial.print("Initializing Web server...");
     webServer.Initialize();
     Serial.println("Done");
 
     Serial.println();
+    Serial.println("---------------------------------------------------");
+    Serial.println("                 | Configuration |                 ");
+    Serial.println("---------------------------------------------------");
+    String buffer;
+    serializeJsonPretty(li.ToJson(), buffer);
+    Serial.printf("LedInfo:\n%s\n\n", buffer.c_str());
+    serializeJsonPretty(si.ToJson(), buffer);
+    Serial.printf("SleepInfo:\n%s\n\n", buffer.c_str());
 
-    Serial.print("AP IP address: ");
-    Serial.println(myIP);
+    Serial.printf("Wifi AP IP address: %s\n", myIP.toString().c_str());
+    Serial.printf("Wifi SSID: %s\n", SSID);
+    Serial.printf("Wifi password: %s\n", PASSWORD);
+    Serial.println("---------------------------------------------------");
+    Serial.println();
 }
 
 /**
