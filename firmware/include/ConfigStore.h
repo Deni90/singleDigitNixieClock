@@ -4,33 +4,33 @@
 #include "SleepInfo.h"
 
 /**
- * @brief Class used for reading and writing congfig parameters from EEPROM
+ * @brief Class used for reading and writing config parameters
  */
 class ConfigStore {
   public:
     /**
-     * @brief Save led info to EEPROM
+     * @brief Save led info
      *
      * @param ledInfo led info
      */
     static void SaveLedInfo(const LedInfo& ledInfo);
 
     /**
-     * @brief Load led info from EEPROM
+     * @brief Load led info
      *
      * @param ledInfo led info
      */
     static void LoadLedInfo(LedInfo& ledInfo);
 
     /**
-     * @brief Save sleep info to EEPROM
+     * @brief Save sleep info
      *
      * @param sleepInfo sleep info
      */
     static void SaveSleepInfo(const SleepInfo& sleepInfo);
 
     /**
-     * @brief Load sleep info from EEPROM
+     * @brief Load sleep info
      *
      * @param sleepInfo sleep info
      */

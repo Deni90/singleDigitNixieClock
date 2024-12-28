@@ -11,14 +11,10 @@ NixieClock::NixieClock(LedController& ledController, In14NixieTube& nixieTube,
                        RtcDS3231<TwoWire>& rtc)
     : animationState(AnimationStates::IDLE), ledController(ledController),
       nixieTube(nixieTube), rtc(rtc) {
-    ConfigStore::LoadSleepInfo(sleepInfo);
-    Serial.printf("NixieClock() - SleepInfo: sb = %d\tsa = %d\n",
-                  sleepInfo.GetSleepBefore(), sleepInfo.GetSleepAfter());
 }
 
-void NixieClock::Initialize(RtcDateTime time) {
-    this->time = time;
-    animationState = AnimationStates::INIT;
+void NixieClock::Initialize(const SleepInfo& sleepInfo) {
+    this->sleepInfo = sleepInfo;
 }
 
 void NixieClock::Handle(uint32_t& tick) {

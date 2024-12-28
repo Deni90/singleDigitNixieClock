@@ -94,6 +94,13 @@ void setup() {
         " |_|\\_|___/_/\\_\\___|___|  \\___|____\\___/ \\___|_|\\_\\");
     Serial.println("");
 
+    Serial.print("Mounting LittleFS...");
+    if (!LittleFS.begin()) {
+        Serial.println("Failed");
+    } else {
+        Serial.println("Done");
+    }
+
     Serial.printf("Reading config from EEPROM ... ");
     LedInfo li;
     ConfigStore::LoadLedInfo(li);
@@ -128,15 +135,13 @@ void setup() {
     Serial.println("Done");
 
     Serial.printf("Initializing NixieClock ... ");
-    nixieClock.Initialize(rtc.GetDateTime());
+    SleepInfo sleepInfo;
+    ConfigStore::LoadSleepInfo(sleepInfo);
+    Serial.printf("NixieClock() - SleepInfo: sb = %d\tsa = %d\n",
+                  sleepInfo.GetSleepBefore(), sleepInfo.GetSleepAfter());
+    nixieClock.Initialize(sleepInfo);
+    nixieClock.ShowTime(rtc.GetDateTime(), 1);
     Serial.println("Done");
-
-    Serial.print("Mounting LittleFS...");
-    if (!LittleFS.begin()) {
-        Serial.println("Failed");
-    } else {
-        Serial.println("Done");
-    }
 
     Serial.print("Configuring access point...");
     WiFi.softAP(SSID, PASSWORD);

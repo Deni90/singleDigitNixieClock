@@ -1,57 +1,63 @@
 #include "ConfigStore.h"
-#include <EEPROM.h>
+#include <ArduinoJson.h>
+#include <LittleFS.h>
 #include <inttypes.h>
 
 namespace {
-constexpr uint16_t EEPROM_SIZE = 512;
-constexpr uint16_t EEPROM_LED_INFO_START_ADDR = 0;
-constexpr uint16_t EEPROM_SLEEP_INFO_START_ADDR = 100;
+constexpr const char* LED_INFO_FILE = "/config/led_info.json";
+constexpr const char* SLEEP_INFO_FILE = "/config/sleep_info.json";
 }   // namespace
 
 void ConfigStore::SaveLedInfo(const LedInfo& ledInfo) {
-    EEPROM.begin(EEPROM_SIZE);   // Initialize EEPROM
-    uint16_t eepromAddr = EEPROM_LED_INFO_START_ADDR;
-    EEPROM.write(eepromAddr, ledInfo.GetR());
-    eepromAddr++;
-    EEPROM.write(eepromAddr, ledInfo.GetG());
-    eepromAddr++;
-    EEPROM.write(eepromAddr, ledInfo.GetB());
-    eepromAddr++;
-    EEPROM.write(eepromAddr, static_cast<uint8_t>(ledInfo.GetState()));
-    EEPROM.commit();   // Store data to EEPROM
+    JsonDocument doc;
+    String messageBuffer;
+    doc["state"] = static_cast<uint8_t>(ledInfo.GetState());
+    doc["R"] = ledInfo.GetR();
+    doc["G"] = ledInfo.GetG();
+    doc["B"] = ledInfo.GetB();
+    serializeJson(doc, messageBuffer);
+    File file = LittleFS.open(LED_INFO_FILE, "w");
+    file.print(messageBuffer);
+    file.close();
 }
 
 void ConfigStore::LoadLedInfo(LedInfo& ledInfo) {
-    EEPROM.begin(EEPROM_SIZE);   // Initialize EEPROM
-    uint16_t eepromAddr = EEPROM_LED_INFO_START_ADDR;
-    uint8_t r = EEPROM.read(eepromAddr);
-    eepromAddr++;
-    uint8_t g = EEPROM.read(eepromAddr);
-    eepromAddr++;
-    uint8_t b = EEPROM.read(eepromAddr);
-    eepromAddr++;
-    uint8_t state = EEPROM.read(eepromAddr);
+    File file = LittleFS.open(LED_INFO_FILE, "r");
+    if (!file) {
+        Serial.printf("Failed to open %s file.\n", LED_INFO_FILE);
+        return;
+    }
+    JsonDocument doc;
+    if (deserializeJson(doc, file))
+        Serial.printf("Failed to read %s file.\n", LED_INFO_FILE);
+    file.close();
 
-    ledInfo.SetColor(r, g, b);
+    ledInfo.SetColor(doc["R"], doc["G"], doc["B"]);
+    uint8_t state = doc["state"];
     ledInfo.SetState(static_cast<LedState>(state));
 }
 
 void ConfigStore::SaveSleepInfo(const SleepInfo& sleepInfo) {
-    EEPROM.begin(EEPROM_SIZE);   // Initialize EEPROM
-    uint16_t eepromAddr = EEPROM_SLEEP_INFO_START_ADDR;
-    EEPROM.write(eepromAddr, sleepInfo.GetSleepBefore());
-    eepromAddr++;
-    EEPROM.write(eepromAddr, sleepInfo.GetSleepAfter());
-    EEPROM.commit();   // Store data to EEPROM
+    JsonDocument doc;
+    String messageBuffer;
+    doc["sleep_before"] = sleepInfo.GetSleepBefore();
+    doc["sleep_after"] = sleepInfo.GetSleepAfter();
+    serializeJson(doc, messageBuffer);
+    File file = LittleFS.open(SLEEP_INFO_FILE, "w");
+    file.print(messageBuffer);
+    file.close();
 }
 
 void ConfigStore::LoadSleepInfo(SleepInfo& sleepInfo) {
-    EEPROM.begin(EEPROM_SIZE);   // Initialize EEPROM
-    uint16_t eepromAddr = EEPROM_SLEEP_INFO_START_ADDR;
-    uint8_t sb = EEPROM.read(eepromAddr);
-    eepromAddr++;
-    uint8_t sa = EEPROM.read(eepromAddr);
-
-    sleepInfo.SetSleepBefore(sb);
-    sleepInfo.SetSleepAfter(sa);
+    File file = LittleFS.open(SLEEP_INFO_FILE, "r");
+    if (!file) {
+        Serial.printf("Failed to open %s file.\n", SLEEP_INFO_FILE);
+        return;
+    }
+    JsonDocument doc;
+    if (deserializeJson(doc, file))
+        Serial.printf("Failed to read %s file.\n", SLEEP_INFO_FILE);
+    file.close();
+    sleepInfo.SetSleepBefore(doc["sleep_before"]);
+    sleepInfo.SetSleepAfter(doc["sleep_after"]);
 }

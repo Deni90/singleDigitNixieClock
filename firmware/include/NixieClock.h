@@ -49,9 +49,9 @@ class NixieClock : public ClockInterface {
     /**
      * @brief Initialize module
      *
-     * @param time time
+     * @param sleep_info Sleep info
      */
-    void Initialize(RtcDateTime time);
+    void Initialize(const SleepInfo& sleepInfo);
 
     void Handle(uint32_t& tick);
     /**
