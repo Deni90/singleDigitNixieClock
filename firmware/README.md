@@ -1,5 +1,4 @@
-# Dependencies
-* ArduinoJson by Benoit Blanchon = 6.15.1
-* Adafruit NeoPixel by Adafruit = 1.3.5
-* RTC by Makuna 2.3.4 https://github.com/Makuna/Rtc/archive/master.zip
-* ESPAsyncWebServer = 3.1.0
+# Prtoject setup
+- Download [PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode).
+- Install `Espressif 8266`: PIO Home -> Platforms
+- Install dependencies defined in `platformio.ini`: PIO Home -> Libraries
