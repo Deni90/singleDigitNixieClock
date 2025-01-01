@@ -10,8 +10,7 @@ constexpr uint16_t PAUSE_DURATION = 2000;
 NixieClock::NixieClock(LedController& ledController, In14NixieTube& nixieTube,
                        RtcDS3231<TwoWire>& rtc)
     : animationState(AnimationStates::IDLE), ledController(ledController),
-      nixieTube(nixieTube), rtc(rtc) {
-}
+      nixieTube(nixieTube), rtc(rtc) {}
 
 void NixieClock::Initialize(const SleepInfo& sleepInfo) {
     this->sleepInfo = sleepInfo;
@@ -27,6 +26,8 @@ void NixieClock::Handle(uint32_t& tick) {
         // do nothing
         break;
     case AnimationStates::INIT: {
+        // Start time animation
+        // If configured turn on LED
         LedInfo li;
         ConfigStore::LoadLedInfo(li);
         if (IsInSleepMode()) {
@@ -45,6 +46,8 @@ void NixieClock::Handle(uint32_t& tick) {
         break;
     }
     case AnimationStates::INTRO: {
+        // Show a fast countdown of digits from 9 to 0 on nixie tube as an intro
+        // before showing the actual time
         if (tick >= ANIMATION_PERIOD) {
             tick = 0;
             if (animationframe > 9)   // end of animation?
@@ -60,8 +63,18 @@ void NixieClock::Handle(uint32_t& tick) {
         break;
     }
     case AnimationStates::SHOW_TIME: {
+        // Show time on nixie tube. Since there is only one nixie tube it is
+        // needed to sequentially show digits. The time is displayed in the
+        // following format: H <pause> H <pause> M <pause> M
         if (tick >= DIGIT_DURATION) {
             tick = 0;
+            // animationframe
+            // Value   | Description
+            // 0       | Hour
+            // 2       | Hour
+            // 4       | Minute
+            // 6       | Minute
+            // 1, 3, 5 | Blank, pause between showing two digits
             if (animationframe == 0) {
                 nixieTube.ShowDigit(time.Hour() / 10);
             } else if (animationframe == 2) {
@@ -84,6 +97,7 @@ void NixieClock::Handle(uint32_t& tick) {
         break;
     }
     case AnimationStates::PAUSE: {
+        // This state represents a pause between repeates
         if (pauseCounter >= repeatNumber - 1) {
             animationState = AnimationStates::CLEANUP;
         }
@@ -96,6 +110,9 @@ void NixieClock::Handle(uint32_t& tick) {
         break;
     }
     case AnimationStates::CLEANUP:
+        // End of the animation
+        // Restore led state to the state before animation
+        // Reset vatiables
         ledController.Unlock();
         LedInfo li;
         ConfigStore::LoadLedInfo(li);
