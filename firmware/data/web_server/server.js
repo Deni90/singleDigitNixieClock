@@ -69,21 +69,21 @@ class SleepInfo {
 }
 
 class WifiInfo {
-    constructor(apSsid, apPassword) {
-        this.apSsid = apSsid;
-        this.apPassword = apPassword;
+    constructor(ssid, password) {
+        this.ssid = ssid;
+        this.password = password;
     }
 
     toJson() {
         return {
-            "SSID": this.apSsid,
-            "password": this.apPassword,
+            "SSID": this.ssid,
+            "password": this.password,
         };
     }
 
     fromJson(message) {
-        this.apSsid = message.SSID;
-        this.apPassword = message.password;
+        this.ssid = message.SSID;
+        this.password = message.password;
     }
 }
 
@@ -266,26 +266,26 @@ $(document).ready(function () {
             console.log(result);
             wifiInfo.fromJson(result);
             $(function () {
-                $("input[name='apSsid']").val(wifiInfo.apSsid);
-                var decodedPassword = atob(wifiInfo.apPassword);
-                $("input[name='apPassword']").val(decodedPassword);
-                $("input[name='apPasswordVerify']").val(decodedPassword);
+                $("input[name='ssid']").val(wifiInfo.ssid);
+                var decodedPassword = atob(wifiInfo.password);
+                $("input[name='password']").val(decodedPassword);
+                $("input[name='passwordVerify']").val(decodedPassword);
             });
         });
 
-    $("input[name='apSsid']").on('change', function () {
-            wifiInfo.apSsid = $(this).val();
+    $("input[name='ssid']").on('change', function () {
+            wifiInfo.ssid = $(this).val();
         });
 
     $("button[name='setWifiConfigButton'").on('click', function () {
-        if($("input[name='apPassword']").val() != $("input[name='apPasswordVerify']").val()) {
+        if($("input[name='password']").val() != $("input[name='passwordVerify']").val()) {
             console.log("Passwords are not matching");
             $("#wifiErrors").text("ERROR: Passwords are not matching.").css("color", "red");
             return;
         } else {
             $("#wifiErrors").text("");
         }
-        wifiInfo.apPassword = btoa($("input[name='apPassword']").val())
+        wifiInfo.password = btoa($("input[name='password']").val())
         var jsonObj = wifiInfo.toJson();
             $.ajax({ url: "/wifi", type: "POST", dataType: "json", data: jsonObj })
                 .success(function (result) {
