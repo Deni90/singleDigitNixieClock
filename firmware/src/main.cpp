@@ -2,6 +2,7 @@
 #include <Base64.h>
 #include <DNSServer.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <LittleFS.h>
 #include <RtcDS3231.h>
 #include <Ticker.h>
@@ -34,6 +35,9 @@ constexpr int WEBSERVER_PORT = 80;
 constexpr uint8_t DNS_PORT = 53;
 
 constexpr uint8_t CURRENT_TIME_REPEAT_NUM = 3;
+
+constexpr const char* DEFAULT_AP_SSID = "NixieClock";
+constexpr const char* HOSTNAME = "mynixieclock";
 }   // namespace
 
 Ticker timer;
@@ -45,6 +49,7 @@ DNSServer dnsServer;
 WebServer webServer(WEBSERVER_PORT, nixieClock);
 uint32_t globalClock = 0;
 uint32_t ledControllerClock = 0;
+bool apMode = false;
 
 /**
  * @brief Function that is called every millisecond
@@ -79,7 +84,79 @@ void IRAM_ATTR HandleInterrupt() {
 }
 
 /**
- * @brief Initialize necessary modules
+ * @brief Initialize Wifi in Station Mode
+ *
+ * @return true if successfully connected to a network
+ */
+bool InitializeWifiInStationMode(const WifiInfo& wifiInfo) {
+    char decodedPassword[128];
+    Base64.decode(decodedPassword,
+                  const_cast<char*>(wifiInfo.GetPassword().c_str()),
+                  wifiInfo.GetPassword().length());
+    Serial.printf("Connecting to %s", wifiInfo.GetSSID().c_str());
+    WiFi.setHostname(HOSTNAME);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(wifiInfo.GetSSID(), decodedPassword);
+    uint8_t counter = 100;
+    IPAddress myIP;
+    while (WiFi.status() != WL_CONNECTED) {
+        printf(".");
+        delay(200);
+        if (counter-- == 0) {
+            break;
+        }
+    }
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println(" Failed");
+        WiFi.disconnect();
+        return false;
+    }
+    Serial.println(" Done");
+    return true;
+}
+
+/**
+ * @brief Initialize Wifi in AP mode
+ */
+void InitializeWifiInApMode() {
+    Serial.printf("Setting up soft AP ...");
+    WiFi.softAP(DEFAULT_AP_SSID);
+    apMode = true;
+    Serial.println("Done");
+}
+
+/**
+ * @brief Initialize a DNS server based on the Wifi mode
+ *
+ * Use DnsServer for AP mode to show captive portal and use MDNS for station
+ * mode
+ */
+void InitializeDNS() {
+    Serial.print("Starting DNS server... ");
+    if (apMode) {
+        IPAddress myIP = WiFi.softAPIP();
+        dnsServer.start(DNS_PORT, "*", myIP);   // * is used for captive portal
+    } else {
+        MDNS.begin(HOSTNAME);
+    }
+    Serial.println("Done");
+}
+
+/**
+ * @brief Handle DNS
+ *
+ * This function should be called in the loop()
+ */
+void HandleDNS() {
+    if (apMode) {
+        dnsServer.processNextRequest();
+    } else {
+        MDNS.update();
+    }
+}
+
+/**
+ * @brief Initialize all the necessary modules
  */
 void setup() {
     Serial.begin(UART_BAUDRATE);
@@ -136,22 +213,14 @@ void setup() {
     nixieClock.ShowTime(rtc.GetDateTime(), 1);
     Serial.println("Done");
 
-    Serial.print("Configuring Access Point...");
     WifiInfo wi;
     ConfigStore::LoadWifiInfo(wi);
-    char decodedPassword[128];
-    Base64.decode(decodedPassword, const_cast<char*>(wi.GetPassword().c_str()),
-                  wi.GetPassword().length());
+    if (!InitializeWifiInStationMode(wi)) {
+        InitializeWifiInApMode();
+    }
+    InitializeDNS();
 
-    WiFi.softAP(wi.GetSSID(), decodedPassword);
-    IPAddress myIP = WiFi.softAPIP();
-    Serial.println("Done");
-
-    Serial.print("Starting DNS server...");
-    dnsServer.start(DNS_PORT, "*", myIP);
-    Serial.println("Done");
-
-    Serial.print("Initializing Web server...");
+    Serial.print("Initializing Web server... ");
     webServer.Initialize();
     Serial.println("Done");
 
@@ -166,8 +235,6 @@ void setup() {
     Serial.printf("SleepInfo:\n%s\n\n", buffer.c_str());
     serializeJsonPretty(wi.ToJson(), buffer);
     Serial.printf("WifiInfo:\n%s\n\n", buffer.c_str());
-    Serial.printf("Wifi AP IP address: %s\n", myIP.toString().c_str());
-    Serial.printf("Wifi decoded password: %s\n", decodedPassword);
     Serial.println("---------------------------------------------------");
     Serial.println();
 }
@@ -176,7 +243,7 @@ void setup() {
  * @brief Do things in loop
  */
 void loop() {
-    dnsServer.processNextRequest();
+    HandleDNS();
 
     if (ledControllerClock >= UPDATE_LED_PERIOD) {
         ledControllerClock = 0;
