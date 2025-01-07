@@ -13,6 +13,7 @@
 #include "In14NixieTube.h"
 #include "LedController.h"
 #include "NixieClock.h"
+#include "TimeManager.h"
 #include "WebServer.h"
 
 namespace {
@@ -29,16 +30,16 @@ constexpr unsigned long UART_BAUDRATE = 115200;
 
 constexpr uint32_t TIMER_PERIOD = 1;        // ms
 constexpr uint32_t UPDATE_LED_PERIOD = 4;   // ms 255* 4 = ~1s
+constexpr uint32_t TIME_SYNC_PERIOD = 3600000; // 1Hour in milliseconds
 constexpr uint32_t SECONDS_IN_MINUTE = 60;
+constexpr uint8_t MINUTES_IN_HOUR = 60;
 
 constexpr int WEBSERVER_PORT = 80;
 constexpr uint8_t DNS_PORT = 53;
-
-constexpr uint8_t CURRENT_TIME_REPEAT_NUM = 3;
-
 constexpr const char* DEFAULT_AP_SSID = "NixieClock";
 constexpr const char* HOSTNAME = "mynixieclock";
-}   // namespace
+
+constexpr uint8_t CURRENT_TIME_REPEAT_NUM = 3;
 
 Ticker timer;
 RtcDS3231<TwoWire> rtc(Wire);
@@ -46,10 +47,13 @@ LedController ledController(LED_PIN);
 In14NixieTube nixieTube(D0_PIN, D1_PIN, D2_PIN, D3_PIN);
 NixieClock nixieClock(ledController, nixieTube, rtc);
 DNSServer dnsServer;
+TimeManager timeManager;
 WebServer webServer(WEBSERVER_PORT, nixieClock);
 uint32_t globalClock = 0;
 uint32_t ledControllerClock = 0;
+uint32_t timeSyncClock = 0;
 bool apMode = false;
+}   // namespace
 
 /**
  * @brief Function that is called every millisecond
@@ -57,6 +61,7 @@ bool apMode = false;
 void HandleTimer() {
     globalClock++;
     ledControllerClock++;
+    timeSyncClock++;
 }
 
 /**
@@ -155,6 +160,17 @@ void HandleDNS() {
     }
 }
 
+void SynchroniseTime() {
+    Serial.printf("Synchronising time... ");
+    RtcDateTime timeNow;
+    if (timeManager.GetDateTime(timeNow)) {
+        rtc.SetDateTime(timeNow);
+        Serial.println("Done");
+    } else {
+        Serial.println("Failed");
+    }
+}
+
 /**
  * @brief Initialize all the necessary modules
  */
@@ -198,6 +214,17 @@ void setup() {
                     FALLING);
     Serial.println("Done");
 
+    WifiInfo wi;
+    ConfigStore::LoadWifiInfo(wi);
+    if (!InitializeWifiInStationMode(wi)) {
+        InitializeWifiInApMode();
+    }
+
+    TimeInfo ti;
+    ConfigStore::LoadTimeInfo(ti);
+    timeManager.Initialize(ti.GetOffset());
+    SynchroniseTime();
+
     Serial.printf("Initializing timer(s)... ");
     RtcDateTime previousDateTime = rtc.GetDateTime();
     while (previousDateTime.Second() == rtc.GetDateTime().Second()) {
@@ -213,11 +240,6 @@ void setup() {
     nixieClock.ShowTime(rtc.GetDateTime(), 1);
     Serial.println("Done");
 
-    WifiInfo wi;
-    ConfigStore::LoadWifiInfo(wi);
-    if (!InitializeWifiInStationMode(wi)) {
-        InitializeWifiInApMode();
-    }
     InitializeDNS();
 
     Serial.print("Initializing Web server... ");
@@ -248,6 +270,11 @@ void loop() {
     if (ledControllerClock >= UPDATE_LED_PERIOD) {
         ledControllerClock = 0;
         ledController.Update();
+    }
+
+    if (timeSyncClock >= TIME_SYNC_PERIOD) {
+        timeSyncClock = 0;
+        SynchroniseTime();
     }
 
     nixieClock.Handle(globalClock);

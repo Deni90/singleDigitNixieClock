@@ -2,6 +2,7 @@
 
 #include "LedInfo.h"
 #include "SleepInfo.h"
+#include "TimeInfo.h"
 #include "WifiInfo.h"
 
 /**
@@ -50,4 +51,18 @@ class ConfigStore {
      * @param wifiInfo wifi info
      */
     static void SaveWifiInfo(const WifiInfo& wifiInfo);
+
+    /**
+     * @brief Load time info
+     *
+     * @param timeInfo time info
+     */
+    static void LoadTimeInfo(TimeInfo& timeInfo);
+
+    /**
+     * @brief Save wifi info
+     *
+     * @param timeInfo time info
+     */
+    static void SaveTimeInfo(const TimeInfo& timeInfo);
 };
