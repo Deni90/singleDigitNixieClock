@@ -28,9 +28,9 @@ constexpr uint8_t INTERRUPT_PIN = D7;   // DS3231's SQW pin
 
 constexpr unsigned long UART_BAUDRATE = 115200;
 
-constexpr uint32_t TIMER_PERIOD = 1;        // ms
-constexpr uint32_t UPDATE_LED_PERIOD = 4;   // ms 255* 4 = ~1s
-constexpr uint32_t TIME_SYNC_PERIOD = 3600000; // 1Hour in milliseconds
+constexpr uint32_t TIMER_PERIOD = 1;             // ms
+constexpr uint32_t UPDATE_LED_PERIOD = 4;        // ms 255* 4 = ~1s
+constexpr uint32_t TIME_SYNC_PERIOD = 3600000;   // 1Hour in milliseconds
 constexpr uint32_t SECONDS_IN_MINUTE = 60;
 constexpr uint8_t MINUTES_IN_HOUR = 60;
 
@@ -245,20 +245,6 @@ void setup() {
     Serial.print("Initializing Web server... ");
     webServer.Initialize();
     Serial.println("Done");
-
-    Serial.println();
-    Serial.println("---------------------------------------------------");
-    Serial.println("                 | Configuration |                 ");
-    Serial.println("---------------------------------------------------");
-    String buffer;
-    serializeJsonPretty(li.ToJson(), buffer);
-    Serial.printf("LedInfo:\n%s\n\n", buffer.c_str());
-    serializeJsonPretty(si.ToJson(), buffer);
-    Serial.printf("SleepInfo:\n%s\n\n", buffer.c_str());
-    serializeJsonPretty(wi.ToJson(), buffer);
-    Serial.printf("WifiInfo:\n%s\n\n", buffer.c_str());
-    Serial.println("---------------------------------------------------");
-    Serial.println();
 }
 
 /**
