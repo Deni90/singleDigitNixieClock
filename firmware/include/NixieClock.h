@@ -8,6 +8,7 @@
 #include "In14NixieTube.h"
 #include "LedController.h"
 #include "SleepInfo.h"
+#include "TimeManager.h"
 
 /**
  * @brief Represents the actual implementation of the clock
@@ -30,6 +31,8 @@ class NixieClock : public ClockInterface {
     LedController& ledController;
     In14NixieTube& nixieTube;
     RtcDS3231<TwoWire>& rtc;
+    TimeManager& timeManager;
+
     RtcDateTime time;
     uint8_t repeatNumber;
     SleepInfo sleepInfo;
@@ -44,7 +47,7 @@ class NixieClock : public ClockInterface {
      * @param nixieTube nixie tube
      */
     NixieClock(LedController& ledController, In14NixieTube& nixieTube,
-               RtcDS3231<TwoWire>& rtc);
+               RtcDS3231<TwoWire>& rtc, TimeManager& timeManager);
 
     /**
      * @brief Initialize module
@@ -116,4 +119,18 @@ class NixieClock : public ClockInterface {
      * @param wifiInfo wifi info
      */
     void OnSetWifiInfo(const WifiInfo& wifiInfo);
+
+    /**
+     * @brief Return time info
+     *
+     * @return TimeInfo object containing time info
+     */
+    TimeInfo OnGetTimeInfo() const;
+
+    /**
+     * @brief Set time info and save changes in config store
+     *
+     * @param timeInfo time info
+     */
+    void OnSetTimeInfo(const TimeInfo& timeInfo);
 };

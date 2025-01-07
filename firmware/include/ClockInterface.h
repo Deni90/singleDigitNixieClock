@@ -4,6 +4,7 @@
 
 #include "LedInfo.h"
 #include "SleepInfo.h"
+#include "TimeInfo.h"
 #include "WifiInfo.h"
 
 /**
@@ -73,4 +74,18 @@ class ClockInterface {
      * @param wifiInfo wifi info
      */
     virtual void OnSetWifiInfo(const WifiInfo& wifiInfo) = 0;
+
+    /**
+     * @brief Return time info
+     *
+     * @return TimeInfo object containing time info
+     */
+    virtual TimeInfo OnGetTimeInfo() const = 0;
+
+    /**
+     * @brief Set time info and save changes in config store
+     *
+     * @param timeInfo time info
+     */
+    virtual void OnSetTimeInfo(const TimeInfo& timeInfo) = 0;
 };

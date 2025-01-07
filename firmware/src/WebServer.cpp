@@ -70,14 +70,20 @@ void WebServer::Initialize() {
               [&](AsyncWebServerRequest* request) {
                   this->HandleSetSleepInfo(request);
               });
-    server.on("/wifi", HTTP_GET,
+    server.on("/clock/time_info", HTTP_GET,
               [&](AsyncWebServerRequest* request) {
-                  this->HandleGetWifiInfo(request);
+                  this->HandleGetTimeInfo(request);
               });
-    server.on("/wifi", HTTP_POST,
+    server.on("/clock/time_info", HTTP_POST,
               [&](AsyncWebServerRequest* request) {
-                  this->HandleSetWifiInfo(request);
+                  this->HandleSetTimeInfo(request);
               });
+    server.on("/wifi", HTTP_GET, [&](AsyncWebServerRequest* request) {
+        this->HandleGetWifiInfo(request);
+    });
+    server.on("/wifi", HTTP_POST, [&](AsyncWebServerRequest* request) {
+        this->HandleSetWifiInfo(request);
+    });
     server.begin();
 }
 
@@ -199,6 +205,33 @@ void WebServer::HandleSetWifiInfo(AsyncWebServerRequest* request) {
         request->send(HTTP_200_OK, "");
     } else {
         request->send(HTTP_400_BAD_REQUEST,
-                      "Error HandleSetLedInfo: missing argument(s)!");
+                      "Error HandleSeWifiInfo: missing argument(s)!");
+    }
+}
+
+void WebServer::HandleGetTimeInfo(AsyncWebServerRequest* request) {
+    if (!request) {
+        return;
+    }
+
+    TimeInfo ti = callback.OnGetTimeInfo();
+    String messageBuffer;
+    serializeJson(ti.ToJson(), messageBuffer);
+
+    request->send(HTTP_200_OK, "application/json", messageBuffer);
+}
+
+void WebServer::HandleSetTimeInfo(AsyncWebServerRequest* request) {
+    if (!request) {
+        return;
+    }
+
+    if (request->hasArg("offset")) {
+        TimeInfo ti(request->arg("offset").toInt());
+        callback.OnSetTimeInfo(ti);
+        request->send(HTTP_200_OK, "");
+    } else {
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetTimeInfo: missing argument(s)!");
     }
 }

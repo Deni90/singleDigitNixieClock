@@ -20,6 +20,8 @@ class WebServer {
     void HandleSetSleepInfo(AsyncWebServerRequest* request);
     void HandleGetWifiInfo(AsyncWebServerRequest* request);
     void HandleSetWifiInfo(AsyncWebServerRequest* request);
+    void HandleGetTimeInfo(AsyncWebServerRequest* request);
+    void HandleSetTimeInfo(AsyncWebServerRequest* request);
 
   public:
     /**

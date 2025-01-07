@@ -29,11 +29,49 @@
 			<form>
 				<h2>Time configuration</h2>
 				<div class="ui-field-contain">
+					<label for="timeZoneSelect">Time zone:</label>
+					<select name="timeZoneSelect" id="timeZoneSelect">
+						<option value="-43200">UTC-12:00</option>
+						<option value="-39600">UTC-11:00</option>
+						<option value="-36000">UTC-10:00</option>
+						<option value="-32400">UTC-9:00</option>
+						<option value="-28800">UTC-8:00</option>
+						<option value="-25200">UTC-7:00</option>
+						<option value="-21600">UTC-6:00</option>
+						<option value="-18000">UTC-5:00</option>
+						<option value="-16200">UTC-4:30</option>
+						<option value="-14400">UTC-4:00</option>
+						<option value="-10800">UTC-3:00</option>
+						<option value="-7200">UTC-2:00</option>
+						<option value="-3600">UTC-1:00</option>
+						<option value="0">UTC+0:00</option>
+						<option value="3600">UTC+1:00</option>
+						<option value="7200">UTC+2:00</option>
+						<option value="10800">UTC+3:00</option>
+						<option value="12600">UTC+3:30</option>
+						<option value="14400">UTC+4:00</option>
+						<option value="16200">UTC+4:30</option>
+						<option value="18000">UTC+5:00</option>
+						<option value="19800">UTC+5:30</option>
+						<option value="20700">UTC+5:45</option>
+						<option value="21600">UTC+6:00</option>
+						<option value="23400">UTC+6:30</option>
+						<option value="25200">UTC+7:00</option>
+						<option value="28800">UTC+8:00</option>
+						<option value="32400">UTC+9:00</option>
+						<option value="34200">UTC+9:30</option>
+						<option value="36000">UTC+10:00</option>
+						<option value="39600">UTC+11:00</option>
+						<option value="43200">UTC+12:00</option>
+						<option value="46800">UTC+13:00</option>
+					</select>
+				</div>
+				<div class="ui-field-contain">
 					<label for="currentTime">Current time:</label>
 					<label id="currentTime"></label>
 				</div>
 				<div class="ui-field-contain">
-					<button type="button" name="setTimeButton">Update current time</button>
+					<button type="button" name="setTimeButton">Set current time manually</button>
 				</div>
 				<h2>Sleep configuration</h2>
 				<div class="ui-field-contain">

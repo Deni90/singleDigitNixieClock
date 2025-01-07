@@ -87,10 +87,27 @@ class WifiInfo {
     }
 }
 
+class TimeInfo {
+    constructor(offset) {
+        this.offset = offset;
+    }
+
+    toJson() {
+        return {
+            "offset": this.offset
+        };
+    }
+
+    fromJson(message) {
+        this.offset = message.offset;
+    }
+}
+
 let ledInfo = new LedInfo(0, 0, 0, 0, 0);
-let hsvColor = new HSV(0, 0, 0)
-let sleepInfo = new SleepInfo(0, 0)
-let wifiInfo = new WifiInfo("", "")
+let hsvColor = new HSV(0, 0, 0);
+let sleepInfo = new SleepInfo(0, 0);
+let wifiInfo = new WifiInfo("", "");
+let timeInfo = new TimeInfo(0);
 
 
 function HSVtoRGB(h, s, v) {
@@ -244,6 +261,24 @@ $(document).ready(function () {
                 $("input[name='sleepAfterSlider']").val(sleepInfo.sleepAfter).slider('refresh');
             });
         });
+
+    $.ajax({ url: "/clock/time_info", type: "GET", dataType: "json" })
+        .success(function (result) {
+            console.log(result);
+            timeInfo.fromJson(result);
+            $(function () {
+                $('#timeZoneSelect').val(timeInfo.offset.toString()).selectmenu("refresh");
+            });
+        });
+
+    $('#timeZoneSelect').change(function () {
+        timeInfo.offset = parseInt($(this).find('option:selected').val());
+        var jsonObj = timeInfo.toJson();
+        $.ajax({ url: "/clock/time_info", type: "POST", dataType: "json", data: jsonObj })
+            .success(function (result) {
+                console.log(result);
+            });
+    });
 
     $("input[name='sleepBeforeSlider']").on('change', function () {
         sleepInfo.sleepBefore = $(this).val();

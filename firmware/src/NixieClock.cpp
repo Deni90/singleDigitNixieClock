@@ -8,9 +8,9 @@ constexpr uint16_t PAUSE_DURATION = 2000;
 }   // namespace
 
 NixieClock::NixieClock(LedController& ledController, In14NixieTube& nixieTube,
-                       RtcDS3231<TwoWire>& rtc)
+                       RtcDS3231<TwoWire>& rtc, TimeManager& timeManager)
     : animationState(AnimationStates::IDLE), ledController(ledController),
-      nixieTube(nixieTube), rtc(rtc) {}
+      nixieTube(nixieTube), rtc(rtc), timeManager(timeManager) {}
 
 void NixieClock::Initialize(const SleepInfo& sleepInfo) {
     this->sleepInfo = sleepInfo;
@@ -172,6 +172,17 @@ WifiInfo NixieClock::OnGetWifiInfo() const {
 void NixieClock::OnSetWifiInfo(const WifiInfo& wifiInfo) {
     ConfigStore::SaveWifiInfo(wifiInfo);
     ESP.restart();
+}
+
+TimeInfo NixieClock::OnGetTimeInfo() const {
+    TimeInfo ti;
+    ConfigStore::LoadTimeInfo(ti);
+    return ti;
+}
+
+void NixieClock::OnSetTimeInfo(const TimeInfo& timeInfo) {
+    ConfigStore::SaveTimeInfo(timeInfo);
+    timeManager.SetOffset(timeInfo.GetOffset());
 }
 
 bool NixieClock::IsInSleepMode() {
