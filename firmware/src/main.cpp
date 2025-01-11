@@ -75,15 +75,6 @@ void IRAM_ATTR HandleInterrupt() {
         return;
     }
     if (now.Second() == 0) {
-        // show time on nixie tube.
-        Serial.printf("Current date & time: %d/%d/%d %02d:%02d:%02d\n",
-                      now.Year(),     // get year method
-                      now.Month(),    // get month method
-                      now.Day(),      // get day method
-                      now.Hour(),     // get hour method
-                      now.Minute(),   // get minute method
-                      now.Second()    // get second method
-        );
         nixieClock.ShowTime(now, CURRENT_TIME_REPEAT_NUM);
     }
 }
@@ -141,9 +132,8 @@ void InitializeDNS() {
     if (apMode) {
         IPAddress myIP = WiFi.softAPIP();
         dnsServer.start(DNS_PORT, "*", myIP);   // * is used for captive portal
-    } else {
-        MDNS.begin(HOSTNAME);
     }
+    MDNS.begin(HOSTNAME);
     Serial.println("Done");
 }
 
@@ -155,9 +145,8 @@ void InitializeDNS() {
 void HandleDNS() {
     if (apMode) {
         dnsServer.processNextRequest();
-    } else {
-        MDNS.update();
     }
+    MDNS.update();
 }
 
 void SynchroniseTime() {

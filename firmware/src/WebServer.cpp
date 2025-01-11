@@ -1,3 +1,4 @@
+#include "AsyncJson.h"
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
@@ -21,69 +22,48 @@ void WebServer::Initialize() {
     server.onNotFound([](AsyncWebServerRequest* request) {
         request->send(LittleFS, "/web_server/index.html");
     });
-    server.on("/css/my-custom-theme.min.css", HTTP_GET,
-              [](AsyncWebServerRequest* request) {
-                  request->send(LittleFS,
-                                "/web_server/css/my-custom-theme.min.css",
-                                "text/css");
-              });
-    server.on("/css/jquery.mobile.struc.min.css", HTTP_GET,
-              [](AsyncWebServerRequest* request) {
-                  request->send(LittleFS,
-                                "/web_server/css/jquery.mobile.struc.min.css",
-                                "text/css");
-              });
-    server.on("/jquery-2.2.4.min.js", HTTP_GET,
-              [](AsyncWebServerRequest* request) {
-                  request->send(LittleFS, "/web_server/jquery-2.2.4.min.js",
-                                "text/javascript");
-              });
-    server.on("/jquery.mobile-1.4.5.min.js", HTTP_GET,
-              [](AsyncWebServerRequest* request) {
-                  request->send(LittleFS,
-                                "/web_server/jquery.mobile-1.4.5.min.js",
-                                "text/javascript");
-              });
+    server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(LittleFS, "/web_server/style.css", "text/css");
+    });
     server.on("/server.js", HTTP_GET, [](AsyncWebServerRequest* request) {
         request->send(LittleFS, "/web_server/server.js", "text/javascript");
     });
-    server.on("/css/images/ajax-loader.gif", HTTP_GET,
-              [](AsyncWebServerRequest* request) {
-                  request->send(LittleFS,
-                                "/web_server/css/images/ajax-loader.gif",
-                                "text/image");
-              });
     server.on("/backlight", HTTP_GET, [&](AsyncWebServerRequest* request) {
         this->HandleGetLedInfo(request);
     });
-    server.on("/backlight", HTTP_POST, [&](AsyncWebServerRequest* request) {
-        this->HandleSetLedInfo(request);
-    });
-    server.on("/clock/time", HTTP_POST, [&](AsyncWebServerRequest* request) {
-        this->HandleSetCurrentTime(request);
-    });
+    server.addHandler(new AsyncCallbackJsonWebHandler(
+        "/backlight", [&](AsyncWebServerRequest* request, JsonVariant& json) {
+            this->HandleSetLedInfo(request, json);
+        }));
+    server.addHandler(new AsyncCallbackJsonWebHandler(
+        "/clock/time", [&](AsyncWebServerRequest* request, JsonVariant& json) {
+            this->HandleSetCurrentTime(request, json);
+        }));
     server.on("/clock/sleep_info", HTTP_GET,
               [&](AsyncWebServerRequest* request) {
                   this->HandleGetSleepInfo(request);
               });
-    server.on("/clock/sleep_info", HTTP_POST,
-              [&](AsyncWebServerRequest* request) {
-                  this->HandleSetSleepInfo(request);
-              });
+    server.addHandler(new AsyncCallbackJsonWebHandler(
+        "/clock/sleep_info",
+        [&](AsyncWebServerRequest* request, JsonVariant& json) {
+            this->HandleSetSleepInfo(request, json);
+        }));
     server.on("/clock/time_info", HTTP_GET,
               [&](AsyncWebServerRequest* request) {
                   this->HandleGetTimeInfo(request);
               });
-    server.on("/clock/time_info", HTTP_POST,
-              [&](AsyncWebServerRequest* request) {
-                  this->HandleSetTimeInfo(request);
-              });
+    server.addHandler(new AsyncCallbackJsonWebHandler(
+        "/clock/time_info",
+        [&](AsyncWebServerRequest* request, JsonVariant& json) {
+            this->HandleSetTimeInfo(request, json);
+        }));
     server.on("/wifi", HTTP_GET, [&](AsyncWebServerRequest* request) {
         this->HandleGetWifiInfo(request);
     });
-    server.on("/wifi", HTTP_POST, [&](AsyncWebServerRequest* request) {
-        this->HandleSetWifiInfo(request);
-    });
+    server.addHandler(new AsyncCallbackJsonWebHandler(
+        "/wifi", [&](AsyncWebServerRequest* request, JsonVariant& json) {
+            this->HandleSetWifiInfo(request, json);
+        }));
     server.begin();
 }
 
@@ -91,45 +71,46 @@ void WebServer::HandleGetLedInfo(AsyncWebServerRequest* request) {
     if (!request) {
         return;
     }
-
     LedInfo li = callback.OnGetLedInfo();
     String messageBuffer;
     serializeJson(li.ToJson(), messageBuffer);
-
     request->send(HTTP_200_OK, "application/json", messageBuffer);
 }
 
-void WebServer::HandleSetLedInfo(AsyncWebServerRequest* request) {
+void WebServer::HandleSetLedInfo(AsyncWebServerRequest* request,
+                                 JsonVariant& json) {
     if (!request) {
         return;
     }
-
-    if (request->hasArg("R") && request->hasArg("G") && request->hasArg("B") &&
-        request->hasArg("state")) {
-        uint8_t r, g, b;
-        r = request->arg("R").toInt();
-        g = request->arg("G").toInt();
-        b = request->arg("B").toInt();
-        uint8_t state = request->arg("state").toInt();
-        if (state >= static_cast<uint8_t>(LedState::MAX)) {
-            request->send(HTTP_400_BAD_REQUEST,
-                          "Error HandleSetLedInfo: Invalid state");
-            return;
-        }
-        LedInfo li(r, g, b, static_cast<LedState>(state));
-        callback.OnSetLedInfo(li);
-        request->send(HTTP_200_OK, "");
-    } else {
+    if (!json.is<JsonObject>()) {
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetLedInfo: expecting a JSON object");
+        return;
+    }
+    JsonDocument requestBody = json.as<JsonObject>();
+    if (!requestBody.containsKey("R") || !requestBody.containsKey("G") ||
+        !requestBody.containsKey("B") || !requestBody.containsKey("state")) {
         request->send(HTTP_400_BAD_REQUEST,
                       "Error HandleSetLedInfo: missing argument(s)!");
+        return;
     }
+    uint8_t state = requestBody["state"];
+    if (state >= static_cast<uint8_t>(LedState::MAX)) {
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetLedInfo: Invalid state");
+        return;
+    }
+    LedInfo li(requestBody["R"], requestBody["G"], requestBody["B"],
+               static_cast<LedState>(state));
+    callback.OnSetLedInfo(li);
+    request->send(200, "");
 }
 
-void WebServer::HandleSetCurrentTime(AsyncWebServerRequest* request) {
+void WebServer::HandleSetCurrentTime(AsyncWebServerRequest* request,
+                                     JsonVariant& json) {
     if (!request) {
         return;
     }
-
     if (request->hasArg("year") && request->hasArg("month") &&
         request->hasArg("day") && request->hasArg("hour") &&
         request->hasArg("minute") && request->hasArg("second")) {
@@ -153,68 +134,71 @@ void WebServer::HandleGetSleepInfo(AsyncWebServerRequest* request) {
     if (!request) {
         return;
     }
-
     SleepInfo si = callback.OnGetSleepInfo();
     String messageBuffer;
     serializeJson(si.ToJson(), messageBuffer);
-
     request->send(HTTP_200_OK, "application/json", messageBuffer);
 }
 
-void WebServer::HandleSetSleepInfo(AsyncWebServerRequest* request) {
+void WebServer::HandleSetSleepInfo(AsyncWebServerRequest* request,
+                                   JsonVariant& json) {
     if (!request) {
         return;
     }
-
-    if (request->hasArg("sleep_before") && request->hasArg("sleep_after")) {
-        uint8_t sb, sa;
-        sb = request->arg("sleep_before").toInt();
-        sa = request->arg("sleep_after").toInt();
-        SleepInfo si(sb, sa);
-        callback.OnSetSleepInfo(si);
-        request->send(HTTP_200_OK, "");
-    } else {
+    if (!json.is<JsonObject>()) {
         request->send(HTTP_400_BAD_REQUEST,
-                      "Error HandleSetLedInfo: missing argument(s)!");
+                      "Error HandleSetSleepInfo: expecting a JSON object");
+        return;
     }
+    JsonDocument requestBody = json.as<JsonObject>();
+    if (!requestBody.containsKey("sleep_before") ||
+        !requestBody.containsKey("sleep_after")) {
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetSleepInfo: missing argument(s)!");
+        return;
+    }
+    SleepInfo si(requestBody["sleep_before"], requestBody["sleep_after"]);
+    callback.OnSetSleepInfo(si);
+    request->send(HTTP_200_OK, "");
 }
 
 void WebServer::HandleGetWifiInfo(AsyncWebServerRequest* request) {
     if (!request) {
         return;
     }
-
     WifiInfo wi = callback.OnGetWifiInfo();
-    wi.SetPassword("password"); // don't share the actuall wifi password
+    wi.SetPassword("password");   // don't share the actuall wifi password
     String messageBuffer;
     serializeJson(wi.ToJson(), messageBuffer);
-
     request->send(HTTP_200_OK, "application/json", messageBuffer);
 }
 
-void WebServer::HandleSetWifiInfo(AsyncWebServerRequest* request) {
+void WebServer::HandleSetWifiInfo(AsyncWebServerRequest* request,
+                                  JsonVariant& json) {
     if (!request) {
         return;
     }
-
-    if (request->hasArg("SSID") && request->hasArg("password")) {
-        String ssid, password;
-        ssid = request->arg("SSID");
-        password = request->arg("password");
-        WifiInfo wi(ssid, password);
-        callback.OnSetWifiInfo(wi);
-        request->send(HTTP_200_OK, "");
-    } else {
+    if (!json.is<JsonObject>()) {
         request->send(HTTP_400_BAD_REQUEST,
-                      "Error HandleSeWifiInfo: missing argument(s)!");
+                      "Error HandleSetWifiInfo: expecting a JSON object");
+        return;
     }
+    JsonDocument requestBody = json.as<JsonObject>();
+    if (!requestBody.containsKey("SSID") ||
+        !requestBody.containsKey("password")) {
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetWifiInfo: missing argument(s)!");
+        return;
+    }
+    WifiInfo wi(requestBody["SSID"], requestBody["password"]);
+    request->send(HTTP_200_OK, "");
+    callback.OnSetWifiInfo(wi);
 }
 
 void WebServer::HandleGetTimeInfo(AsyncWebServerRequest* request) {
     if (!request) {
         return;
     }
-
     TimeInfo ti = callback.OnGetTimeInfo();
     String messageBuffer;
     serializeJson(ti.ToJson(), messageBuffer);
@@ -222,17 +206,24 @@ void WebServer::HandleGetTimeInfo(AsyncWebServerRequest* request) {
     request->send(HTTP_200_OK, "application/json", messageBuffer);
 }
 
-void WebServer::HandleSetTimeInfo(AsyncWebServerRequest* request) {
+void WebServer::HandleSetTimeInfo(AsyncWebServerRequest* request,
+                                  JsonVariant& json) {
     if (!request) {
         return;
     }
-
-    if (request->hasArg("offset")) {
-        TimeInfo ti(request->arg("offset").toInt());
-        callback.OnSetTimeInfo(ti);
-        request->send(HTTP_200_OK, "");
-    } else {
+    if (!json.is<JsonObject>()) {
+        request->send(HTTP_400_BAD_REQUEST,
+                      "Error HandleSetTimeInfo: expecting a JSON object");
+        return;
+    }
+    JsonDocument requestBody = json.as<JsonObject>();
+    if (!requestBody.containsKey("offset")) {
         request->send(HTTP_400_BAD_REQUEST,
                       "Error HandleSetTimeInfo: missing argument(s)!");
+        return;
     }
+    int offset = requestBody["offset"];
+    TimeInfo ti(offset);
+    callback.OnSetTimeInfo(ti);
+    request->send(HTTP_200_OK, "");
 }

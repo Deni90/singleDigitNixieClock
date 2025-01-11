@@ -2,160 +2,153 @@
 <html>
 
 <head>
-	<title>Nixie Clock</title>
+	<title>Nixie Clock Control Panel</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="css/my-custom-theme.min.css" />
-	<link rel="stylesheet" href="css/jquery.mobile.struc.min.css" />
-	<script src="./jquery-2.2.4.min.js"></script>
-	<script src="./jquery.mobile-1.4.5.min.js"></script>
+	<link rel="stylesheet" href="style.css" />
 	<script src="./server.js"></script>
 </head>
 
 <body>
-	<div data-role="header">
-		<h1>Nixie Clock</h1>
+	<div class="header">
+		<h1 class="title">Nixie Clock Control Panel</h1>
 	</div>
-
-	<div data-role="tabs" id="tabs">
-		<div data-role="navbar">
-			<ul>
-				<li><a href="#tabClock" data-ajax="false">Clock</a></li>
-				<li><a href="#tabBacklight" data-ajax="false">Backlight</a></li>
-				<li><a href="#tabWifi" data-ajax="false">Wifi</a></li>
-			</ul>
+	<div class="tab">
+		<button class="tablinks" id="buttonClock" onclick="openTab(this.id, 'tabClock')">Clock</button>
+		<button class="tablinks" id="buttonBacklight" onclick="openTab(this.id, 'tabBacklight')">Backlight</button>
+		<button class="tablinks" id="buttonWifi" onclick="openTab(this.id, 'tabWifi')">Wifi</button>
+	</div>
+	<!-- Clock configuration tab -->
+	<div class="tabcontent" id="tabClock">
+		<h2>Time configuration</h2>
+		<div class="field-container">
+			<label for="selectTimeZone">Time zone:</label>
+			<select class="select" name="selectTimeZone" id="selectTimeZone">
+				<option value="-43200">UTC-12:00</option>
+				<option value="-39600">UTC-11:00</option>
+				<option value="-36000">UTC-10:00</option>
+				<option value="-32400">UTC-9:00</option>
+				<option value="-28800">UTC-8:00</option>
+				<option value="-25200">UTC-7:00</option>
+				<option value="-21600">UTC-6:00</option>
+				<option value="-18000">UTC-5:00</option>
+				<option value="-16200">UTC-4:30</option>
+				<option value="-14400">UTC-4:00</option>
+				<option value="-10800">UTC-3:00</option>
+				<option value="-7200">UTC-2:00</option>
+				<option value="-3600">UTC-1:00</option>
+				<option value="0">UTC+0:00</option>
+				<option value="3600">UTC+1:00</option>
+				<option value="7200">UTC+2:00</option>
+				<option value="10800">UTC+3:00</option>
+				<option value="12600">UTC+3:30</option>
+				<option value="14400">UTC+4:00</option>
+				<option value="16200">UTC+4:30</option>
+				<option value="18000">UTC+5:00</option>
+				<option value="19800">UTC+5:30</option>
+				<option value="20700">UTC+5:45</option>
+				<option value="21600">UTC+6:00</option>
+				<option value="23400">UTC+6:30</option>
+				<option value="25200">UTC+7:00</option>
+				<option value="28800">UTC+8:00</option>
+				<option value="32400">UTC+9:00</option>
+				<option value="34200">UTC+9:30</option>
+				<option value="36000">UTC+10:00</option>
+				<option value="39600">UTC+11:00</option>
+				<option value="43200">UTC+12:00</option>
+				<option value="46800">UTC+13:00</option>
+			</select>
 		</div>
-
-		<div id="tabClock" class="ui-body-d ui-content">
-			<form>
-				<h2>Time configuration</h2>
-				<div class="ui-field-contain">
-					<label for="timeZoneSelect">Time zone:</label>
-					<select name="timeZoneSelect" id="timeZoneSelect">
-						<option value="-43200">UTC-12:00</option>
-						<option value="-39600">UTC-11:00</option>
-						<option value="-36000">UTC-10:00</option>
-						<option value="-32400">UTC-9:00</option>
-						<option value="-28800">UTC-8:00</option>
-						<option value="-25200">UTC-7:00</option>
-						<option value="-21600">UTC-6:00</option>
-						<option value="-18000">UTC-5:00</option>
-						<option value="-16200">UTC-4:30</option>
-						<option value="-14400">UTC-4:00</option>
-						<option value="-10800">UTC-3:00</option>
-						<option value="-7200">UTC-2:00</option>
-						<option value="-3600">UTC-1:00</option>
-						<option value="0">UTC+0:00</option>
-						<option value="3600">UTC+1:00</option>
-						<option value="7200">UTC+2:00</option>
-						<option value="10800">UTC+3:00</option>
-						<option value="12600">UTC+3:30</option>
-						<option value="14400">UTC+4:00</option>
-						<option value="16200">UTC+4:30</option>
-						<option value="18000">UTC+5:00</option>
-						<option value="19800">UTC+5:30</option>
-						<option value="20700">UTC+5:45</option>
-						<option value="21600">UTC+6:00</option>
-						<option value="23400">UTC+6:30</option>
-						<option value="25200">UTC+7:00</option>
-						<option value="28800">UTC+8:00</option>
-						<option value="32400">UTC+9:00</option>
-						<option value="34200">UTC+9:30</option>
-						<option value="36000">UTC+10:00</option>
-						<option value="39600">UTC+11:00</option>
-						<option value="43200">UTC+12:00</option>
-						<option value="46800">UTC+13:00</option>
-					</select>
-				</div>
-				<div class="ui-field-contain">
-					<label for="currentTime">Current time:</label>
-					<label id="currentTime"></label>
-				</div>
-				<div class="ui-field-contain">
-					<button type="button" name="setTimeButton">Set current time manually</button>
-				</div>
-				<h2>Sleep configuration</h2>
-				<div class="ui-field-contain">
-					<label for="sleepBeforeSlider">Sleep before(Hour):</label>
-					<input type="number" data-type="range" name="sleepBeforeSlider" id="sleepBeforeSlider" min="0"
-						max="23" data-highlight="true"
-						class="ui-input-text ui-body-c ui-corner-all ui-shadow-inset ui-slider-input">
-				</div>
-				<div class="ui-field-contain">
-					<label for="sleepAfterSlider">Sleep after(Hour):</label>
-					<input type="number" data-type="range" name="sleepAfterSlider" id="sleepAfterSlider" min="0"
-						max="23" data-highlight="true"
-						class="ui-input-text ui-body-c ui-corner-all ui-shadow-inset ui-slider-input">
-				</div>
-				<div class="ui-field-contain">
-					<button type="button" name="setSleepTimes">Update sleep configuration</button>
-				</div>
-			</form>
+		<h2>Sleep configuration</h2>
+		<div class="field-container">
+			<label for="sliderSleepBefore">Sleep before(Hour):</label>
+			<div class="slider-with-number-container">
+				<input type="number" data-type="range" name="sliderSleepBefore" id="sleepBeforeInput" min="0" max="23"
+					disabled>
+				<input class="slider-with-number" type="range" name="sliderSleepBefore" id="sliderSleepBefore" min="0"
+					max="23" oninput="updateSleepBefore()">
+			</div>
 		</div>
-
-		<div id="tabBacklight" class="ui-body-d ui-content">
-			<form>
-				<h2>Backlight configuration</h2>
-				<div class="ui-field-contain">
-					<label for="backlightRadio">Backlight type:</label>
-					<fieldset data-role="controlgroup" data-type="horizontal" name="backlightRadio">
-						<input type="radio" name="backlightType" id="radioChoice1a" value="0">
-						<label for="radioChoice1a">Off</label>
-						<input type="radio" name="backlightType" id="radioChoice1b" value="1">
-						<label for="radioChoice1b">On</label>
-						<input type="radio" name="backlightType" id="radioChoice1c" value="2">
-						<label for="radioChoice1c">Fade</label>
-						<input type="radio" name="backlightType" id="radioChoice1d" value="3">
-						<label for="radioChoice1d">Pulse</label>
-					</fieldset>
-				</div>
-				<label>Color preview:</label>
-				<div id="colorBox" class="ui-shadow ui-corner-all" style="height: 50px; margin: auto;">
-				</div>
-				<div class="ui-field-contain">
-					<label for="hueSlider">Hue:</label>
-					<input type="range" name="hueSlider" id="hueSlider" min="0" max="360" data-highlight="true"
-						class="ui-hidden-accessible">
-				</div>
-				<div class="ui-field-contain">
-					<label for="saturationSlider">Saturation:</label>
-					<input type="range" name="saturationSlider" id="saturationSlider" min="0" max="100"
-						data-highlight="true" class="ui-hidden-accessible">
-				</div>
-				<div class="ui-field-contain">
-					<label for="valueSlider">Value:</label>
-					<input type="range" name="valueSlider" id="valueSlider" min="0" max="100" data-highlight="true"
-						class="ui-hidden-accessible">
-				</div>
-				<div class="ui-field-contain">
-					<button type="button" name="setBacklightButton">Update backlight configuration</button>
-				</div>
-			</form>
+		<div class="field-container">
+			<label for="sliderSleepAfter">Sleep after(Hour):</label>
+			<div class="slider-with-number-container">
+				<input type="number" data-type="range" name="sliderSleepAfter" id="sleepAfterInput" min="0" max="23"
+					disabled>
+				<input class="slider-with-number" type="range" name="sliderSleepAfter" id="sliderSleepAfter" min="0"
+					max="23" oninput="updateSleepAfter()">
+			</div>
 		</div>
-
-		<div id="tabWifi" class="ui-body-d ui-content">
-			<form>
-				<h2>Wifi configuration</h2>
-				<div class="ui-field-contain">
-					<label for="ssid">SSID:</label>
-					<input type="text" name="ssid" id="ssid" value=""/>
-				</div>
-				<div class="ui-field-contain">
-					<label for="password">Password:</label>
-					<input type="password" name="password" id="password" value=""/>
-				</div>
-				<div class="ui-field-contain">
-					<label for="passwordVerify">Password (verify):</label>
-					<input type="password" name="passwordVerify" id="passwordVerify" value=""/>
-				</div>
-				<div class="ui-field-contain">
-					<button type="button" name="setWifiConfigButton">Update wifi config</button>
-				</div>
-				<div class="ui-field-contain">
-					<label id="wifiErrors"></label>
-				</div>
-			</form>
+		<div class="field-container">
+			<button class="button" name="buttonSetClock" onclick="setClockConfig()">Update</button>
 		</div>
-
+	</div>
+	<!-- Backlight configuration tab -->
+	<div class="tabcontent" id="tabBacklight">
+		<h2>Backlight configuration</h2>
+		<div class="field-container">
+			<label for="ssid">Backlight type:</label>
+			<div class="choice-container">
+				<div class="choice" onclick="selectBacklightChoice(event, 'radioChoiceOff')">
+					<input id="radioChoiceOff" type="radio" name="backlightType" />
+					<label for="radioChoiceOff">Off</label>
+				</div>
+				<div class="choice" onclick="selectBacklightChoice(event, 'radioChoiceOn')">
+					<input id="radioChoiceOn" type="radio" value="1" />
+					<label for="radioChoiceOn">On</label>
+				</div>
+				<div class="choice" onclick="selectBacklightChoice(event, 'radioChoiceFade')">
+					<input id="radioChoiceFade" type="radio" value="2" />
+					<label for="radioChoiceFade">Fade</label>
+				</div>
+				<div class="choice" onclick="selectBacklightChoice(event, 'radioChoicePulse')">
+					<input id="radioChoicePulse" type="radio" value="3" />
+					<label for="radioChoicePulse">Pulse</label>
+				</div>
+			</div>
+		</div>
+		<div class="field-container">
+			<label for="colorPreview">Color:</label>
+			<div class="color-preview-box" id="colorBox"></div>
+		</div>
+		<div class="field-container">
+			<label for="sliderHue">Hue:</label>
+			<input class="slider" type="range" name="sliderHue" id="sliderHue" min="0" max="360"
+				oninput="updateColorBox()">
+		</div>
+		<div class="field-container">
+			<label for="sliderSaturation">Saturation:</label>
+			<input class="slider" type="range" name="sliderSaturation" id="sliderSaturation" min="0" max="100"
+				oninput="updateColorBox()">
+		</div>
+		<div class="field-container">
+			<label for="sliderValue">Value:</label>
+			<input class="slider" type="range" name="sliderValue" id="sliderValue" min="0" max="100"
+				oninput="updateColorBox()">
+		</div>
+		<div class="field-container">
+			<button class="button" name="buttonSetBacklight" onclick="setLedInfo()">Update</button>
+		</div>
+	</div>
+	<!-- Wifi configuration tab -->
+	<div id="tabWifi" class="tabcontent">
+		<h2>Wifi configuration</h2>
+		<div class="field-container">
+			<label for="ssid">SSID:</label>
+			<input type="text" name="ssid" id="ssid" value="" />
+		</div>
+		<div class="field-container">
+			<label for="password">Password:</label>
+			<input type="password" name="password" id="password" value="" />
+		</div>
+		<div class="field-container">
+			<label for="passwordVerify">Password (verify):</label>
+			<input type="password" name="passwordVerify" id="passwordVerify" value="" />
+		</div>
+		<div class="field-container">
+			<button class="button" name="buttonSetWifiConfig" onclick="setWifiInfo()">Update</button>
+		</div>
+		<div class="field-container">
+			<label class="log" id="wifiLog"></label>
+		</div>
 	</div>
 </body>
 

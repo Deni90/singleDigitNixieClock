@@ -14,14 +14,14 @@ class WebServer {
     ClockInterface& callback;
 
     void HandleGetLedInfo(AsyncWebServerRequest* request);
-    void HandleSetLedInfo(AsyncWebServerRequest* request);
-    void HandleSetCurrentTime(AsyncWebServerRequest* request);
+    void HandleSetLedInfo(AsyncWebServerRequest *request, JsonVariant &json);
+    void HandleSetCurrentTime(AsyncWebServerRequest *request, JsonVariant &json);
     void HandleGetSleepInfo(AsyncWebServerRequest* request);
-    void HandleSetSleepInfo(AsyncWebServerRequest* request);
+    void HandleSetSleepInfo(AsyncWebServerRequest *request, JsonVariant &json);
     void HandleGetWifiInfo(AsyncWebServerRequest* request);
-    void HandleSetWifiInfo(AsyncWebServerRequest* request);
+    void HandleSetWifiInfo(AsyncWebServerRequest *request, JsonVariant &json);
     void HandleGetTimeInfo(AsyncWebServerRequest* request);
-    void HandleSetTimeInfo(AsyncWebServerRequest* request);
+    void HandleSetTimeInfo(AsyncWebServerRequest *request, JsonVariant &json);
 
   public:
     /**
