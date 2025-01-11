@@ -121,34 +121,6 @@ void InitializeWifiInApMode() {
     Serial.println("Done");
 }
 
-/**
- * @brief Initialize a DNS server based on the Wifi mode
- *
- * Use DnsServer for AP mode to show captive portal and use MDNS for station
- * mode
- */
-void InitializeDNS() {
-    Serial.print("Starting DNS server... ");
-    if (apMode) {
-        IPAddress myIP = WiFi.softAPIP();
-        dnsServer.start(DNS_PORT, "*", myIP);   // * is used for captive portal
-    }
-    MDNS.begin(HOSTNAME);
-    Serial.println("Done");
-}
-
-/**
- * @brief Handle DNS
- *
- * This function should be called in the loop()
- */
-void HandleDNS() {
-    if (apMode) {
-        dnsServer.processNextRequest();
-    }
-    MDNS.update();
-}
-
 void SynchroniseTime() {
     Serial.printf("Synchronising time... ");
     RtcDateTime timeNow;
@@ -229,7 +201,14 @@ void setup() {
     nixieClock.ShowTime(rtc.GetDateTime(), 1);
     Serial.println("Done");
 
-    InitializeDNS();
+    if (apMode) {
+        Serial.printf("Initializing captive portal... ");
+        dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+    }
+
+    Serial.printf("Initializing mDNS... ");
+    MDNS.begin(HOSTNAME);
+    Serial.println("Done");
 
     Serial.print("Initializing Web server... ");
     webServer.Initialize();
@@ -240,7 +219,10 @@ void setup() {
  * @brief Do things in loop
  */
 void loop() {
-    HandleDNS();
+    if (apMode) {
+        dnsServer.processNextRequest();
+    }
+    MDNS.update();
 
     if (ledControllerClock >= UPDATE_LED_PERIOD) {
         ledControllerClock = 0;
