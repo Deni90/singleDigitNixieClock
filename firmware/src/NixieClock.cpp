@@ -31,12 +31,28 @@ void NixieClock::Handle(uint32_t& tick) {
         LedInfo li;
         ConfigStore::LoadLedInfo(li);
         if (IsInSleepMode()) {
-            Serial.println("Sleep mode");
+            Serial.printf("%02d/%02d/%04d %02d:%02d:%02d - Sleep mode\n",
+                          time.Day(),      // get day method
+                          time.Month(),    // get month method
+                          time.Year(),     // get year method
+                          time.Hour(),     // get hour method
+                          time.Minute(),   // get minute method
+                          time.Second()    // get second method
+            );
             li.SetState(LedState::OFF);
             ledController.SetLedInfo(li);
             animationState = AnimationStates::IDLE;
             break;
         }
+        Serial.printf(
+            "%02d/%02d/%04d %02d:%02d:%02d - Show time on nixie tube\n",
+            time.Day(),      // get day method
+            time.Month(),    // get month method
+            time.Year(),     // get year method
+            time.Hour(),     // get hour method
+            time.Minute(),   // get minute method
+            time.Second()    // get second method
+        );
         if (li.GetState() > LedState::ON) {
             li.SetState(LedState::ON);
             ledController.SetLedInfo(li);
@@ -161,6 +177,18 @@ SleepInfo NixieClock::OnGetSleepInfo() const {
 void NixieClock::OnSetSleepInfo(const SleepInfo& sleepInfo) {
     this->sleepInfo = sleepInfo;
     ConfigStore::SaveSleepInfo(sleepInfo);
+    LedInfo li;
+    ConfigStore::LoadLedInfo(li);
+    if (IsInSleepMode()) {
+        // turn off the led
+        li.SetState(LedState::OFF);
+        ledController.SetLedInfo(li);
+    } else {
+        // restore the previous state
+        if (animationState == AnimationStates::IDLE) {
+            ledController.SetLedInfo(li);
+        }
+    }
 }
 
 WifiInfo NixieClock::OnGetWifiInfo() const {
