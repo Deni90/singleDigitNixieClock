@@ -215,10 +215,15 @@ function getSleepInfo() {
         })
         .then(data => {
             sleepInfo = new SleepInfo.Builder().fromJson(data);
-            document.getElementById("sleepBeforeInput").value = sleepInfo.sleepBefore;
-            document.getElementById("sliderSleepBefore").value = sleepInfo.sleepBefore;
-            document.getElementById("sleepAfterInput").value = sleepInfo.sleepAfter;
-            document.getElementById("sliderSleepAfter").value = sleepInfo.sleepAfter;
+            document.getElementById("inputSleepBeforeHour").value = Math.floor(sleepInfo.sleepBefore / 60);
+            document.getElementById("sliderSleepBeforeHour").value = Math.floor(sleepInfo.sleepBefore / 60);
+            document.getElementById("inputSleepBeforeMinute").value = sleepInfo.sleepBefore % 60;
+            document.getElementById("sliderSleepBeforeMinute").value = sleepInfo.sleepBefore % 60;
+
+            document.getElementById("inputSleepAfterHour").value = Math.floor(sleepInfo.sleepAfter / 60);
+            document.getElementById("sliderSleepAfterHour").value = Math.floor(sleepInfo.sleepAfter / 60);
+            document.getElementById("inputSleepAfterMinute").value = sleepInfo.sleepAfter % 60;
+            document.getElementById("sliderSleepAfterMinute").value = sleepInfo.sleepAfter % 60;
         })
         .catch(error => {
             console.error('There was a problem with the getting sleep info:', error);
@@ -226,8 +231,8 @@ function getSleepInfo() {
 }
 
 function setSleepInfo() {
-    sleepInfo.sleepBefore = document.getElementById("sleepBeforeInput").value;
-    sleepInfo.sleepAfter = document.getElementById("sleepAfterInput").value
+    sleepInfo.sleepBefore = document.getElementById("inputSleepBeforeHour").value * 60 + parseInt(document.getElementById("inputSleepBeforeMinute").value);
+    sleepInfo.sleepAfter = document.getElementById("inputSleepAfterHour").value * 60 + parseInt(document.getElementById("inputSleepAfterMinute").value);
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -359,11 +364,13 @@ function selectBacklightChoice(evt, choiceName) {
 }
 
 function updateSleepBefore() {
-    document.getElementById("sleepBeforeInput").value = document.getElementById("sliderSleepBefore").value
+    document.getElementById("inputSleepBeforeHour").value = document.getElementById("sliderSleepBeforeHour").value
+    document.getElementById("inputSleepBeforeMinute").value = document.getElementById("sliderSleepBeforeMinute").value
 }
 
 function updateSleepAfter() {
-    document.getElementById("sleepAfterInput").value = document.getElementById("sliderSleepAfter").value
+    document.getElementById("inputSleepAfterHour").value = document.getElementById("sliderSleepAfterHour").value
+    document.getElementById("inputSleepAfterMinute").value = document.getElementById("sliderSleepAfterMinute").value
 }
 
 function setClockConfig() {

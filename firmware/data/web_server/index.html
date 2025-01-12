@@ -59,22 +59,42 @@
 			</select>
 		</div>
 		<h2>Sleep configuration</h2>
+		<h3>Sleep before</h3>
 		<div class="field-container">
-			<label for="sliderSleepBefore">Sleep before(Hour):</label>
+			<label for="sliderSleepBefore">Hour:</label>
 			<div class="slider-with-number-container">
-				<input type="number" data-type="range" name="sliderSleepBefore" id="sleepBeforeInput" min="0" max="23"
-					disabled>
-				<input class="slider-with-number" type="range" name="sliderSleepBefore" id="sliderSleepBefore" min="0"
-					max="23" oninput="updateSleepBefore()">
+				<input type="number" data-type="range" name="sliderSleepBeforeHour" id="inputSleepBeforeHour" min="0"
+					max="23" disabled>
+				<input class="slider-with-number" type="range" name="sliderSleepBeforeHour" id="sliderSleepBeforeHour"
+					min="0" max="23" oninput="updateSleepBefore()">
 			</div>
 		</div>
 		<div class="field-container">
-			<label for="sliderSleepAfter">Sleep after(Hour):</label>
+			<label for="sliderSleepBeforeMinute">Minute:</label>
 			<div class="slider-with-number-container">
-				<input type="number" data-type="range" name="sliderSleepAfter" id="sleepAfterInput" min="0" max="23"
-					disabled>
-				<input class="slider-with-number" type="range" name="sliderSleepAfter" id="sliderSleepAfter" min="0"
-					max="23" oninput="updateSleepAfter()">
+				<input type="number" data-type="range" name="sliderSleepBeforeMinute" id="inputSleepBeforeMinute"
+					min="0" max="59" disabled>
+				<input class="slider-with-number" type="range" name="sliderSleepBeforeMinute"
+					id="sliderSleepBeforeMinute" min="0" max="59" oninput="updateSleepBefore()">
+			</div>
+		</div>
+		<h3>Sleep after</h3>
+		<div class="field-container">
+			<label for="sliderSleepAfter">Hour:</label>
+			<div class="slider-with-number-container">
+				<input type="number" data-type="range" name="sliderSleepAfterHour" id="inputSleepAfterHour" min="0"
+					max="23" disabled>
+				<input class="slider-with-number" type="range" name="sliderSleepAfterHour" id="sliderSleepAfterHour"
+					min="0" max="23" oninput="updateSleepAfter()">
+			</div>
+		</div>
+		<div class="field-container">
+			<label for="sliderSleepAfterMinute">Minute:</label>
+			<div class="slider-with-number-container">
+				<input type="number" data-type="range" name="sliderSleepAfterMinute" id="inputSleepAfterMinute" min="0"
+					max="59" disabled>
+				<input class="slider-with-number" type="range" name="sliderSleepAfterMinute" id="sliderSleepAfterMinute"
+					min="0" max="59" oninput="updateSleepAfter()">
 			</div>
 		</div>
 		<div class="field-container">

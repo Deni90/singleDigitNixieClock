@@ -214,14 +214,15 @@ void NixieClock::OnSetTimeInfo(const TimeInfo& timeInfo) {
 }
 
 bool NixieClock::IsInSleepMode() {
+    uint16_t timeInMinutes = time.Hour() * 60 + time.Minute();
     if (sleepInfo.GetSleepBefore() < sleepInfo.GetSleepAfter()) {
-        if (time.Hour() < sleepInfo.GetSleepBefore() ||
-            time.Hour() > sleepInfo.GetSleepAfter()) {
+        if (timeInMinutes < sleepInfo.GetSleepBefore() ||
+            timeInMinutes > sleepInfo.GetSleepAfter()) {
             return true;
         }
     } else {
-        if (time.Hour() <= sleepInfo.GetSleepBefore() ||
-            time.Hour() >= sleepInfo.GetSleepAfter()) {
+        if (timeInMinutes < sleepInfo.GetSleepBefore() &&
+            timeInMinutes > sleepInfo.GetSleepAfter()) {
             return true;
         }
     }

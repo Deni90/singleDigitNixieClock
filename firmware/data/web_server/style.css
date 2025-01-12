@@ -77,6 +77,14 @@ h2 {
     text-shadow: 0 1px 0 #f3f3f3;
 }
 
+h3 {
+    color: #333333;
+    font-family: sans-serif;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-shadow: 0 1px 0 #f3f3f3;
+}
+
 label {
     width: 30%;
     display: inline-block;

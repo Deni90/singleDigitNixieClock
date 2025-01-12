@@ -9,8 +9,8 @@
  */
 class SleepInfo {
   private:
-    uint8_t sleepBefore;
-    uint8_t sleepAfter;
+    uint16_t sleepBefore;
+    uint16_t sleepAfter;
 
   public:
     /**
@@ -24,7 +24,7 @@ class SleepInfo {
      * @param sleepBefore sleep before hour
      * @param sleepAfter sleep after hour
      */
-    SleepInfo(uint8_t sleepBefore, uint8_t sleepAfter);
+    SleepInfo(uint16_t sleepBefore, uint16_t sleepAfter);
 
     /**
      * @brief Default destructor
@@ -40,30 +40,30 @@ class SleepInfo {
     /**
      * @brief Getter for sleep before
      *
-     * @return uint8_t value
+     * @return uint16_t value
      */
-    uint8_t GetSleepBefore() const;
+    uint16_t GetSleepBefore() const;
 
     /**
      * @brief Setter for sleep before
      *
      * @param value value
      */
-    void SetSleepBefore(const uint8_t value);
+    void SetSleepBefore(const uint16_t value);
 
     /**
      * @brief Getter for sleep before
      *
-     * @return uint8_t value
+     * @return uint16_t value
      */
-    uint8_t GetSleepAfter() const;
+    uint16_t GetSleepAfter() const;
 
     /**
      * @brief Setter for sleep before
      *
      * @param value value
      */
-    void SetSleepAfter(const uint8_t value);
+    void SetSleepAfter(const uint16_t value);
 
     /**
      * @brief Convert SleepInfo to JSON format

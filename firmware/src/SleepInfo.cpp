@@ -1,15 +1,15 @@
 #include "SleepInfo.h"
 
-SleepInfo::SleepInfo(uint8_t sleepBefore, uint8_t sleepAfter)
+SleepInfo::SleepInfo(uint16_t sleepBefore, uint16_t sleepAfter)
     : sleepBefore(sleepBefore), sleepAfter(sleepAfter) {}
 
-uint8_t SleepInfo::GetSleepBefore() const { return sleepBefore; }
+uint16_t SleepInfo::GetSleepBefore() const { return sleepBefore; }
 
-void SleepInfo::SetSleepBefore(const uint8_t value) { sleepBefore = value; }
+void SleepInfo::SetSleepBefore(const uint16_t value) { sleepBefore = value; }
 
-uint8_t SleepInfo::GetSleepAfter() const { return sleepAfter; }
+uint16_t SleepInfo::GetSleepAfter() const { return sleepAfter; }
 
-void SleepInfo::SetSleepAfter(const uint8_t value) { sleepAfter = value; }
+void SleepInfo::SetSleepAfter(const uint16_t value) { sleepAfter = value; }
 
 JsonDocument SleepInfo::ToJson() const {
     JsonDocument doc;
