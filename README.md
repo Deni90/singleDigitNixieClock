@@ -11,6 +11,14 @@ Some of the key features:
 - Hosts a web server for easy setup & configuration.
 - Synchronises time with NTP server.
 
+Operating modes:
+- AP mode
+  - This mode is hosting a dedicated open wifi network called `NixieClock`. Its main purpose is to use it for first time setup to update wifi configuration. In addition, this mode will be activated when the clock is not able to connect to a configured network. Clock hosts a captive portal. A configuration page will be opened automatically upon connecting to `NixieClock` network.
+- Client mode
+  - In this mode the clock is connected to a configured wifi network. If there is internet access, the clock will synchronize its RTC with NTP server at startup and then every hour periodically.
+
+In both modes, the configuration page is easily reachable on the following URL: `mynixieclock.local`. There is no need to keep track of the IP address, the clock is hosting Multicast DNS (mDNS) server. mDNS is supported by Chrome and Safari browsers out of the box.
+
 ## Firmware
 
 Firmware is written using Arduino IDE and PlatformIO
