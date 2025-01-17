@@ -65,6 +65,7 @@ void ConfigStore::LoadWifiInfo(WifiInfo& wifiInfo) {
     if (deserializeJson(doc, file))
         Serial.printf("Failed to read %s file.\n", WIFI_INFO_FILE);
     file.close();
+    wifiInfo.SetHostname(doc["hostname"]);
     wifiInfo.SetSSID(doc["SSID"]);
     wifiInfo.SetPassword(doc["password"]);
 }

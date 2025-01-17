@@ -77,19 +77,21 @@ class LedInfo {
 }
 
 class WifiInfo {
-    constructor(ssid, password) {
+    constructor(hostname, ssid, password) {
+        this.hostname = hostname
         this.ssid = ssid;
         this.password = password;
     }
     toJson() {
         return {
+            "hostname": this.hostname,
             "SSID": this.ssid,
             "password": this.password,
         };
     }
     static Builder = class {
         fromJson(message) {
-            return new WifiInfo(message.SSID, message.password);
+            return new WifiInfo(message.hostname, message.SSID, message.password);
         }
     }
 }
@@ -302,6 +304,7 @@ function getWifiInfo() {
         })
         .then(data => {
             wifiInfo = new WifiInfo.Builder().fromJson(data);
+            document.getElementById("hostname").value = wifiInfo.hostname;
             document.getElementById("ssid").value = wifiInfo.ssid;
             document.getElementById("password").value = wifiInfo.password;
             document.getElementById("passwordVerify").value = wifiInfo.password;
@@ -314,6 +317,12 @@ function getWifiInfo() {
 function setWifiInfo() {
     var logLabel = document.getElementById("wifiLog");
     var errorColor = "#ff6457"
+    if (document.getElementById("hostname").value == "") {
+        console.log("Error: Hostname cannot be empty");
+        logLabel.innerHTML = "Error: Hostname cannot be empty";
+        logLabel.style.color = errorColor;
+        return;
+    }
     if (document.getElementById("ssid").value == "") {
         console.log("Error: Wifi SSID cannot be empty");
         logLabel.innerHTML = "Error: Wifi SSID cannot be empty";
@@ -333,6 +342,7 @@ function setWifiInfo() {
         return;
     }
     logLabel.innerHTML = "";
+    wifiInfo.hostname = document.getElementById("hostname").value;
     wifiInfo.ssid = document.getElementById("ssid").value;
     wifiInfo.password = btoa(document.getElementById("password").value);
     const requestOptions = {

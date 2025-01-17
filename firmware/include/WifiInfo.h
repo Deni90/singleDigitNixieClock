@@ -9,6 +9,7 @@
  */
 class WifiInfo {
   private:
+    String hostname;
     String ssid;
     String password;
 
@@ -21,10 +22,12 @@ class WifiInfo {
     /**
      * @brief Construct a new Sleep Info object
      *
-     * @param ssid AP SSID
+     * @param hostname hostname
+     * @param ssid SSID
      * @param password password
      */
-    WifiInfo(const String& ssid, const String& password);
+    WifiInfo(const String& hostname, const String& ssid,
+             const String& password);
 
     /**
      * @brief Default destructor
@@ -36,6 +39,20 @@ class WifiInfo {
      * @param ledInfo LedInfo object
      */
     WifiInfo(const WifiInfo& WifiInfo) = default;
+
+    /**
+     * @brief Getter for hostname
+     *
+     * @return String hostname
+     */
+    String GetHostname() const;
+
+    /**
+     * @brief Setter for hostname
+     *
+     * @param value hostname
+     */
+    void SetHostname(const String& value);
 
     /**
      * @brief Getter for ssid

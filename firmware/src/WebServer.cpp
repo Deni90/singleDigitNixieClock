@@ -184,13 +184,15 @@ void WebServer::HandleSetWifiInfo(AsyncWebServerRequest* request,
         return;
     }
     JsonDocument requestBody = json.as<JsonObject>();
-    if (!requestBody.containsKey("SSID") ||
+    if (!requestBody.containsKey("hostname") ||
+        !requestBody.containsKey("SSID") ||
         !requestBody.containsKey("password")) {
         request->send(HTTP_400_BAD_REQUEST,
                       "Error HandleSetWifiInfo: missing argument(s)!");
         return;
     }
-    WifiInfo wi(requestBody["SSID"], requestBody["password"]);
+    WifiInfo wi(requestBody["hostname"], requestBody["SSID"],
+                requestBody["password"]);
     request->send(HTTP_200_OK, "");
     callback.OnSetWifiInfo(wi);
 }

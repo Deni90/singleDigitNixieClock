@@ -37,7 +37,6 @@ constexpr uint8_t MINUTES_IN_HOUR = 60;
 constexpr int WEBSERVER_PORT = 80;
 constexpr uint8_t DNS_PORT = 53;
 constexpr const char* DEFAULT_AP_SSID = "NixieClock";
-constexpr const char* HOSTNAME = "mynixieclock";
 
 constexpr uint8_t CURRENT_TIME_REPEAT_NUM = 3;
 
@@ -90,7 +89,7 @@ bool InitializeWifiInStationMode(const WifiInfo& wifiInfo) {
                   const_cast<char*>(wifiInfo.GetPassword().c_str()),
                   wifiInfo.GetPassword().length());
     Serial.printf("Connecting to %s", wifiInfo.GetSSID().c_str());
-    WiFi.setHostname(HOSTNAME);
+    WiFi.setHostname(wifiInfo.GetHostname().c_str());
     WiFi.mode(WIFI_STA);
     WiFi.begin(wifiInfo.GetSSID(), decodedPassword);
     uint8_t counter = 100;
@@ -207,7 +206,7 @@ void setup() {
     }
 
     Serial.printf("Initializing mDNS... ");
-    MDNS.begin(HOSTNAME);
+    MDNS.begin(wi.GetHostname());
     Serial.println("Done");
 
     Serial.print("Initializing Web server... ");

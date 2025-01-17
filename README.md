@@ -17,7 +17,9 @@ Operating modes:
 - Client mode
   - In this mode the clock is connected to a configured wifi network. If there is internet access, the clock will synchronize its RTC with NTP server at startup and then every hour periodically.
 
-In both modes, the configuration page is easily reachable on the following URL: `mynixieclock.local`. There is no need to keep track of the IP address, the clock is hosting Multicast DNS (mDNS) server. mDNS is supported by Chrome and Safari browsers out of the box.
+In both modes, the configuration page is easily reachable on the following URL: `<HOSTNAME>.local`. There is no need to keep track of the IP address, the clock is hosting Multicast DNS (mDNS) server. mDNS is supported by Chrome and Safari browsers out of the box.
+
+By default, the `HOSTNAME` is set to `mynixieclock`.
 
 ## Firmware
 
@@ -38,8 +40,8 @@ Firmware is written using Arduino IDE and PlatformIO
 | /clock/time | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp; “year”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “month”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “day”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “hour”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “minute”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “second”: \<value><br>} | Set current time. |
 | /clock/sleep_info | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_before”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_after”: \<value><br>} | Get sleep mode configuration. The time before and after (in minutes) the backlight will be turned off. |
 | /clock/sleep_info | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_before”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_after”: \<value><br>} | Set sleep mode configuration. |
-| /wifi | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp;“SSID”: “\<Wifi SSID>”,&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;“password”: “\<base64 encoded password>”<br>} | Get wifi configuration. |
-| /wifi | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp;“SSID”: “\<Wifi SSID>”,&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;“password”: “\<base64 encoded password>”<br>} | Get wifi configuration. | Set wifi configuration. |
+| /wifi | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"hostname": "\<HOSTNAME>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“SSID”: “\<Wifi SSID>”,&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;“password”: “\<base64 encoded password>”<br>} | Get wifi configuration. |
+| /wifi | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"hostname": "\<HOSTNAME>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“SSID”: “\<Wifi SSID>”,&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;“password”: “\<base64 encoded password>”<br>} | Get wifi configuration. | Set wifi configuration. |
 
 ### Front-end layout & design
 

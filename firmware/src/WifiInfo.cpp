@@ -1,7 +1,12 @@
 #include "WifiInfo.h"
 
-WifiInfo::WifiInfo(const String& ssid, const String& password)
-    : ssid(ssid), password(password) {}
+WifiInfo::WifiInfo(const String& hostname, const String& ssid,
+                   const String& password)
+    : hostname(hostname), ssid(ssid), password(password) {}
+
+String WifiInfo::GetHostname() const { return hostname; }
+
+void WifiInfo::SetHostname(const String& value) { hostname = value; }
 
 String WifiInfo::GetSSID() const { return ssid; }
 
@@ -13,6 +18,7 @@ void WifiInfo::SetPassword(const String& value) { password = value; }
 
 JsonDocument WifiInfo::ToJson() const {
     JsonDocument doc;
+    doc["hostname"] = hostname;
     doc["SSID"] = ssid;
     doc["password"] = password;
     return doc;
