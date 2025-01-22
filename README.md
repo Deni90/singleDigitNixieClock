@@ -31,6 +31,19 @@ Firmware is written using Arduino IDE and PlatformIO
 - Install `Espressif 8266`: PIO Home -> Platforms
 - Install dependencies defined in `platformio.ini`: PIO Home -> Libraries
 
+### Model diagrams
+Context view diagram to present the general idea:
+
+![contextView](doc/singleDigitNixieClockContextView.png)
+
+Software system view diagram that shows software components and their relationship:
+
+![softwareSystemView](doc/singleDigitNixieClockSoftwareSystemView.png)
+
+Legend:
+
+![legend](doc/legend.png)
+
 ### REST API
 
 | End point | Method | Body (JSON) | Description |
