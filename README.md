@@ -2,7 +2,11 @@
 
 A small project combining ESP8266 with a vintage Soviet Nixie tube from the 70’ to create an artistic clock.
 
+Huge thank you to **[PCBWay](https://www.pcbway.com)** for sponsoring this project!
+
 ![demo](doc/singleDigitNixieClock.gif)
+
+For more details follow project logs on: **[hackaday.io](https://hackaday.io/project/202115-single-digit-nixie-clock)**
 
 Some of the key features:
 - Shows current time (hours and minutes) on a single nixie tube.
@@ -68,7 +72,9 @@ To solve these issues, I opted to completely re implement the frontend using pla
 
 ## Design
 
-Schematic and PCB are designed with KiCAD 8.0
+Schematic and PCB are designed with KiCAD 8.0.
+
+PCB views are generated with [PCBWay’s online gerber viewer](https://www.pcbway.com/project/OnlineGerberViewer.html).
 
 ### Control board
 
@@ -104,6 +110,18 @@ The rest of the display board consists of a WS2812B RGB LED and a pin header use
 
 ![display board top](doc/dbTop.png)
 ![display board bottom](doc/dbBottom.png)
+
+## PCB manufacturing
+
+A representative from **PCBWay** contacted me because he was deeply impressed by my project and offered to sponsor a batch of PCBs to test out their services.
+
+Since I recently moved to KiCad, it was a perfect opportunity to try out the PCBWay Plug-in for KiCad. It provides a simple way to place an order in just a few clicks. There is no need to bother with exporting gerber files, everything is automated. You just need to update the PCB specification and fill in the shipping information on the webpage. That’s it.
+
+The entire journey from placing the order to receiving the package took less than a week. Incredible! PCBWay did a superb job, PCBs are amazing. I am more than impressed.
+
+![PCBs](doc/374A6210.jpg)
+
+![Assembled PCBs](doc/374A6220.jpg)
 
 ## Resources
 
