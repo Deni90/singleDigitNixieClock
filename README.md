@@ -123,6 +123,15 @@ The entire journey from placing the order to receiving the package took less tha
 
 ![Assembled PCBs](doc/374A6220.jpg)
 
+## Enclosure design
+
+3D model is made with Autodesk Fusion 360.
+
+The end result is a simple box shaped design with holes for the nixie tube and USB connector.
+
+![enclosure model](doc/enclosureModel.png)
+
+
 ## Resources
 
 * [IN-14 Nixie tube datasheet](https://tubehobby.com/datasheets/in14.pdf)
