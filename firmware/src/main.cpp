@@ -1,8 +1,8 @@
 #include <ArduinoJson.h>
-#include <Base64.h>
+#include <base64.hpp>
 #include <DNSServer.h>
-#include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
+#include <ESP8266WiFi.h>
 #include <LittleFS.h>
 #include <RtcDS3231.h>
 #include <Ticker.h>
@@ -84,14 +84,19 @@ void IRAM_ATTR HandleInterrupt() {
  * @return true if successfully connected to a network
  */
 bool InitializeWifiInStationMode(const WifiInfo& wifiInfo) {
-    char decodedPassword[128];
-    Base64.decode(decodedPassword,
-                  const_cast<char*>(wifiInfo.GetPassword().c_str()),
-                  wifiInfo.GetPassword().length());
+    int passwordLenght = decode_base64_length(
+        reinterpret_cast<const unsigned char*>(wifiInfo.GetPassword().c_str()),
+        wifiInfo.GetPassword().length());
+    char password[passwordLenght + 1];
+    decode_base64(
+        reinterpret_cast<const unsigned char*>(wifiInfo.GetPassword().c_str()),
+        wifiInfo.GetPassword().length(),
+        reinterpret_cast<unsigned char*>(password));
+    password[passwordLenght] = '\0';
     Serial.printf("Connecting to %s", wifiInfo.GetSSID().c_str());
     WiFi.setHostname(wifiInfo.GetHostname().c_str());
     WiFi.mode(WIFI_STA);
-    WiFi.begin(wifiInfo.GetSSID(), decodedPassword);
+    WiFi.begin(wifiInfo.GetSSID(), password);
     uint8_t counter = 100;
     IPAddress myIP;
     while (WiFi.status() != WL_CONNECTED) {
