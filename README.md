@@ -27,15 +27,42 @@ By default, the `HOSTNAME` is set to `mynixieclock`.
 
 ## Firmware
 
-Firmware is written using Arduino IDE and PlatformIO
+Firmware is written in C++ using Arduino.
+
+To simplify project setup, the Arduino core for ESP8266 and all dependencies are moved to be part of the project as git submodules. This way, there is no need to manualy download and setup Arduino IDE and libraries.
 
 ### Project setup
 
-- Download [PlatformIO IDE for VSCode](https://platformio.org/install/ide?install=vscode).
-- Install `Espressif 8266`: PIO Home -> Platforms
-- Install dependencies defined in `platformio.ini`: PIO Home -> Libraries
+To setup the project call the `setup.sh` script. This script will clone all the necessary third party libraries and setup ESP/Arduino environment.
+```
+cd firmware
+./setup.sh
+```
+
+### Building and flashing the firmware
+Build the project:
+```
+make
+```
+Build and flash the project firmware:
+```
+make flash
+```
+Build and flash file system:
+```
+make flash_fs
+```
+Start serial monitor on the upload port:
+```
+make monitor
+```
+A description of all available makefile functions and variables is always available via the following command:
+```
+make help
+```
 
 ### Model diagrams
+
 Context view diagram to present the general idea:
 
 ![contextView](doc/singleDigitNixieClockContextView.png)

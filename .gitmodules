@@ -1,0 +1,27 @@
+[submodule "firmware/thirdParty/Adafruit_NeoPixel"]
+	path = firmware/thirdParty/Adafruit_NeoPixel
+	url = https://github.com/adafruit/Adafruit_NeoPixel.git
+[submodule "firmware/thirdParty/Arduino"]
+	path = firmware/thirdParty/Arduino
+	url = https://github.com/esp8266/Arduino.git
+[submodule "firmware/thirdParty/ArduinoJson"]
+	path = firmware/thirdParty/ArduinoJson
+	url = https://github.com/bblanchon/ArduinoJson.git
+[submodule "firmware/thirdParty/base64_arduino"]
+	path = firmware/thirdParty/base64_arduino
+	url = https://github.com/Densaugeo/base64_arduino.git
+[submodule "firmware/thirdParty/ESPAsyncTCP"]
+	path = firmware/thirdParty/ESPAsyncTCP
+	url = https://github.com/me-no-dev/ESPAsyncTCP.git
+[submodule "firmware/thirdParty/ESPAsyncWebServer"]
+	path = firmware/thirdParty/ESPAsyncWebServer
+	url = https://github.com/me-no-dev/ESPAsyncWebServer.git
+[submodule "firmware/thirdParty/makeEspArduino"]
+	path = firmware/thirdParty/makeEspArduino
+	url = https://github.com/plerup/makeEspArduino.git
+[submodule "firmware/thirdParty/NTPClient"]
+	path = firmware/thirdParty/NTPClient
+	url = https://github.com/arduino-libraries/NTPClient.git
+[submodule "firmware/thirdParty/Rtc"]
+	path = firmware/thirdParty/Rtc
+	url = https://github.com/Makuna/Rtc.git
