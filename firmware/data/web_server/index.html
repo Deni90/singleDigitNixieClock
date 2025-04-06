@@ -105,23 +105,23 @@
 	<div class="tabcontent" id="tabBacklight">
 		<h2>Backlight configuration</h2>
 		<div class="field-container">
-			<label for="ssid">Backlight type:</label>
+			<label for="backlightType">Backlight type:</label>
 			<div class="choice-container">
-				<div class="choice" onclick="selectBacklightChoice(event, 'radioChoiceOff')">
-					<input id="radioChoiceOff" type="radio" name="backlightType" />
-					<label for="radioChoiceOff">Off</label>
+				<div class="choice" onclick="selectBacklightChoice(event)" name="backlightTypeChoice" value="0">
+					<input id="backlightTypeOff" type="radio"/>
+					<label for="backlightTypeOff">Off</label>
 				</div>
-				<div class="choice" onclick="selectBacklightChoice(event, 'radioChoiceOn')">
-					<input id="radioChoiceOn" type="radio" value="1" />
-					<label for="radioChoiceOn">On</label>
+				<div class="choice" onclick="selectBacklightChoice(event)" name="backlightTypeChoice" value="1">
+					<input id="backlightTypeOn" type="radio"/>
+					<label for="backlightTypeOn">On</label>
 				</div>
-				<div class="choice" onclick="selectBacklightChoice(event, 'radioChoiceFade')">
-					<input id="radioChoiceFade" type="radio" value="2" />
-					<label for="radioChoiceFade">Fade</label>
+				<div class="choice" onclick="selectBacklightChoice(event)" name="backlightTypeChoice" value="2">
+					<input id="backlightTypeFade" type="radio"/>
+					<label for="backlightTypeFade">Fade</label>
 				</div>
-				<div class="choice" onclick="selectBacklightChoice(event, 'radioChoicePulse')">
-					<input id="radioChoicePulse" type="radio" value="3" />
-					<label for="radioChoicePulse">Pulse</label>
+				<div class="choice" onclick="selectBacklightChoice(event)" name="backlightTypeChoice" value="3">
+					<input id="backlightTypePulse" type="radio"/>
+					<label for="backlightTypePulse">Pulse</label>
 				</div>
 			</div>
 		</div>

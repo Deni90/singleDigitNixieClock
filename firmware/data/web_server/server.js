@@ -260,8 +260,7 @@ function getLedInfo() {
         })
         .then(data => {
             ledInfo = new LedInfo.Builder().fromJson(data);
-            choices = document.getElementsByClassName("choice");
-            choices[ledInfo.state].className += " active";
+            selectRadioChoiceByName("backlightTypeChoice", ledInfo.state);
             var hsv = RGBtoHSV(ledInfo.r, ledInfo.g, ledInfo.b);
             document.getElementById("sliderHue").value = hsv.h * 360;
             document.getElementById("sliderSaturation").value = hsv.s * 100;
@@ -363,14 +362,29 @@ function setWifiInfo() {
         });
 }
 
-function selectBacklightChoice(evt, choiceName) {
-    var i, choiceContent, choices;
-    choices = document.getElementsByClassName("choice");
+function selectRadioChoiceByName(name, value) {
+    let choices = document.getElementsByName(name);
     for (i = 0; i < choices.length; i++) {
+        if(choices[i].getAttribute("value") == value) {
+            choices[i].className += " active";
+            break;
+        }
+    }
+}
+
+function selectRadioChoiceByEvent(evt) {
+    var i, choices;
+    choices = document.getElementsByName(evt.currentTarget.getAttribute("name"));
+    for (i = 0; i < choices.length; i++) {
+
         choices[i].className = choices[i].className.replace(" active", "");
     }
     evt.currentTarget.className += " active";
-    ledInfo.state = document.getElementById(choiceName).value;
+    return evt.currentTarget.getAttribute("value");
+}
+
+function selectBacklightChoice(evt) {
+    ledInfo.state = selectRadioChoiceByEvent(evt);
 }
 
 function updateSleepBefore() {
