@@ -58,6 +58,19 @@
 				<option value="46800">UTC+13:00</option>
 			</select>
 		</div>
+		<div class="field-container">
+			<label for="dst">Daylight saving time:</label>
+			<div class="choice-container">
+				<div class="choice" onclick="selectDstChoice(event)" name="dstChoice" value="0">
+					<input id="dstOff" type="radio"/>
+					<label for="dstOff">Off</label>
+				</div>
+				<div class="choice" onclick="selectDstChoice(event)" name="dstChoice" value="1">
+					<input id="dstOn" type="radio"/>
+					<label for="dstOn">On</label>
+				</div>
+			</div>
+		</div>
 		<h2>Sleep configuration</h2>
 		<h3>Sleep before</h3>
 		<div class="field-container">

@@ -1,13 +1,13 @@
 #include <ArduinoJson.h>
-#include <base64.hpp>
 #include <DNSServer.h>
-#include <ESP8266mDNS.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <LittleFS.h>
 #include <RtcDS3231.h>
 #include <Ticker.h>
 #include <WiFiClient.h>
 #include <Wire.h>
+#include <base64.hpp>
 
 #include "ConfigStore.h"
 #include "In14NixieTube.h"
@@ -187,7 +187,7 @@ void setup() {
 
     TimeInfo ti;
     ConfigStore::LoadTimeInfo(ti);
-    timeManager.Initialize(ti.GetOffset());
+    timeManager.Initialize(ti.GetOffset() + (ti.IsDst() ? 3600 : 0));
     SynchroniseTime();
 
     Serial.printf("Initializing timer(s)... ");

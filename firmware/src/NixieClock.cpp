@@ -210,7 +210,8 @@ TimeInfo NixieClock::OnGetTimeInfo() const {
 
 void NixieClock::OnSetTimeInfo(const TimeInfo& timeInfo) {
     ConfigStore::SaveTimeInfo(timeInfo);
-    timeManager.SetOffset(timeInfo.GetOffset());
+    int offset = timeInfo.GetOffset() + (timeInfo.IsDst() ? 3600 : 0);
+    timeManager.SetOffset(offset);
 }
 
 bool NixieClock::IsInSleepMode() {

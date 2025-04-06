@@ -219,13 +219,15 @@ void WebServer::HandleSetTimeInfo(AsyncWebServerRequest* request,
         return;
     }
     JsonDocument requestBody = json.as<JsonObject>();
-    if (!requestBody.containsKey("offset")) {
+    if (!requestBody.containsKey("offset") ||
+        !requestBody.containsKey("isDst")) {
         request->send(HTTP_400_BAD_REQUEST,
                       "Error HandleSetTimeInfo: missing argument(s)!");
         return;
     }
     int offset = requestBody["offset"];
-    TimeInfo ti(offset);
+    uint8_t isDst = requestBody["isDst"];
+    TimeInfo ti(offset, isDst);
     callback.OnSetTimeInfo(ti);
     request->send(HTTP_200_OK, "");
 }

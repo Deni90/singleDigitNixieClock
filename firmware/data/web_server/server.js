@@ -13,17 +13,19 @@ class HSV {
 }
 
 class TimeInfo {
-    constructor(offset) {
+    constructor(offset, isDst) {
         this.offset = offset;
+        this.isDst = isDst;
     }
     toJson() {
         return {
-            "offset": this.offset
+            "offset": this.offset,
+            "isDst": this.isDst
         };
     }
     static Builder = class {
         fromJson(message) {
-            return new TimeInfo(message.offset);
+            return new TimeInfo(message.offset, message.isDst);
         }
     }
 }
@@ -184,6 +186,7 @@ function getTimeInfo() {
         .then(data => {
             timeInfo = new TimeInfo.Builder().fromJson(data);
             document.getElementById("selectTimeZone").value = timeInfo.offset;
+            selectRadioChoiceByName("dstChoice", timeInfo.isDst);
         })
         .catch(error => {
             console.error('There was a problem with the getting time info:', error);
@@ -385,6 +388,10 @@ function selectRadioChoiceByEvent(evt) {
 
 function selectBacklightChoice(evt) {
     ledInfo.state = selectRadioChoiceByEvent(evt);
+}
+
+function selectDstChoice(evt) {
+    timeInfo.isDst = selectRadioChoiceByEvent(evt);
 }
 
 function updateSleepBefore() {

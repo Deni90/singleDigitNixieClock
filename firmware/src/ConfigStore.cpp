@@ -89,6 +89,7 @@ void ConfigStore::LoadTimeInfo(TimeInfo& timeInfo) {
         Serial.printf("Failed to read %s file.\n", TIME_INFO_FILE);
     file.close();
     timeInfo.SetOffset(doc["offset"]);
+    timeInfo.SetDst(doc["isDst"]);
 }
 
 void ConfigStore::SaveTimeInfo(const TimeInfo& timeInfo) {

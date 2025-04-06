@@ -10,6 +10,7 @@
 class TimeInfo {
   private:
     int offset;
+    bool isDst;
 
   public:
     /**
@@ -21,8 +22,9 @@ class TimeInfo {
      * @brief Construct a new Time Info object
      *
      * @param offset offset in seconds
+     * @param isDst flag indicating is daylight saving time enabled
      */
-    TimeInfo(int offset);
+    TimeInfo(int offset, bool isDst);
 
     /**
      * @brief Default destructor
@@ -48,6 +50,20 @@ class TimeInfo {
      * @param value offset in seconds
      */
     void SetOffset(int value);
+
+    /**
+     * @brief Getter for isDst
+     *
+     * @return isDst Flag indicating is daylight saving enabled
+     */
+    bool IsDst() const;
+
+    /**
+     * @brief Setter for isDst
+     *
+     * @param value Flag indicating is daylight saving enabled
+     */
+    void SetDst(bool value);
 
     /**
      * @brief Convert TimeInfo to JSON format
