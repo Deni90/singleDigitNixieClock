@@ -167,7 +167,6 @@ void WebServer::HandleGetWifiInfo(AsyncWebServerRequest* request) {
         return;
     }
     WifiInfo wi = callback.OnGetWifiInfo();
-    wi.SetPassword("password");   // don't share the actuall wifi password
     String messageBuffer;
     serializeJson(wi.ToJson(), messageBuffer);
     request->send(HTTP_200_OK, "application/json", messageBuffer);

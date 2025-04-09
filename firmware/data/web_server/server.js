@@ -93,7 +93,7 @@ class WifiInfo {
     }
     static Builder = class {
         fromJson(message) {
-            return new WifiInfo(message.hostname, message.SSID, message.password);
+            return new WifiInfo(message.hostname, message.SSID, atob(message.password));
         }
     }
 }
