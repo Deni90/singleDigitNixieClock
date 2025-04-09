@@ -217,6 +217,9 @@ void setup() {
     Serial.print("Initializing Web server... ");
     webServer.Initialize();
     Serial.println("Done");
+
+    Serial.printf("\nWifi SSID: %s\n", wi.GetSSID().c_str());
+    Serial.printf("Hostname:  %s\n\n", wi.GetHostname().c_str());
 }
 
 /**
