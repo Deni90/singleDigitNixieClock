@@ -181,7 +181,7 @@ void setup() {
 
     WifiInfo wi;
     ConfigStore::LoadWifiInfo(wi);
-    if (!InitializeWifiInStationMode(wi)) {
+    if (wi.GetSSID() == "" || !InitializeWifiInStationMode(wi)) {
         InitializeWifiInApMode();
     }
 
