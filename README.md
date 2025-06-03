@@ -115,13 +115,8 @@ Maybe in the future I decide to upgrade the project to use **ESP32**.
 
 ![control board schematic](doc/cbSch.jpg)
 
-#### PCB
-
 **IMPORTANT**: For some reason (bug) the wiring of the SMD crystal is wrong. XI and XO pins are located diagonally. To fix this issue after calling "Update PCB from Schematic..."(F8) it is needed to manually change the layout of Y1 to:
 ![fix](doc/crystalFix.png)
-
-![control board top](doc/cbTop.png)
-![control board bottom](doc/cbBottom.png)
 
 ### Display board
 
@@ -132,11 +127,6 @@ The rest of the display board consists of a WS2812B RGB LED and a pin header use
 #### Schematic
 
 ![display board schematic](doc/dbSch.jpg)
-
-#### PCB
-
-![display board top](doc/dbTop.png)
-![display board bottom](doc/dbBottom.png)
 
 ## PCB manufacturing
 
