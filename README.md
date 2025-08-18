@@ -61,20 +61,6 @@ A description of all available makefile functions and variables is always availa
 make help
 ```
 
-### Model diagrams
-
-Context view diagram to present the general idea:
-
-![contextView](doc/singleDigitNixieClockContextView.png)
-
-Software system view diagram that shows software components and their relationship:
-
-![softwareSystemView](doc/singleDigitNixieClockSoftwareSystemView.png)
-
-Legend:
-
-![legend](doc/legend.png)
-
 ### REST API
 
 | End point | Method | Body (JSON) | Description |
@@ -100,8 +86,6 @@ To solve these issues, I opted to completely re implement the frontend using pla
 ## Design
 
 Schematic and PCB are designed with KiCAD 8.0.
-
-PCB views are generated with [PCBWay’s online gerber viewer](https://www.pcbway.com/project/OnlineGerberViewer.html).
 
 ### Control board
 
