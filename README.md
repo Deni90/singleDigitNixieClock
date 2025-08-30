@@ -1,6 +1,6 @@
 # Single Digit Nixie Clock
 
-A small project combining ESP8266 with a vintage Soviet Nixie tube from the 70’ to create an artistic clock.
+A small project combining ESP32 with a vintage Soviet Nixie tube from the 70’ to create an artistic clock.
 
 Huge thank you to **[PCBWay](https://www.pcbway.com)** for sponsoring this project!
 
