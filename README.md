@@ -27,39 +27,9 @@ By default, the `HOSTNAME` is set to `mynixieclock`.
 
 ## Firmware
 
-Firmware is written in C++ using Arduino.
+Firmware is written in C++ using ESP-IDF.
 
-To simplify project setup, the Arduino core for ESP8266 and all dependencies are moved to be part of the project as git submodules. This way, there is no need to manualy download and setup Arduino IDE and libraries.
-
-### Project setup
-
-To setup the project call the `setup.sh` script. This script will clone all the necessary third party libraries and setup ESP/Arduino environment.
-```
-cd firmware
-./setup.sh
-```
-
-### Building and flashing the firmware
-Build the project:
-```
-make
-```
-Build and flash the project firmware:
-```
-make flash
-```
-Build and flash file system:
-```
-make flash_fs
-```
-Start serial monitor on the upload port:
-```
-make monitor
-```
-A description of all available makefile functions and variables is always available via the following command:
-```
-make help
-```
+TODO
 
 ### REST API
 
@@ -85,22 +55,15 @@ To solve these issues, I opted to completely re implement the frontend using pla
 
 ## Design
 
-Schematic and PCB are designed with KiCAD 8.0.
+Schematic and PCB are designed with KiCAD
 
 ### Control board
 
-Control board is basically a re-packaged NodeMCU design connected with DS3231 real time clock and NCH8200HV high voltage boost module board.
-
-The reason for still choosing **ESP8288** instead of more modern **ESP32** variant is simple: I had a couple of unused modules in my toolbox. It was logical to use them. ESP8288 module is perfectly fine for this kind of project. It has a wireless capability and the MCU is good enough.
-
-Maybe in the future I decide to upgrade the project to use **ESP32**.
+Control board is basically a re-packaged generic ESP32 board design connected with DS3231 real time clock and NCH8200HV high voltage boost module board.
 
 #### Schematic
 
 ![control board schematic](doc/cbSch.jpg)
-
-**IMPORTANT**: For some reason (bug) the wiring of the SMD crystal is wrong. XI and XO pins are located diagonally. To fix this issue after calling "Update PCB from Schematic..."(F8) it is needed to manually change the layout of Y1 to:
-![fix](doc/crystalFix.png)
 
 ### Display board
 
