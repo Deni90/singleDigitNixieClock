@@ -37,7 +37,6 @@ body {
 }
 
 .tab button {
-    width: 33.333%;
     padding: .7em 1em;
     cursor: pointer;
     background-color: #f6f6f6;

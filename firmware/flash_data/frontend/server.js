@@ -147,6 +147,13 @@ function RGBtoHSV(r, g, b) {
     };
 }
 
+function setEqualTabButtonWidth(id) {
+    var tabcontent = document.getElementById(id).children;
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.width = 100.0 / tabcontent.length + "%";
+    }
+}
+
 function openTab(id, tabName) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -170,8 +177,9 @@ window.addEventListener('load', function () {
     getSleepInfo();
     getLedInfo();
     getWifiInfo();
-    openTab("buttonClock", "tabClock");
     updateColorBox();
+    setEqualTabButtonWidth("mainTab");
+    openTab("buttonClock", "tabClock");
 });
 
 document.addEventListener("DOMContentLoaded", () => {
