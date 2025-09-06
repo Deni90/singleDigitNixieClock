@@ -181,11 +181,6 @@ function openMainTab(id, tabName) {
     openTab(id, tabName)
 }
 
-var timeInfo = null;
-var sleepInfo = null;
-var ledInfo = null;
-var wifiInfo = null;
-
 window.addEventListener('load', function () {
     setEqualTabButtonWidth("mainTab");
     openMainTab("buttonClock", "tabClock");
@@ -203,7 +198,7 @@ function getTimeZonesAndTimeInfo() {
                 option.textContent = zone;
                 timeZoneDropdown.appendChild(option);
             }
-                getTimeInfo();
+            getTimeInfo();
         })
         .catch(error => {
             console.error("Error loading timezone JSON:", error);
@@ -219,7 +214,7 @@ function getTimeInfo() {
             return response.json();
         })
         .then(data => {
-            timeInfo = new TimeInfo.Builder().fromJson(data);
+            let timeInfo = new TimeInfo.Builder().fromJson(data);
             const timeZoneDropdown = document.getElementById('selectTimeZone');
             for (let i = 0; i < timeZoneDropdown.options.length; i++) {
                 if (timeZoneDropdown.options[i].textContent === timeInfo.tzZone) {
@@ -235,8 +230,7 @@ function getTimeInfo() {
 function setTimeInfo() {
     const timeZoneDropdown = document.getElementById('selectTimeZone');
     const selectedTimeZone = timeZoneDropdown.options[timeZoneDropdown.selectedIndex];
-    timeInfo.tzZone = selectedTimeZone.text;
-    timeInfo.tzOffset = selectedTimeZone.value;
+    let timeInfo = new TimeInfo(selectedTimeZone.text, selectedTimeZone.value);
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -261,7 +255,7 @@ function getSleepInfo() {
             return response.json();
         })
         .then(data => {
-            sleepInfo = new SleepInfo.Builder().fromJson(data);
+            let sleepInfo = new SleepInfo.Builder().fromJson(data);
             document.getElementById("inputSleepBeforeHour").value = Math.floor(sleepInfo.sleepBefore / 60);
             document.getElementById("sliderSleepBeforeHour").value = Math.floor(sleepInfo.sleepBefore / 60);
             document.getElementById("inputSleepBeforeMinute").value = sleepInfo.sleepBefore % 60;
@@ -278,8 +272,9 @@ function getSleepInfo() {
 }
 
 function setSleepInfo() {
-    sleepInfo.sleepBefore = document.getElementById("inputSleepBeforeHour").value * 60 + parseInt(document.getElementById("inputSleepBeforeMinute").value);
-    sleepInfo.sleepAfter = document.getElementById("inputSleepAfterHour").value * 60 + parseInt(document.getElementById("inputSleepAfterMinute").value);
+    let sleepInfo = new SleepInfo(
+        document.getElementById("inputSleepBeforeHour").value * 60 + parseInt(document.getElementById("inputSleepBeforeMinute").value),
+        document.getElementById("inputSleepAfterHour").value * 60 + parseInt(document.getElementById("inputSleepAfterMinute").value));
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -304,7 +299,7 @@ function getLedInfo() {
             return response.json();
         })
         .then(data => {
-            ledInfo = new LedInfo.Builder().fromJson(data);
+            let ledInfo = new LedInfo.Builder().fromJson(data);
             selectRadioChoiceByName("backlightTypeChoice", ledInfo.state);
             var hsv = RGBtoHSV(ledInfo.r, ledInfo.g, ledInfo.b);
             document.getElementById("sliderHue").value = hsv.h * 360;
@@ -322,7 +317,7 @@ function setLedInfo() {
     var s = document.getElementById("sliderSaturation").value / 100;
     var v = document.getElementById("sliderValue").value / 100;
     var rgb = HSVtoRGB(h, s, v);
-    ledInfo.setColor(rgb.r, rgb.b, rgb.g);
+    let ledInfo = new LedInfo(rgb.r, rgb.b, rgb.g, getSelectedRadioChoice("backlightTypeChoice"));
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -347,7 +342,7 @@ function getWifiInfo() {
             return response.json();
         })
         .then(data => {
-            wifiInfo = new WifiInfo.Builder().fromJson(data);
+            let wifiInfo = new WifiInfo.Builder().fromJson(data);
             document.getElementById("hostname").value = wifiInfo.hostname;
             document.getElementById("ssid").value = wifiInfo.ssid;
             document.getElementById("password").value = wifiInfo.password;
@@ -386,9 +381,10 @@ function setWifiInfo() {
         return;
     }
     logLabel.innerHTML = "";
-    wifiInfo.hostname = document.getElementById("hostname").value;
-    wifiInfo.ssid = document.getElementById("ssid").value;
-    wifiInfo.password = btoa(document.getElementById("password").value);
+    let wifiInfo = new WifiInfo(
+        document.getElementById("hostname").value,
+        document.getElementById("ssid").value,
+        btoa(document.getElementById("password").value));
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -417,23 +413,24 @@ function selectRadioChoiceByName(name, value) {
     }
 }
 
+function getSelectedRadioChoice(name) {
+    let choices = document.getElementsByName(name);
+    for (i = 0; i < choices.length; i++) {
+        if (choices[i].className.includes(" active")) {
+            return choices[i].getAttribute("value")
+        }
+    }
+    return "";
+}
+
 function selectRadioChoiceByEvent(evt) {
     var i, choices;
     choices = document.getElementsByName(evt.currentTarget.getAttribute("name"));
     for (i = 0; i < choices.length; i++) {
-
         choices[i].className = choices[i].className.replace(" active", "");
     }
     evt.currentTarget.className += " active";
     return evt.currentTarget.getAttribute("value");
-}
-
-function selectBacklightChoice(evt) {
-    ledInfo.state = selectRadioChoiceByEvent(evt);
-}
-
-function selectDstChoice(evt) {
-    timeInfo.isDst = selectRadioChoiceByEvent(evt);
 }
 
 function updateSleepBefore() {
