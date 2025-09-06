@@ -1,6 +1,7 @@
 # Single Digit Nixie Clock
 
 A small project combining ESP32 with a vintage Soviet Nixie tube from the 70’ to create an artistic clock.
+Originally developed on ESP8266/Arduino, now evolved to ESP32 with ESP-IDF for greater performance and stability.
 
 Huge thank you to **[PCBWay](https://www.pcbway.com)** for sponsoring this project!
 
@@ -27,9 +28,14 @@ By default, the `HOSTNAME` is set to `mynixieclock`.
 
 ## Firmware
 
-Firmware is written in C++ using ESP-IDF.
+This project started on ESP8266 with the Arduino framework, which was great for fast prototyping. However, the reliance on third-party libraries often led to instability and crashes.
 
-TODO
+To ensure long-term support and stability, the project was migrated from the now-obsolete ESP8266 to the ESP32, using ESP-IDF in C++.
+
+This move provides:
+- A robust and stable firmware base.
+- Full access to ESP32’s hardware features.
+- Use of official ESP-IDF components
 
 ### REST API
 
@@ -37,7 +43,6 @@ TODO
 | - | - | - | - |
 | /backlight | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp;“R”: <0-255>,<br>&nbsp;&nbsp;&nbsp;&nbsp;“G”: <0-255>,<br>&nbsp;&nbsp;&nbsp;&nbsp;“B”: <0-255>,<br>&nbsp;&nbsp;&nbsp;&nbsp;“state”: <0-2><br>} | Get color and state of the backlight (RGB LED). |
 | /backlight | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp;“R”: <0-255>,<br>&nbsp;&nbsp;&nbsp;&nbsp;“G”: <0-255>,<br>&nbsp;&nbsp;&nbsp;&nbsp;“B”: <0-255>,<br>&nbsp;&nbsp;&nbsp;&nbsp;“state”: <0-2><br>} | Set color and state of the backlight (RGB LED). |
-| /clock/time | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp; “year”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “month”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “day”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “hour”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “minute”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “second”: \<value><br>} | Set current time. |
 | /clock/sleep_info | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_before”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_after”: \<value><br>} | Get sleep mode configuration. The time before and after (in minutes) the backlight will be turned off. |
 | /clock/sleep_info | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_before”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_after”: \<value><br>} | Set sleep mode configuration. |
 | /wifi | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"hostname": "\<HOSTNAME>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“SSID”: “\<Wifi SSID>”,&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;“password”: “\<base64 encoded password>”<br>} | Get wifi configuration. |
@@ -95,6 +100,9 @@ The end result is a simple box shaped design with holes for the nixie tube and U
 
 ![enclosure model](doc/enclosureModel.png)
 
+## Third-party dependencies
+
+This project includes `firmware/flash_data/frontend/zones.json` from https://github.com/nayarsystems/posix_tz_db, licensed under the MIT License.
 
 ## Resources
 
