@@ -65,6 +65,8 @@ class LedController {
     void unlock();
 
   private:
+    void test();
+
     gpio_num_t mLedPin;
     led_strip_handle_t mLedHandle;
     LedInfo mLedInfo;

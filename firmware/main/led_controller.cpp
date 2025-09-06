@@ -37,6 +37,40 @@ void LedController::initialize(LedInfo ledInfo) {
 
     ESP_ERROR_CHECK(
         led_strip_new_rmt_device(&ledConfig, &rmtConfig, &mLedHandle));
+
+    test();
+}
+
+void LedController::test() {
+    const int steps = 50;     // number of steps per color transition
+    const int delayMs = 10;   // delay per step (adjust for total speed)
+
+    uint8_t colors[][3] = {{0, 0, 0},
+                           {255, 0, 0},   // red
+                           {0, 255, 0},   // green
+                           {0, 0, 255},   // blue
+                           {0, 0, 0}};
+    int numColors = sizeof(colors) / sizeof(colors[0]);
+
+    // Loop through all consecutive color pairs
+    for (int c = 0; c < numColors - 1; c++) {
+        uint8_t rFrom = colors[c][0];
+        uint8_t gFrom = colors[c][1];
+        uint8_t bFrom = colors[c][2];
+        uint8_t rTo = colors[c + 1][0];
+        uint8_t gTo = colors[c + 1][1];
+        uint8_t bTo = colors[c + 1][2];
+
+        for (int step = 0; step <= steps; step++) {
+            uint8_t r = rFrom + ((rTo - rFrom) * step) / steps;
+            uint8_t g = gFrom + ((gTo - gFrom) * step) / steps;
+            uint8_t b = bFrom + ((bTo - bFrom) * step) / steps;
+
+            led_strip_set_pixel(mLedHandle, 0, r, g, b);
+            led_strip_refresh(mLedHandle);
+            vTaskDelay(pdMS_TO_TICKS(delayMs));
+        }
+    }
 }
 
 void LedController::update() {
