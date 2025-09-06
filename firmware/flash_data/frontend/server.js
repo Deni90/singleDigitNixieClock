@@ -99,7 +99,7 @@ class WifiInfo {
 }
 
 function HSVtoRGB(h, s, v) {
-    var r, g, b, i, f, p, q, t;
+    let r, g, b, i, f, p, q, t;
     if (arguments.length === 1) {
         s = h.s, v = h.v, h = h.h;
     }
@@ -127,7 +127,7 @@ function RGBtoHSV(r, g, b) {
     if (arguments.length === 1) {
         g = r.g, b = r.b, r = r.r;
     }
-    var max = Math.max(r, g, b), min = Math.min(r, g, b),
+    let max = Math.max(r, g, b), min = Math.min(r, g, b),
         d = max - min,
         h,
         s = (max === 0 ? 0 : d / max),
@@ -148,14 +148,14 @@ function RGBtoHSV(r, g, b) {
 }
 
 function setEqualTabButtonWidth(id) {
-    var tabcontent = document.getElementById(id).children;
+    let tabcontent = document.getElementById(id).children;
     for (i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.width = 100.0 / tabcontent.length + "%";
     }
 }
 
 function openTab(id, tabName) {
-    var i, tabcontent, tablinks;
+    let i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
@@ -301,7 +301,7 @@ function getLedInfo() {
         .then(data => {
             let ledInfo = new LedInfo.Builder().fromJson(data);
             selectRadioChoiceByName("backlightTypeChoice", ledInfo.state);
-            var hsv = RGBtoHSV(ledInfo.r, ledInfo.g, ledInfo.b);
+            let hsv = RGBtoHSV(ledInfo.r, ledInfo.g, ledInfo.b);
             document.getElementById("sliderHue").value = hsv.h * 360;
             document.getElementById("sliderSaturation").value = hsv.s * 100;
             document.getElementById("sliderValue").value = hsv.v * 100;
@@ -313,10 +313,10 @@ function getLedInfo() {
 }
 
 function setLedInfo() {
-    var h = (360 - document.getElementById("sliderHue").value) / 360;
-    var s = document.getElementById("sliderSaturation").value / 100;
-    var v = document.getElementById("sliderValue").value / 100;
-    var rgb = HSVtoRGB(h, s, v);
+    let h = (360 - document.getElementById("sliderHue").value) / 360;
+    let s = document.getElementById("sliderSaturation").value / 100;
+    let v = document.getElementById("sliderValue").value / 100;
+    let rgb = HSVtoRGB(h, s, v);
     let ledInfo = new LedInfo(rgb.r, rgb.b, rgb.g, getSelectedRadioChoice("backlightTypeChoice"));
     const requestOptions = {
         method: 'POST',
@@ -354,8 +354,8 @@ function getWifiInfo() {
 }
 
 function setWifiInfo() {
-    var logLabel = document.getElementById("wifiLog");
-    var errorColor = "#ff6457"
+    let logLabel = document.getElementById("wifiLog");
+    let errorColor = "#ff6457"
     if (document.getElementById("hostname").value == "") {
         console.log("Error: Hostname cannot be empty");
         logLabel.innerHTML = "Error: Hostname cannot be empty";
@@ -424,7 +424,7 @@ function getSelectedRadioChoice(name) {
 }
 
 function selectRadioChoiceByEvent(evt) {
-    var i, choices;
+    let i, choices;
     choices = document.getElementsByName(evt.currentTarget.getAttribute("name"));
     for (i = 0; i < choices.length; i++) {
         choices[i].className = choices[i].className.replace(" active", "");
@@ -449,10 +449,10 @@ function setClockConfig() {
 }
 
 function updateColorBox() {
-    var hsv = new HSV(0, 0, 0);
+    let hsv = new HSV(0, 0, 0);
     hsv.h = document.getElementById("sliderHue").value;
     hsv.s = document.getElementById("sliderSaturation").value;
     hsv.v = document.getElementById("sliderValue").value;
-    var color = "hsla(" + hsv.h + "," + hsv.s + "%," + "50%," + hsv.v + "%)";
+    let color = "hsla(" + hsv.h + "," + hsv.s + "%," + "50%," + hsv.v + "%)";
     document.getElementById("colorBox").style.backgroundColor = color;
 }
