@@ -168,21 +168,30 @@ function openTab(id, tabName) {
     document.getElementById(id).className += " active";
 }
 
+function openMainTab(id, tabName) {
+    if (tabName == "tabClock") {
+        getSleepInfo();
+        getTimeZonesAndTimeInfo();
+    } else if (tabName == "tabBacklight") {
+        getLedInfo();
+        updateColorBox();
+    } else if (tabName == "tabWifi") {
+        getWifiInfo();
+    }
+    openTab(id, tabName)
+}
+
 var timeInfo = null;
 var sleepInfo = null;
 var ledInfo = null;
 var wifiInfo = null;
 
 window.addEventListener('load', function () {
-    getSleepInfo();
-    getLedInfo();
-    getWifiInfo();
-    updateColorBox();
     setEqualTabButtonWidth("mainTab");
-    openTab("buttonClock", "tabClock");
+    openMainTab("buttonClock", "tabClock");
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+function getTimeZonesAndTimeInfo() {
     const timeZoneDropdown = document.getElementById("selectTimeZone");
     fetch("zones.json")
         .then(response => response.json())
@@ -194,12 +203,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 option.textContent = zone;
                 timeZoneDropdown.appendChild(option);
             }
-            getTimeInfo();
+                getTimeInfo();
         })
         .catch(error => {
             console.error("Error loading timezone JSON:", error);
         });
-});
+}
 
 function getTimeInfo() {
     fetch('/api/v1/clock/time_info')
