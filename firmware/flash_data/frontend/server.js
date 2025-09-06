@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function getTimeInfo() {
-    fetch('/clock/time_info')
+    fetch('/api/v1/clock/time_info')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -227,7 +227,7 @@ function setTimeInfo() {
         },
         body: JSON.stringify(timeInfo.toJson())
     };
-    fetch("/clock/time_info", requestOptions)
+    fetch("/api/v1/clock/time_info", requestOptions)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -236,7 +236,7 @@ function setTimeInfo() {
 }
 
 function getSleepInfo() {
-    fetch('/clock/sleep_info')
+    fetch('/api/v1/clock/sleep_info')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -270,7 +270,7 @@ function setSleepInfo() {
         },
         body: JSON.stringify(sleepInfo.toJson())
     };
-    fetch("/clock/sleep_info", requestOptions)
+    fetch("/api/v1/clock/sleep_info", requestOptions)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -279,7 +279,7 @@ function setSleepInfo() {
 }
 
 function getLedInfo() {
-    fetch('/backlight')
+    fetch('/api/v1/led/led_info')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -313,7 +313,7 @@ function setLedInfo() {
         },
         body: JSON.stringify(ledInfo.toJson())
     };
-    fetch("/backlight", requestOptions)
+    fetch("/api/v1/del/led_info", requestOptions)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -322,7 +322,7 @@ function setLedInfo() {
 }
 
 function getWifiInfo() {
-    fetch('/wifi')
+    fetch('/api/v1/wifi/wifi_info')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -379,7 +379,7 @@ function setWifiInfo() {
         },
         body: JSON.stringify(wifiInfo.toJson())
     };
-    fetch("/wifi", requestOptions)
+    fetch("/api/v1/wifi/wifi_info", requestOptions)
         .then(response => {
             if (response.ok) {
                 logLabel.innerHTML = "Restarting...";

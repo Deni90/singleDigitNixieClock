@@ -32,49 +32,49 @@ void WebServer::initialize() {
         return;
     }
 
-    httpd_uri_t ledInfoGetUri = {.uri = "/backlight",
+    httpd_uri_t ledInfoGetUri = {.uri = "/api/v1/led/led_info",
                                  .method = HTTP_GET,
                                  .handler = handleGetLedInfo,
                                  .user_ctx = &mCallback};
     httpd_register_uri_handler(server, &ledInfoGetUri);
 
-    httpd_uri_t ledInfoPostUri = {.uri = "/backlight",
+    httpd_uri_t ledInfoPostUri = {.uri = "/api/v1/led/led_info",
                                   .method = HTTP_POST,
                                   .handler = handleSetLedInfo,
                                   .user_ctx = &mCallback};
     httpd_register_uri_handler(server, &ledInfoPostUri);
 
-    httpd_uri_t sleepInfoGetUri = {.uri = "/clock/sleep_info",
+    httpd_uri_t sleepInfoGetUri = {.uri = "/api/v1/clock/sleep_info",
                                    .method = HTTP_GET,
                                    .handler = handleGetSleepInfo,
                                    .user_ctx = &mCallback};
     httpd_register_uri_handler(server, &sleepInfoGetUri);
 
-    httpd_uri_t sleepInfoPostUri = {.uri = "/clock/sleep_info",
+    httpd_uri_t sleepInfoPostUri = {.uri = "/api/v1/clock/sleep_info",
                                     .method = HTTP_POST,
                                     .handler = handleSetSleepInfo,
                                     .user_ctx = &mCallback};
     httpd_register_uri_handler(server, &sleepInfoPostUri);
 
-    httpd_uri_t timeInfoGetUri = {.uri = "/clock/time_info",
+    httpd_uri_t timeInfoGetUri = {.uri = "/api/v1/clock/time_info",
                                   .method = HTTP_GET,
                                   .handler = handleGetTimeInfo,
                                   .user_ctx = &mCallback};
     httpd_register_uri_handler(server, &timeInfoGetUri);
 
-    httpd_uri_t timeInfoPostUri = {.uri = "/clock/time_info",
+    httpd_uri_t timeInfoPostUri = {.uri = "/api/v1/clock/time_info",
                                    .method = HTTP_POST,
                                    .handler = handleSetTimeInfo,
                                    .user_ctx = &mCallback};
     httpd_register_uri_handler(server, &timeInfoPostUri);
 
-    httpd_uri_t wifiInfoGetUri = {.uri = "/wifi",
+    httpd_uri_t wifiInfoGetUri = {.uri = "/api/v1/wifi/wifi_info",
                                   .method = HTTP_GET,
                                   .handler = handleGetWifiInfo,
                                   .user_ctx = &mCallback};
     httpd_register_uri_handler(server, &wifiInfoGetUri);
 
-    httpd_uri_t wifiInfoPostUri = {.uri = "/wifi",
+    httpd_uri_t wifiInfoPostUri = {.uri = "/api/v1/wifi/wifi_info",
                                    .method = HTTP_POST,
                                    .handler = handleSetWifiInfo,
                                    .user_ctx = &mCallback};
