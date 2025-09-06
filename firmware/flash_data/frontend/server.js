@@ -226,7 +226,7 @@ function getTimeInfo() {
 function setTimeInfo() {
     const timeZoneDropdown = document.getElementById('selectTimeZone');
     const selectedTimeZone = timeZoneDropdown.options[timeZoneDropdown.selectedIndex];
-    timeInfo.tzOZone = selectedTimeZone.text;
+    timeInfo.tzZone = selectedTimeZone.text;
     timeInfo.tzOffset = selectedTimeZone.value;
     const requestOptions = {
         method: 'POST',
@@ -321,7 +321,7 @@ function setLedInfo() {
         },
         body: JSON.stringify(ledInfo.toJson())
     };
-    fetch("/api/v1/del/led_info", requestOptions)
+    fetch("/api/v1/led/led_info", requestOptions)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
