@@ -43,6 +43,7 @@ class NixieClock : public IClock {
     static void loopTask(void* param);
     bool startShowCurrentTimeTask(void);
     static void showCurrentTimeTask(void* param);
+    void handleSleepMode();
 
     LedController mLedController;
     In14NixieTube mNixieTube;

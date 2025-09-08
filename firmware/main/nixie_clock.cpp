@@ -120,6 +120,8 @@ void NixieClock::initialize() {
         // TODO backup to RTC
     }
 
+    handleSleepMode();
+
     xTaskCreate(loopTask, "loopTask", 2048, this, 2, nullptr);
 }
 
@@ -141,12 +143,7 @@ std::optional<SleepInfo> NixieClock::onGetSleepInfo() const {
 void NixieClock::onSetSleepInfo(const SleepInfo& sleepInfo) {
     mSleepInfo = sleepInfo;
     ConfigStore::saveSleepInfo(sleepInfo);
-    LedInfo ledInfo = ConfigStore::loadLedInfo().value();
-    if (isInSleepMode()) {
-        // turn off the led
-        ledInfo.setState(LedState::Off);
-    }
-    mLedController.setLedInfo(ledInfo);
+    handleSleepMode();
 }
 
 std::optional<WifiInfo> NixieClock::onGetWifiInfo() const {
@@ -474,4 +471,13 @@ void NixieClock::showCurrentTimeTask(void* param) {
     self->mLedController.setLedInfo(ledInfo);
     self->mShowCurrentTimeTaskHandle = nullptr;
     vTaskDelete(nullptr);
+}
+void NixieClock::handleSleepMode() {
+    LedInfo ledInfo = ConfigStore::loadLedInfo().value();
+    if (isInSleepMode()) {
+        ESP_LOGI(kTag, "In sleep mode, turning off LED.");
+        // turn off the led
+        ledInfo.setState(LedState::Off);
+    }
+    mLedController.setLedInfo(ledInfo);
 }
