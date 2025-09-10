@@ -270,6 +270,8 @@ esp_err_t WebServer::handleGetTimeInfo(httpd_req_t* req) {
     cJSON* root = cJSON_CreateObject();
     cJSON_AddStringToObject(root, "tz_zone", timeInfo.getTzZone().c_str());
     cJSON_AddStringToObject(root, "tz_offset", timeInfo.getTzOffset().c_str());
+    cJSON_AddStringToObject(root, "time_format",
+                            timeFormatToString(timeInfo.getTimeFormat()));
     char* jsonStr = cJSON_Print(root);
     httpd_resp_sendstr(req, jsonStr);
     free(static_cast<void*>(jsonStr));
@@ -302,6 +304,17 @@ esp_err_t WebServer::handleSetTimeInfo(httpd_req_t* req) {
     TimeInfo timeInfo;
     timeInfo.setTzZone(cJSON_GetObjectItem(root, "tz_zone")->valuestring);
     timeInfo.setTzOffset(cJSON_GetObjectItem(root, "tz_offset")->valuestring);
+    std::string timeFormat =
+        cJSON_GetObjectItemCaseSensitive(root, "time_format")->valuestring;
+    if (timeFormat == "12h") {
+        timeInfo.setTimeFormat(TimeFormat::Hour12);
+    } else if (timeFormat == "24h") {
+        timeInfo.setTimeFormat(TimeFormat::Hour24);
+    } else {
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR,
+                            "Unknown time format");
+        return ESP_FAIL;
+    }
     callback->onSetTimeInfo(timeInfo);
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");

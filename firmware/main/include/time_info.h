@@ -12,6 +12,26 @@
 #include <string>
 
 /**
+ * @brief An enumeration representing time formats
+ */
+enum class TimeFormat { Hour24, Hour12 };
+
+/**
+ * @brief Convert time format to c-style string
+ * @param[in] tf time format
+ */
+constexpr const char* timeFormatToString(TimeFormat tf) {
+    switch (tf) {
+    case TimeFormat::Hour24:
+        return "24h";
+    case TimeFormat::Hour12:
+        return "12h";
+    default:
+        return "unknown";
+    }
+}
+
+/**
  * @brief Represents a Time info class
  *
  */
@@ -69,9 +89,24 @@ class TimeInfo {
      */
     void setTzOffset(const std::string& value);
 
+    /**
+     * @brief Getter for time format
+     *
+     * @return time format
+     */
+    TimeFormat getTimeFormat() const;
+
+    /**
+     * @brief Setter for time format
+     *
+     * @param value time format
+     */
+    void setTimeFormat(TimeFormat value);
+
   private:
     std::string mTzZone;
     std::string mTzOffset;
+    TimeFormat mTimeFormat;
 };
 
 #endif   // time_info_h

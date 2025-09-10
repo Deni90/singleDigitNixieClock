@@ -25,6 +25,19 @@
 			<select class="select" name="selectTimeZone" id="selectTimeZone">
 			</select>
 		</div>
+		<div class="field-container">
+			<label for="timeFormat">Time format:</label>
+			<div class="choice-container">
+				<div class="choice" onclick="selectRadioChoiceByEvent(event)" name="timeFormatChoice" value="12h">
+					<input id="timeFormat12Hour" type="radio" />
+					<label for="timeFormat12Hour">12h</label>
+				</div>
+				<div class="choice" onclick="selectRadioChoiceByEvent(event)" name="timeFormatChoice" value="24h">
+					<input id="timeFormat24Hour" type="radio" />
+					<label for="timeFormat24Hour">24h</label>
+				</div>
+			</div>
+		</div>
 		<h2>Sleep configuration</h2>
 		<h3>Sleep before</h3>
 		<div class="field-container">

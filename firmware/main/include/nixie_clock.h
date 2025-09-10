@@ -11,6 +11,7 @@
 #include "in14_nixie_tube.h"
 #include "led_controller.h"
 #include "sleep_info.h"
+#include "time_info.h"
 #include "web_server.h"
 #include "wifi_info.h"
 
@@ -48,6 +49,7 @@ class NixieClock : public IClock {
     LedController mLedController;
     In14NixieTube mNixieTube;
     SleepInfo mSleepInfo;
+    TimeInfo mTimeInfo;
     WebServer mWebServer;
     TaskHandle_t mShowCurrentTimeTaskHandle;
 };

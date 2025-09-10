@@ -13,19 +13,21 @@ class HSV {
 }
 
 class TimeInfo {
-    constructor(tzZone, tzOffset) {
+    constructor(tzZone, tzOffset, timeFormat) {
         this.tzZone = tzZone;
         this.tzOffset = tzOffset
+        this.timeFormat = timeFormat;
     }
     toJson() {
         return {
             "tz_zone": this.tzZone,
-            "tz_offset": this.tzOffset
+            "tz_offset": this.tzOffset,
+            "time_format": this.timeFormat
         };
     }
     static Builder = class {
         fromJson(message) {
-            return new TimeInfo(message.tz_zone, message.tz_offset);
+            return new TimeInfo(message.tz_zone, message.tz_offset, message.time_format);
         }
     }
 }
@@ -221,6 +223,7 @@ function getTimeInfo() {
                     timeZoneDropdown.selectedIndex = i;
                 }
             }
+            selectRadioChoiceByName("timeFormatChoice", timeInfo.timeFormat);
         })
         .catch(error => {
             console.error('There was a problem with the getting time info:', error);
@@ -230,7 +233,7 @@ function getTimeInfo() {
 function setTimeInfo() {
     const timeZoneDropdown = document.getElementById('selectTimeZone');
     const selectedTimeZone = timeZoneDropdown.options[timeZoneDropdown.selectedIndex];
-    let timeInfo = new TimeInfo(selectedTimeZone.text, selectedTimeZone.value);
+    let timeInfo = new TimeInfo(selectedTimeZone.text, selectedTimeZone.value, getSelectedRadioChoice("timeFormatChoice"));
     const requestOptions = {
         method: 'POST',
         headers: {

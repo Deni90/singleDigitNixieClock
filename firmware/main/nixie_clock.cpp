@@ -91,9 +91,9 @@ void NixieClock::initialize() {
     // TODO initialize RTC
 
     ESP_LOGI(kTag, "Setting up time zone...");
-    TimeInfo timeInfo = ConfigStore::loadTimeInfo().value_or(TimeInfo());
-    ESP_LOGI(kTag, "Time zone: %s", timeInfo.getTzOffset().c_str());
-    setenv("TZ", timeInfo.getTzOffset().c_str(), 1);
+    mTimeInfo = ConfigStore::loadTimeInfo().value_or(TimeInfo());
+    ESP_LOGI(kTag, "Time zone: %s", mTimeInfo.getTzOffset().c_str());
+    setenv("TZ", mTimeInfo.getTzOffset().c_str(), 1);
     tzset();
     ESP_LOGI(kTag, "Setting up time zone... done");
 
@@ -168,6 +168,7 @@ std::optional<TimeInfo> NixieClock::onGetTimeInfo() const {
 }
 
 void NixieClock::onSetTimeInfo(const TimeInfo& timeInfo) {
+    mTimeInfo = timeInfo;
     ConfigStore::saveTimeInfo(timeInfo);
     setenv("TZ", timeInfo.getTzOffset().c_str(), 1);
     tzset();
@@ -429,11 +430,11 @@ bool NixieClock::startShowCurrentTimeTask(void) {
 void NixieClock::showCurrentTimeTask(void* param) {
     NixieClock* self = static_cast<NixieClock*>(param);
     time_t now;
-    struct tm timeInfo;
+    struct tm nowTm;
     time(&now);
-    localtime_r(&now, &timeInfo);
+    localtime_r(&now, &nowTm);
     char buf[32];
-    strftime(buf, sizeof(buf), "%H:%M:%S", &timeInfo);
+    strftime(buf, sizeof(buf), "%H:%M:%S", &nowTm);
     ESP_LOGI(kTag, "Current time: %s", buf);
     if (self->isInSleepMode()) {
         ESP_LOGI(kTag, "Sleep mode on");
@@ -457,8 +458,16 @@ void NixieClock::showCurrentTimeTask(void* param) {
     // Show time on nixie tube. Since there is only one nixie tube it is
     // needed to sequentially show digits. The time is displayed in the
     // following format: H <pause> H <pause> M <pause> M
-    int32_t nixieOutput[] = {timeInfo.tm_hour / 10, timeInfo.tm_hour % 10,
-                             timeInfo.tm_min / 10, timeInfo.tm_min % 10};
+    // handle 24 and 12 hour formats
+    uint8_t hour = nowTm.tm_hour;
+    if (self->mTimeInfo.getTimeFormat() == TimeFormat::Hour12) {
+        hour = nowTm.tm_hour % 12;
+        if (hour == 0) {
+            hour = 12;
+        }
+    }
+    int32_t nixieOutput[] = {hour / 10, hour % 10, nowTm.tm_min / 10,
+                             nowTm.tm_min % 10};
     for (auto i = 0; i < kCurrentTimeRepeatTimes; ++i) {
         for (auto j = 0; j < sizeof(nixieOutput) / sizeof(nixieOutput[0]);
              ++j) {

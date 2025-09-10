@@ -258,12 +258,28 @@ std::optional<TimeInfo> ConfigStore::loadTimeInfo() {
         cJSON_Delete(json);
         return std::nullopt;
     }
+    if (!cJSON_GetObjectItemCaseSensitive(json, "time_format")) {
+        ESP_LOGW(kTag, "'time_format' is not found in config");
+        cJSON_Delete(json);
+        return std::nullopt;
+    }
     // populate TimeInfo object
     TimeInfo timeInfo;
     timeInfo.setTzZone(
         cJSON_GetObjectItemCaseSensitive(json, "tz_zone")->valuestring);
     timeInfo.setTzOffset(
         cJSON_GetObjectItemCaseSensitive(json, "tz_offset")->valuestring);
+    std::string timeFormat =
+        cJSON_GetObjectItemCaseSensitive(json, "time_format")->valuestring;
+    if (timeFormat == "24h") {
+        timeInfo.setTimeFormat(TimeFormat::Hour24);
+    } else if (timeFormat == "12h") {
+        timeInfo.setTimeFormat(TimeFormat::Hour12);
+    } else {
+        ESP_LOGW(kTag, "Invalid 'time_format'");
+        cJSON_Delete(json);
+        return std::nullopt;
+    }
     cJSON_Delete(json);
     return timeInfo;
 }
@@ -275,6 +291,9 @@ bool ConfigStore::saveTimeInfo(const TimeInfo& timeInfo) {
                           cJSON_CreateString(timeInfo.getTzZone().c_str()));
     cJSON_AddItemToObject(json, "tz_offset",
                           cJSON_CreateString(timeInfo.getTzOffset().c_str()));
+    cJSON_AddItemToObject(
+        json, "time_format",
+        cJSON_CreateString(timeFormatToString(timeInfo.getTimeFormat())));
     char* jsonString = cJSON_Print(json);
     if (jsonString != nullptr) {
         if (mMutex && xSemaphoreTake(mMutex, portMAX_DELAY) == pdTRUE) {
