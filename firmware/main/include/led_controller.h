@@ -9,6 +9,7 @@
 #define led_controller_h
 
 #include <inttypes.h>
+#include <optional>
 
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
@@ -60,9 +61,17 @@ class LedController {
      */
     LedInfo getLedInfo();
 
-    void lock();
+    /**
+     * @brief Set temporal state of the LED
+     *
+     * @param[in] LED state
+     */
+    void setTemporalState(const LedInfo& state);
 
-    void unlock();
+    /**
+     * @brief Clear temporal led state.
+     */
+    void clearTemporalState();
 
   private:
     void test();
@@ -72,7 +81,7 @@ class LedController {
     LedInfo mLedInfo;
     uint8_t mCounter;
     bool mDirection;
-    bool mLock;
+    std::optional<LedInfo> mTempState;
     SemaphoreHandle_t mMutex;
 };
 

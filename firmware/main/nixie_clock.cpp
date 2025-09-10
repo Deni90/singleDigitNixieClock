@@ -97,6 +97,8 @@ void NixieClock::initialize() {
     tzset();
     ESP_LOGI(kTag, "Setting up time zone... done");
 
+    bool isTimeSynced = false;
+
     // Initialize NTP only if the device is connected to some external wifi
     // network
     if (wifiMode == WifiMode::Sta) {
@@ -107,22 +109,28 @@ void NixieClock::initialize() {
         ESP_LOGI(kTag, "Synchronizing time with NTP server...");
         int retry = 0;
         const int retry_count = 10;
-        while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET &&
-               ++retry < retry_count) {
+        while (++retry < retry_count) {
+            if (sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED) {
+                isTimeSynced = true;
+                break;
+            }
             ESP_LOGI(kTag, "Waiting for system time to be set... (%d/%d)",
                      retry, retry_count);
             vTaskDelay(2000 / portTICK_PERIOD_MS);
         }
-        ESP_LOGI(kTag, "Synchronizing time with NTP server... Done");
-        // Show current time after NTP sync
-        startShowCurrentTimeTask();
-    } else {
-        // TODO backup to RTC
+        ESP_LOGI(kTag, "Synchronizing time with NTP server... %s",
+                 isTimeSynced ? "Done" : "Failed");
     }
+
+    // TODO try to sync time with RTC
 
     handleSleepMode();
 
-    xTaskCreate(loopTask, "loopTask", 2048, this, 2, nullptr);
+    // Show current time after the current time is synced
+    if (isTimeSynced) {
+        startShowCurrentTimeTask();
+        xTaskCreate(loopTask, "loopTask", 2048, this, 2, nullptr);
+    }
 }
 
 std::optional<LedInfo> NixieClock::onGetLedInfo() const {
@@ -433,12 +441,11 @@ void NixieClock::showCurrentTimeTask(void* param) {
         vTaskDelete(nullptr);
         return;
     }
-    LedInfo ledInfo = ConfigStore::loadLedInfo().value_or(LedInfo());
+    LedInfo ledInfo = self->mLedController.getLedInfo();
     if (ledInfo.getState() != LedState::Off) {
         ledInfo.setState(LedState::On);
-        self->mLedController.setLedInfo(ledInfo);
+        self->mLedController.setTemporalState(ledInfo);
     }
-    self->mLedController.lock();
     // Show a fast countdown of digits from 9 to 0 on nixie tube as an intro
     // before showing the actual time
     for (auto i = 9; i >= 0; --i) {
@@ -466,9 +473,7 @@ void NixieClock::showCurrentTimeTask(void* param) {
             vTaskDelay(kPauseDuration / portTICK_PERIOD_MS);
         }
     }
-    self->mLedController.unlock();
-    ledInfo = ConfigStore::loadLedInfo().value_or(LedInfo());
-    self->mLedController.setLedInfo(ledInfo);
+    self->mLedController.clearTemporalState();
     self->mShowCurrentTimeTaskHandle = nullptr;
     vTaskDelete(nullptr);
 }

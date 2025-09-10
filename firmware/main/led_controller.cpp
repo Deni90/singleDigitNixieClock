@@ -15,7 +15,7 @@ static constexpr uint8_t kPulseTime = 10;
 static constexpr uint8_t kMaxBrightness = 255;
 
 LedController::LedController(gpio_num_t ledPin)
-    : mLedPin(ledPin), mCounter(0), mDirection(true), mLock(false) {
+    : mLedPin(ledPin), mCounter(0), mDirection(true), mTempState(std::nullopt) {
     mMutex = xSemaphoreCreateMutex();
 }
 
@@ -88,17 +88,21 @@ void LedController::update() {
         }
     }
 
+    // First check if there is a temporal state set, if not use the state from
+    // member LedInfo object
     xSemaphoreTake(mMutex, portMAX_DELAY);
-    switch (mLedInfo.getState()) {
+    LedInfo currentLedInfo = mTempState.value_or(mLedInfo);
+    xSemaphoreGive(mMutex);
+    switch (currentLedInfo.getState()) {
     case LedState::Off: {
         ESP_ERROR_CHECK(led_strip_clear(mLedHandle));
         ESP_ERROR_CHECK(led_strip_refresh(mLedHandle));
         break;
     }
     case LedState::On: {
-        ESP_ERROR_CHECK(led_strip_set_pixel(mLedHandle, 0, mLedInfo.getRed(),
-                                            mLedInfo.getGreen(),
-                                            mLedInfo.getBlue()));
+        ESP_ERROR_CHECK(led_strip_set_pixel(
+            mLedHandle, 0, currentLedInfo.getRed(), currentLedInfo.getGreen(),
+            currentLedInfo.getBlue()));
         ESP_ERROR_CHECK(led_strip_refresh(mLedHandle));
         break;
     }
@@ -131,18 +135,18 @@ void LedController::update() {
 
         ESP_ERROR_CHECK(led_strip_set_pixel(
             mLedHandle, 0,
-            (mLedInfo.getRed() * gamma8[mCounter]) / kMaxBrightness,
-            (mLedInfo.getGreen() * gamma8[mCounter]) / kMaxBrightness,
-            (mLedInfo.getBlue() * gamma8[mCounter]) / kMaxBrightness));
+            (currentLedInfo.getRed() * gamma8[mCounter]) / kMaxBrightness,
+            (currentLedInfo.getGreen() * gamma8[mCounter]) / kMaxBrightness,
+            (currentLedInfo.getBlue() * gamma8[mCounter]) / kMaxBrightness));
         ESP_ERROR_CHECK(led_strip_refresh(mLedHandle));
 
         break;
     }
     case LedState::Pulse: {
         if (mCounter < kPulseTime || mCounter >= kMaxBrightness - kPulseTime) {
-            ESP_ERROR_CHECK(
-                led_strip_set_pixel(mLedHandle, 0, mLedInfo.getRed(),
-                                    mLedInfo.getGreen(), mLedInfo.getBlue()));
+            ESP_ERROR_CHECK(led_strip_set_pixel(
+                mLedHandle, 0, currentLedInfo.getRed(),
+                currentLedInfo.getGreen(), currentLedInfo.getBlue()));
         } else {
             ESP_ERROR_CHECK(led_strip_clear(mLedHandle));
         }
@@ -152,15 +156,10 @@ void LedController::update() {
     default:
         break;
     }
-    xSemaphoreGive(mMutex);
 }
 
 void LedController::setLedInfo(const LedInfo& ledInfo) {
     xSemaphoreTake(mMutex, portMAX_DELAY);
-    if (mLock) {
-        xSemaphoreGive(mMutex);
-        return;
-    }
     mLedInfo = ledInfo;
     xSemaphoreGive(mMutex);
 }
@@ -172,14 +171,14 @@ LedInfo LedController::getLedInfo() {
     return ledInfo;
 }
 
-void LedController::lock() {
+void LedController::setTemporalState(const LedInfo& state) {
     xSemaphoreTake(mMutex, portMAX_DELAY);
-    mLock = true;
+    mTempState = state;
     xSemaphoreGive(mMutex);
 }
 
-void LedController::unlock() {
+void LedController::clearTemporalState() {
     xSemaphoreTake(mMutex, portMAX_DELAY);
-    mLock = false;
+    mTempState.reset();
     xSemaphoreGive(mMutex);
 }
