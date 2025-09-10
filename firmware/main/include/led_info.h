@@ -17,7 +17,7 @@ enum class LedState { Off, On, Fade, Pulse };
 
 /**
  * @brief Convert led state to c-style string
- * @param[in] led state
+ * @param[in] ls led state
  */
 constexpr const char* ledStateToString(LedState ls) {
     switch (ls) {

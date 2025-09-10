@@ -12,7 +12,7 @@
 #include <string>
 
 /**
- * @brief Represents a Wifi info class
+ * @brief Represents a Time info class
  *
  */
 class TimeInfo {
