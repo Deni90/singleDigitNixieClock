@@ -14,6 +14,7 @@
 #include "time_info.h"
 #include "web_server.h"
 #include "wifi_info.h"
+#include "wifi_manager.h"
 
 class NixieClock : public IClock {
   public:
@@ -31,11 +32,6 @@ class NixieClock : public IClock {
     virtual void onSetTimeInfo(const TimeInfo& timeInfo) override;
 
   private:
-    enum class WifiMode { Ap, Sta };
-
-    WifiMode setupWifi(const WifiInfo& wifiInfo);
-    bool initializeWifiInStationMode(const WifiInfo& wifiInfo);
-    void initializeWifiInApMode(const WifiInfo& wifiInfo);
     void setupCaptivePortal();
     void startMdnsService(const WifiInfo& wifiInfo);
     void initializeSNTP();
@@ -47,9 +43,10 @@ class NixieClock : public IClock {
 
     LedController mLedController;
     In14NixieTube mNixieTube;
+    WifiManager mWifiManager;
+    WebServer mWebServer;
     SleepInfo mSleepInfo;
     TimeInfo mTimeInfo;
-    WebServer mWebServer;
     TaskHandle_t mShowCurrentTimeTaskHandle;
 };
 #endif   // nixie_clock_h

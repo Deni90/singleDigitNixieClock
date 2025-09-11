@@ -20,6 +20,7 @@ idf_component_register(
         time_info.cpp
         web_server.cpp
         wifi_info.cpp
+        wifi_manager.cpp
     PRIV_REQUIRES
         dns_server
         driver
