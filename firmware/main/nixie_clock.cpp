@@ -12,7 +12,6 @@
 #include "cJSON.h"
 #include "dns_server.h"
 #include "driver/gpio.h"
-#include "esp_littlefs.h"
 #include "esp_log.h"
 #include "esp_sntp.h"
 #include "esp_system.h"   //esp_init funtions esp_err_t
@@ -56,13 +55,6 @@ void NixieClock::initialize() {
     ESP_LOGI(kTag, "Initialize Nixie tube...");
     mNixieTube.initialize();
     ESP_LOGI(kTag, "Initialize Nixie tube... done");
-
-    ESP_LOGI(kTag, "Initialize LittleFS...");
-    if (setupLittlefs()) {
-        ESP_LOGI(kTag, "Initialize LittleFS... done");
-    } else {
-        ESP_LOGE(kTag, "Initialize LittleFS... failed");
-    }
 
     ESP_LOGI(kTag, "Initialize Config store...");
     ConfigStore::initialize();
@@ -206,29 +198,7 @@ extern "C" void wifiEventHandler(void* arg, esp_event_base_t eventBase,
     }
 }
 
-bool NixieClock::setupLittlefs() {
-    esp_vfs_littlefs_conf_t conf = {};
-    conf.base_path = "/littlefs";
-    conf.partition_label = "littlefs";
-    conf.format_if_mount_failed = true;
-    conf.dont_mount = false;
 
-    // Use settings defined above to initialize and mount LittleFS filesystem.
-    // Note: esp_vfs_littlefs_register is an all-in-one convenience function.
-    esp_err_t ret = esp_vfs_littlefs_register(&conf);
-    if (ret != ESP_OK) {
-        if (ret == ESP_FAIL) {
-            ESP_LOGE(kTag, "Failed to mount or format filesystem");
-        } else if (ret == ESP_ERR_NOT_FOUND) {
-            ESP_LOGE(kTag, "Failed to find LittleFS partition");
-        } else {
-            ESP_LOGE(kTag, "Failed to initialize LittleFS (%s)",
-                     esp_err_to_name(ret));
-        }
-        return false;
-    }
-    return true;
-}
 
 NixieClock::WifiMode NixieClock::setupWifi(const WifiInfo& wifiInfo) {
     esp_err_t ret = nvs_flash_init();

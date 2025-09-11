@@ -89,6 +89,9 @@ class ConfigStore {
     static bool saveTimeInfo(const TimeInfo& timeInfo);
 
   private:
+    static void setupLittlefs();
+
+    static bool mIsInitialized;
     static SemaphoreHandle_t mMutex;
 };
 

@@ -15,6 +15,7 @@
 #include <sstream>
 
 #include "cJSON.h"
+#include "esp_littlefs.h"
 #include "esp_log.h"
 
 static const char* kTag = "config_store";
@@ -25,14 +26,24 @@ static constexpr const char* kTimeInfoFile = "/littlefs/config/time_info.json";
 static constexpr const char* kWifiInfoFile = "/littlefs/config/wifi_info.json";
 
 SemaphoreHandle_t ConfigStore::mMutex = nullptr;
+bool ConfigStore::mIsInitialized = false;
 
 void ConfigStore::initialize() {
-    if (mMutex == nullptr) {
-        mMutex = xSemaphoreCreateMutex();
+    if (!mIsInitialized) {
+        setupLittlefs();
+        if (mMutex == nullptr) {
+            mMutex = xSemaphoreCreateMutex();
+        }
+        mIsInitialized = true;
     }
 }
 
 std::optional<LedInfo> ConfigStore::loadLedInfo() {
+    if (!mIsInitialized) {
+        ESP_LOGE(kTag,
+                 "Module not initialized, intitialize it before using it.");
+        return std::nullopt;
+    }
     // check if file exists on kLedInfoFile path
     if (!std::filesystem::exists(kLedInfoFile)) {
         return std::nullopt;
@@ -84,6 +95,11 @@ std::optional<LedInfo> ConfigStore::loadLedInfo() {
 }
 
 bool ConfigStore::saveLedInfo(const LedInfo& ledInfo) {
+    if (!mIsInitialized) {
+        ESP_LOGE(kTag,
+                 "Module not initialized, intitialize it before using it.");
+        return false;
+    }
     bool ret = true;
     cJSON* json = cJSON_CreateObject();
     cJSON_AddItemToObject(json, "R", cJSON_CreateNumber(ledInfo.getRed()));
@@ -108,6 +124,11 @@ bool ConfigStore::saveLedInfo(const LedInfo& ledInfo) {
 }
 
 std::optional<SleepInfo> ConfigStore::loadSleepInfo() {
+    if (!mIsInitialized) {
+        ESP_LOGE(kTag,
+                 "Module not initialized, intitialize it before using it.");
+        return std::nullopt;
+    }
     // check if file exists on kSleepInfoFile path
     if (!std::filesystem::exists(kSleepInfoFile)) {
         return std::nullopt;
@@ -144,6 +165,11 @@ std::optional<SleepInfo> ConfigStore::loadSleepInfo() {
 }
 
 bool ConfigStore::saveSleepInfo(const SleepInfo& sleepInfo) {
+    if (!mIsInitialized) {
+        ESP_LOGE(kTag,
+                 "Module not initialized, intitialize it before using it.");
+        return false;
+    }
     bool ret = true;
     cJSON* json = cJSON_CreateObject();
     cJSON_AddItemToObject(json, "sleep_before",
@@ -166,6 +192,11 @@ bool ConfigStore::saveSleepInfo(const SleepInfo& sleepInfo) {
 }
 
 std::optional<WifiInfo> ConfigStore::loadWifiInfo() {
+    if (!mIsInitialized) {
+        ESP_LOGE(kTag,
+                 "Module not initialized, intitialize it before using it.");
+        return std::nullopt;
+    }
     // check if file exists on kWifiInfoFile path
     if (!std::filesystem::exists(kWifiInfoFile)) {
         return std::nullopt;
@@ -209,6 +240,11 @@ std::optional<WifiInfo> ConfigStore::loadWifiInfo() {
 }
 
 bool ConfigStore::saveWifiInfo(const WifiInfo& wifiInfo) {
+    if (!mIsInitialized) {
+        ESP_LOGE(kTag,
+                 "Module not initialized, intitialize it before using it.");
+        return false;
+    }
     bool ret = true;
     cJSON* json = cJSON_CreateObject();
     cJSON_AddItemToObject(json, "hostname",
@@ -233,6 +269,11 @@ bool ConfigStore::saveWifiInfo(const WifiInfo& wifiInfo) {
 }
 
 std::optional<TimeInfo> ConfigStore::loadTimeInfo() {
+    if (!mIsInitialized) {
+        ESP_LOGE(kTag,
+                 "Module not initialized, intitialize it before using it.");
+        return std::nullopt;
+    }
     // check if file exists on kTimeInfoFile path
     if (!std::filesystem::exists(kTimeInfoFile)) {
         return std::nullopt;
@@ -285,6 +326,11 @@ std::optional<TimeInfo> ConfigStore::loadTimeInfo() {
 }
 
 bool ConfigStore::saveTimeInfo(const TimeInfo& timeInfo) {
+    if (!mIsInitialized) {
+        ESP_LOGE(kTag,
+                 "Module not initialized, intitialize it before using it.");
+        return false;
+    }
     bool ret = true;
     cJSON* json = cJSON_CreateObject();
     cJSON_AddItemToObject(json, "tz_zone",
@@ -307,4 +353,16 @@ bool ConfigStore::saveTimeInfo(const TimeInfo& timeInfo) {
     }
     cJSON_Delete(json);
     return ret;
+}
+
+void ConfigStore::setupLittlefs() {
+    esp_vfs_littlefs_conf_t conf = {};
+    conf.base_path = "/littlefs";
+    conf.partition_label = "littlefs";
+    conf.format_if_mount_failed = true;
+    conf.dont_mount = false;
+
+    // Use settings defined above to initialize and mount LittleFS filesystem.
+    // Note: esp_vfs_littlefs_register is an all-in-one convenience function.
+    ESP_ERROR_CHECK(esp_vfs_littlefs_register(&conf));
 }

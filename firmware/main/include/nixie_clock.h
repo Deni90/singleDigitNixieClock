@@ -33,7 +33,6 @@ class NixieClock : public IClock {
   private:
     enum class WifiMode { Ap, Sta };
 
-    bool setupLittlefs();
     WifiMode setupWifi(const WifiInfo& wifiInfo);
     bool initializeWifiInStationMode(const WifiInfo& wifiInfo);
     void initializeWifiInApMode(const WifiInfo& wifiInfo);
