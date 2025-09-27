@@ -15,7 +15,7 @@
 #include "clock_iface.h"
 
 /**
- * @brief A wrapper around an AsyncWebServer
+ * @brief Class representing HTTP web server
  */
 class WebServer {
   public:

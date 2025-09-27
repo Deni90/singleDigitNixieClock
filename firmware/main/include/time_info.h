@@ -32,7 +32,7 @@ constexpr const char* timeFormatToString(TimeFormat tf) {
 }
 
 /**
- * @brief Represents a Time info class
+ * @brief Represents a data class used for storing time related config
  *
  */
 class TimeInfo {

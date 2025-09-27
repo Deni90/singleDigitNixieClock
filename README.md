@@ -5,9 +5,9 @@ Originally developed on ESP8266/Arduino, now evolved to ESP32 with ESP-IDF for g
 
 Huge thank you to **[PCBWay](https://www.pcbway.com)** for sponsoring this project!
 
-![demo](doc/singleDigitNixieClock.gif)
+![Single Digit Nixie Clock](doc/singleDigitNixieClock.gif)
 
-For more details follow project logs on: **[hackaday.io](https://hackaday.io/project/202115-single-digit-nixie-clock)**
+For more details follow project logs on: **[my personal blog](https://deni90.github.io/projects/singledigitnixieclock/)** or **[hackaday.io](https://hackaday.io/project/202115-single-digit-nixie-clock)**
 
 Some of the key features:
 - Shows current time (hours and minutes) on a single nixie tube.
@@ -58,7 +58,7 @@ One more thing, I just realised that  jQuery mobile project is deprecated since 
 
 To solve these issues, I opted to completely re implement the frontend using plain HTML, CSS and JavaScript. The end result looks almost the same as the previous design or even better. Responsiveness and stability increased significantly. The only drawback is now in maintenance and extension. It is required to implement everything manually.
 
-![ui](doc/feDesign.jpg)
+![Custom design of nixie clock's frontend](doc/nixie-clock-custom-frontend.webp)
 
 ## Design
 
@@ -70,7 +70,7 @@ Control board is basically a re-packaged generic ESP32 board design connected wi
 
 #### Schematic
 
-![control board schematic](doc/cbSch.jpg)
+![Control board schematic](doc/nixie-clock-control-board-schematic.webp)
 
 ### Display board
 
@@ -80,7 +80,7 @@ The rest of the display board consists of a WS2812B RGB LED and a pin header use
 
 #### Schematic
 
-![display board schematic](doc/dbSch.jpg)
+![Display board schematic](doc/nixie-clock-display-board-schematic.webp)
 
 ## PCB manufacturing
 
@@ -90,9 +90,9 @@ Since I recently moved to KiCad, it was a perfect opportunity to try out the PCB
 
 The entire journey from placing the order to receiving the package took less than a week. Incredible! PCBWay did a superb job, PCBs are amazing. I am more than impressed.
 
-![PCBs](doc/374A6210.jpg)
+![Control and display PCBs for the nixie clock](doc/nixie-clock-pcbs.webp)
 
-![Assembled PCBs](doc/374A6220.jpg)
+![Assembled control and display PCBs for the Nixie clock](doc/nixie-clock-assembled-pcbs.webp)
 
 ## Enclosure design
 
@@ -100,7 +100,7 @@ The entire journey from placing the order to receiving the package took less tha
 
 The end result is a simple box shaped design with holes for the nixie tube and USB connector.
 
-![enclosure model](doc/enclosureModel.png)
+![3D model of the enclosure for nixie clock](doc/nixie-clock-enclosure-model.webp)
 
 ## Third-party dependencies
 
@@ -111,4 +111,3 @@ This project includes `firmware/flash_data/frontend/zones.json` from https://git
 * [IN-14 Nixie tube datasheet](https://tubehobby.com/datasheets/in14.pdf)
 * [NCH8200HV High Voltage DC-DC Booster module](http://omnixie.io/nch8200hv.html)
 * [CD4028 datasheet](https://www.renesas.com/en/document/dst/cd4028bms-datasheet?srsltid=AfmBOoqU2NILPd5EzyLmpNgOihDv6LZo1jPMcaXfnR6dCclXbg2DF4TL)
-* [NodeMCU](https://circuits4you.com/2017/12/31/nodemcu-pinout/)

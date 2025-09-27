@@ -81,7 +81,7 @@ class ConfigStore {
     static std::optional<TimeInfo> loadTimeInfo();
 
     /**
-     * @brief Save wifi info
+     * @brief Save time info
      *
      * @param timeInfo time info
      * @return True if the config file is successfully saved
