@@ -45,10 +45,10 @@ This move provides:
 | /api/v1/led/led_info | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp;“R”: <0-255>,<br>&nbsp;&nbsp;&nbsp;&nbsp;“G”: <0-255>,<br>&nbsp;&nbsp;&nbsp;&nbsp;“B”: <0-255>,<br>&nbsp;&nbsp;&nbsp;&nbsp;“state”: <0-2><br>} | Set color and state of the backlight (RGB LED). |
 | /api/v1/clock/sleep_info | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_before”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_after”: \<value><br>} | Get sleep mode configuration. The time before and after (in minutes) the backlight will be turned off. |
 | /api/v1/clock/sleep_info | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_before”: \<value>,<br>&nbsp;&nbsp;&nbsp;&nbsp; “sleep_after”: \<value><br>} | Set sleep mode configuration. |
-| /api/v1/clock/time_info | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"tz_zone": "\<Geographic zone>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“tz_offset”: “\<Proleptic TZ>"<br>} | Get time zone configuration |
-| /api/v1/clock/time_info | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"tz_zone": "\<Geographic zone>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“tz_offset”: “\<Proleptic TZ>"<br>} | Set time zone configuration |
-| /api/v1/wifi/wifi_info | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"hostname": "\<HOSTNAME>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“SSID”: “\<Wifi SSID>”,&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;“password”: “\<base64 encoded password>”<br>} | Get wifi configuration. |
-| /api/v1/wifi/wifi_info | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"hostname": "\<HOSTNAME>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“SSID”: “\<Wifi SSID>”,&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;“password”: “\<base64 encoded password>”<br>} | Set wifi configuration. | Set wifi configuration. |
+| /api/v1/clock/time_info | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"tz_zone": "\<Geographic zone>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“tz_offset”: “\<Proleptic TZ>",<br>&nbsp;&nbsp;&nbsp;&nbsp;"time_format": \<"12h" \| "24h"><br>} | Get time zone configuration |
+| /api/v1/clock/time_info | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"tz_zone": "\<Geographic zone>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“tz_offset”: “\<Proleptic TZ>",<br>&nbsp;&nbsp;&nbsp;&nbsp;"time_format": \<"12h" \| "24h"><br>} | Set time zone configuration |
+| /api/v1/wifi/wifi_info | GET | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"hostname": "\<HOSTNAME>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“SSID”: “\<Wifi SSID>”,<br>&nbsp;&nbsp;&nbsp;&nbsp;"auth_type": \<"open" \| "wpa2" \| "wpa3">,<br>&nbsp;&nbsp;&nbsp;&nbsp;“password”: “\<base64 encoded password>”<br>} | Get wifi configuration. |
+| /api/v1/wifi/wifi_info | POST | {<br>&nbsp;&nbsp;&nbsp;&nbsp;"hostname": "\<HOSTNAME>",<br>&nbsp;&nbsp;&nbsp;&nbsp;“SSID”: “\<Wifi SSID>”,<br>&nbsp;&nbsp;&nbsp;&nbsp;"auth_type": \<"open" \| "wpa2" \| "wpa3">,<br>&nbsp;&nbsp;&nbsp;&nbsp;“password”: “\<base64 encoded password>”<br>} | Set wifi configuration. | Set wifi configuration. |
 
 ### Front-end layout & design
 
