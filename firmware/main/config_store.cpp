@@ -222,6 +222,11 @@ std::optional<WifiInfo> ConfigStore::loadWifiInfo() {
         cJSON_Delete(json);
         return std::nullopt;
     }
+    if (!cJSON_GetObjectItemCaseSensitive(json, "auth_type")) {
+        ESP_LOGW(kTag, "'auth_type' is not found in config");
+        cJSON_Delete(json);
+        return std::nullopt;
+    }
     if (!cJSON_GetObjectItemCaseSensitive(json, "password")) {
         ESP_LOGW(kTag, "'password' is not found in config");
         cJSON_Delete(json);
@@ -233,6 +238,19 @@ std::optional<WifiInfo> ConfigStore::loadWifiInfo() {
         cJSON_GetObjectItemCaseSensitive(json, "hostname")->valuestring);
     wifiInfo.setSSID(
         cJSON_GetObjectItemCaseSensitive(json, "SSID")->valuestring);
+    std::string authType =
+        cJSON_GetObjectItemCaseSensitive(json, "auth_type")->valuestring;
+    if (authType == "open") {
+        wifiInfo.setAuthType(WifiAuthType::Open);
+    } else if (authType == "wpa2") {
+        wifiInfo.setAuthType(WifiAuthType::WPA2);
+    } else if (authType == "wpa3") {
+        wifiInfo.setAuthType(WifiAuthType::WPA3);
+    } else {
+        ESP_LOGW(kTag, "Invalid 'auth_format'");
+        cJSON_Delete(json);
+        return std::nullopt;
+    }
     wifiInfo.setPassword(
         cJSON_GetObjectItemCaseSensitive(json, "password")->valuestring);
     cJSON_Delete(json);
@@ -251,6 +269,9 @@ bool ConfigStore::saveWifiInfo(const WifiInfo& wifiInfo) {
                           cJSON_CreateString(wifiInfo.getHostname().c_str()));
     cJSON_AddItemToObject(json, "SSID",
                           cJSON_CreateString(wifiInfo.getSSID().c_str()));
+    cJSON_AddItemToObject(
+        json, "auth_type",
+        cJSON_CreateString(wifiAuthTypeToString(wifiInfo.getAuthType())));
     cJSON_AddItemToObject(json, "password",
                           cJSON_CreateString(wifiInfo.getPassword().c_str()));
     char* jsonString = cJSON_Print(json);

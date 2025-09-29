@@ -12,6 +12,28 @@
 #include <string>
 
 /**
+ * @brief An enumeration representing wifi authentication types
+ */
+enum class WifiAuthType { Open, WPA2, WPA3 };
+
+/**
+ * @brief Convert wifi authentication type to c-style string
+ * @param[in] waf wifi authentication type
+ */
+constexpr const char* wifiAuthTypeToString(WifiAuthType waf) {
+    switch (waf) {
+    case WifiAuthType::Open:
+        return "open";
+    case WifiAuthType::WPA2:
+        return "wpa2";
+    case WifiAuthType::WPA3:
+        return "wpa3";
+    default:
+        return "unknown";
+    }
+}
+
+/**
  * @brief Represents a Wifi info class
  *
  */
@@ -30,7 +52,7 @@ class WifiInfo {
      * @param password password
      */
     WifiInfo(const std::string& hostname, const std::string& ssid,
-             const std::string& password);
+             const WifiAuthType& authType, const std::string& password);
 
     /**
      * @brief Default destructor
@@ -78,6 +100,20 @@ class WifiInfo {
     void setSSID(const std::string& value);
 
     /**
+     * @brief Getter for Wifi authentication type
+     *
+     * @return Wifi authentication type
+     */
+    WifiAuthType getAuthType() const;
+
+    /**
+     * @brief Setter for Wifi authentication type
+     *
+     * @param value Wifi authentication type
+     */
+    void setAuthType(const WifiAuthType& value);
+
+    /**
      * @brief Getter for password
      *
      * @return base64 encoded password
@@ -94,6 +130,7 @@ class WifiInfo {
   private:
     std::string mHostname;
     std::string mSsid;
+    WifiAuthType mAuthType;
     std::string mPassword;
 };
 

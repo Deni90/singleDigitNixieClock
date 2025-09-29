@@ -92,7 +92,17 @@ bool WifiManager::connectSta(const WifiInfo& wifiInfo) {
     std::strncpy(reinterpret_cast<char*>(wifiConfig.sta.password),
                  reinterpret_cast<char*>(password),
                  sizeof(wifiConfig.sta.password));
-    wifiConfig.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+    switch (wifiInfo.getAuthType()) {
+    case WifiAuthType::Open:
+        wifiConfig.sta.threshold.authmode = WIFI_AUTH_OPEN;
+        break;
+    case WifiAuthType::WPA2:
+        wifiConfig.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+        break;
+    case WifiAuthType::WPA3:
+        wifiConfig.sta.threshold.authmode = WIFI_AUTH_WPA3_PSK;
+        break;
+    }
     wifiConfig.sta.pmf_cfg.capable = true;
     wifiConfig.sta.pmf_cfg.required = false;
 

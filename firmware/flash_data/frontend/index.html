@@ -140,6 +140,23 @@
 			<input type="text" name="ssid" id="ssid" value="" />
 		</div>
 		<div class="field-container">
+			<label for="authType">Authentication type:</label>
+			<div class="choice-container">
+				<div class="choice" onclick="handleAtuhTypeChoice(event)" name="authTypeChoice" value="open">
+					<input id="authTypeOpen" type="radio" />
+					<label for="authTypeOpen">Open</label>
+				</div>
+				<div class="choice" onclick="handleAtuhTypeChoice(event)" name="authTypeChoice" value="wpa2">
+					<input id="authTypeWpa2" type="radio" />
+					<label for="authTypeWpa2">WPA2</label>
+				</div>
+				<div class="choice" onclick="handleAtuhTypeChoice(event)" name="authTypeChoice" value="wpa3">
+					<input id="authTypeWpa3" type="radio" />
+					<label for="authTypeWpa3">WPA3</label>
+				</div>
+			</div>
+		</div>
+		<div class="field-container">
 			<label for="password">Password:</label>
 			<input type="password" name="password" id="password" value="" />
 		</div>

@@ -69,7 +69,7 @@ void NixieClock::initialize() {
     ESP_LOGI(kTag, "Initialize Wifi... done");
 
     if (wifiInfo.getSSID() == "" || !mWifiManager.connectSta(wifiInfo)) {
-        WifiInfo apWifiInfo(kApHostname, kApSsid, "");
+        WifiInfo apWifiInfo(kApHostname, kApSsid, WifiAuthType::Open, "");
         mWifiManager.startAp(apWifiInfo);
         ESP_LOGI(kTag, "Setup captive portal...");
         setupCaptivePortal();

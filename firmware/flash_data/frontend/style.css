@@ -142,7 +142,8 @@ input[type="password"] {
     border-radius: .5em;
 }
 
-input[type="text"]:disabled {
+input[type="text"]:disabled,
+input[type="password"]:disabled {
     background-color: #f6f6f6;
     font-weight: bold;
     width: 69%;

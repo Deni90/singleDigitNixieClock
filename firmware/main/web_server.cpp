@@ -334,7 +334,10 @@ esp_err_t WebServer::handleGetWifiInfo(httpd_req_t* req) {
     cJSON* root = cJSON_CreateObject();
     cJSON_AddStringToObject(root, "hostname", wifiInfo.getHostname().c_str());
     cJSON_AddStringToObject(root, "SSID", wifiInfo.getSSID().c_str());
-    cJSON_AddStringToObject(root, "password", wifiInfo.getPassword().c_str());
+    cJSON_AddStringToObject(root, "auth_type",
+                            wifiAuthTypeToString(wifiInfo.getAuthType()));
+    // do not share the actual password
+    cJSON_AddStringToObject(root, "password", "");
     char* jsonStr = cJSON_Print(root);
     httpd_resp_sendstr(req, jsonStr);
     free(static_cast<void*>(jsonStr));
@@ -367,6 +370,19 @@ esp_err_t WebServer::handleSetWifiInfo(httpd_req_t* req) {
     WifiInfo wifiInfo;
     wifiInfo.setHostname(cJSON_GetObjectItem(root, "hostname")->valuestring);
     wifiInfo.setSSID(cJSON_GetObjectItem(root, "SSID")->valuestring);
+    std::string authType =
+        cJSON_GetObjectItemCaseSensitive(root, "auth_type")->valuestring;
+    if (authType == "open") {
+        wifiInfo.setAuthType(WifiAuthType::Open);
+    } else if (authType == "wpa2") {
+        wifiInfo.setAuthType(WifiAuthType::WPA2);
+    } else if (authType == "wpa3") {
+        wifiInfo.setAuthType(WifiAuthType::WPA3);
+    } else {
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR,
+                            "Unknown wifi authentication type");
+        return ESP_FAIL;
+    }
     wifiInfo.setPassword(cJSON_GetObjectItem(root, "password")->valuestring);
     callback->onSetWifiInfo(wifiInfo);
     cJSON_Delete(root);

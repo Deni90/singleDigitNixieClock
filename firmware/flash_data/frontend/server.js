@@ -81,21 +81,23 @@ class LedInfo {
 }
 
 class WifiInfo {
-    constructor(hostname, ssid, password) {
+    constructor(hostname, ssid, authType, password) {
         this.hostname = hostname
         this.ssid = ssid;
+        this.authType = authType;
         this.password = password;
     }
     toJson() {
         return {
             "hostname": this.hostname,
             "SSID": this.ssid,
+            "auth_type": this.authType,
             "password": this.password,
         };
     }
     static Builder = class {
         fromJson(message) {
-            return new WifiInfo(message.hostname, message.SSID, atob(message.password));
+            return new WifiInfo(message.hostname, message.SSID, message.auth_type, atob(message.password));
         }
     }
 }
@@ -348,6 +350,15 @@ function getWifiInfo() {
             let wifiInfo = new WifiInfo.Builder().fromJson(data);
             document.getElementById("hostname").value = wifiInfo.hostname;
             document.getElementById("ssid").value = wifiInfo.ssid;
+            selectRadioChoiceByName("authTypeChoice", wifiInfo.authType);
+            if (wifiInfo.authType == "open") {
+                wifiInfo.password = "";
+                document.getElementById("password").disabled = true;
+                document.getElementById("passwordVerify").disabled = true;
+            } else {
+                document.getElementById("password").disabled = false;
+                document.getElementById("passwordVerify").disabled = false;
+            }
             document.getElementById("password").value = wifiInfo.password;
             document.getElementById("passwordVerify").value = wifiInfo.password;
         })
@@ -371,22 +382,31 @@ function setWifiInfo() {
         logLabel.style.color = errorColor;
         return;
     }
-    if (document.getElementById("password").value == "") {
-        console.log("Wifi password cannot be empty");
-        logLabel.innerHTML = "Error: Wifi password cannot be empty";
-        logLabel.style.color = errorColor;
-        return;
-    }
-    if (document.getElementById("password").value != document.getElementById("passwordVerify").value) {
-        console.log("Wifi passwords are not matching");
-        logLabel.innerHTML = "Error: Passwords are not matching";
-        logLabel.style.color = errorColor;
-        return;
+    if (getSelectedRadioChoice("authTypeChoice") != "open") {
+        if (document.getElementById("password").value == "") {
+            console.log("Wifi password cannot be empty");
+            logLabel.innerHTML = "Error: Wifi password cannot be empty";
+            logLabel.style.color = errorColor;
+            return;
+        }
+        if (document.getElementById("password").value.length < 8) {
+            console.log("Use at least 8 characters for password");
+            logLabel.innerHTML = "Error: Use at least 8 characters for password";
+            logLabel.style.color = errorColor;
+            return;
+        }
+        if (document.getElementById("password").value != document.getElementById("passwordVerify").value) {
+            console.log("Wifi passwords are not matching");
+            logLabel.innerHTML = "Error: Passwords are not matching";
+            logLabel.style.color = errorColor;
+            return;
+        }
     }
     logLabel.innerHTML = "";
     let wifiInfo = new WifiInfo(
         document.getElementById("hostname").value,
         document.getElementById("ssid").value,
+        getSelectedRadioChoice("authTypeChoice"),
         btoa(document.getElementById("password").value));
     const requestOptions = {
         method: 'POST',
@@ -411,7 +431,9 @@ function selectRadioChoiceByName(name, value) {
     for (i = 0; i < choices.length; i++) {
         if (choices[i].getAttribute("value") == value) {
             choices[i].className += " active";
-            break;
+        } else {
+            // clear if any choice was active previously
+            choices[i].className = choices[i].className.replace(" active", "");
         }
     }
 }
@@ -458,4 +480,16 @@ function updateColorBox() {
     hsv.v = document.getElementById("sliderValue").value;
     let color = "hsla(" + hsv.h + "," + hsv.s + "%," + "50%," + hsv.v + "%)";
     document.getElementById("colorBox").style.backgroundColor = color;
+}
+
+function handleAtuhTypeChoice(evt) {
+    if (selectRadioChoiceByEvent(evt) == "open") {
+        document.getElementById("password").disabled = true;
+        document.getElementById("password").value = "";
+        document.getElementById("passwordVerify").disabled = true;
+        document.getElementById("passwordVerify").value = "";
+    } else {
+        document.getElementById("password").disabled = false;
+        document.getElementById("passwordVerify").disabled = false;
+    }
 }
