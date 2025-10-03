@@ -8,6 +8,8 @@
 #include "freertos/task.h"
 
 #include "clock_iface.h"
+#include "ds3231.h"
+#include "i2c_bus.h"
 #include "in14_nixie_tube.h"
 #include "led_controller.h"
 #include "sleep_info.h"
@@ -35,11 +37,13 @@ class NixieClock : public IClock {
     void setupCaptivePortal();
     void startMdnsService(const WifiInfo& wifiInfo);
     void initializeSNTP();
+    static void timeSyncNotificationCallback(struct timeval* tv);
     bool isInSleepMode();
     static void loopTask(void* param);
     bool startShowCurrentTimeTask(void);
     static void showCurrentTimeTask(void* param);
     void handleSleepMode();
+    time_t timegmRtc(struct tm* tm);
 
     LedController mLedController;
     In14NixieTube mNixieTube;
@@ -48,5 +52,7 @@ class NixieClock : public IClock {
     SleepInfo mSleepInfo;
     TimeInfo mTimeInfo;
     TaskHandle_t mShowCurrentTimeTaskHandle;
+    I2cBus mI2c;
+    Ds3231 mRtc;
 };
 #endif   // nixie_clock_h

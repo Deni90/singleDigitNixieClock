@@ -10,6 +10,8 @@ idf_component_register(
     SRCS
         bcd_2_decimal_decoder.cpp
         config_store.cpp
+        ds3231.cpp
+        i2c_bus.cpp
         in14_nixie_tube.cpp
         led_controller.cpp
         led_info.cpp

@@ -35,6 +35,9 @@ static constexpr gpio_num_t kBcdPinA = GPIO_NUM_19;
 static constexpr gpio_num_t kBcdPinB = GPIO_NUM_18;
 static constexpr gpio_num_t kBcdPinC = GPIO_NUM_17;
 static constexpr gpio_num_t kBcdPinD = GPIO_NUM_16;
+static constexpr i2c_port_t kI2cPort = I2C_NUM_0;
+static constexpr gpio_num_t kI2cSda = GPIO_NUM_22;
+static constexpr gpio_num_t kI2cScl = GPIO_NUM_23;
 static constexpr u_int32_t kLedControllerUpdatePeriod = 4;   // ms 255* 4 = ~1s
 static constexpr u_int32_t kTimeUpdatePeriod = 60000;        // 1 minute
 static constexpr u_int32_t kDigitDuration = 300;
@@ -44,12 +47,25 @@ static constexpr u_int8_t kCurrentTimeRepeatTimes = 3;
 static const char* kNtpServerAddr = "pool.ntp.org";
 static constexpr uint32_t kNtpSyncInterval = 3600000;   // 1 hour
 
+static Ds3231* gRtcPtr = nullptr;
+
 NixieClock::NixieClock()
     : mLedController(kLedPin),
       mNixieTube(kBcdPinA, kBcdPinB, kBcdPinC, kBcdPinD), mWebServer(*this),
-      mShowCurrentTimeTaskHandle(nullptr) {}
+      mShowCurrentTimeTaskHandle(nullptr), mI2c(kI2cPort, kI2cSda, kI2cScl),
+      mRtc(mI2c) {
+    gRtcPtr = &mRtc;
+}
 
 void NixieClock::initialize() {
+    ESP_LOGI(kTag, "Initialize I2C interface...");
+    mI2c.initialize();
+    ESP_LOGI(kTag, "Initialize I2C interface... done");
+
+    ESP_LOGI(kTag, "Initialize RTC clock...");
+    mRtc.initialize();
+    ESP_LOGI(kTag, "Initialize RTC clock... done");
+
     ESP_LOGI(kTag, "Initialize Nixie tube...");
     mNixieTube.initialize();
     ESP_LOGI(kTag, "Initialize Nixie tube... done");
@@ -92,8 +108,6 @@ void NixieClock::initialize() {
 
     mSleepInfo = ConfigStore::loadSleepInfo().value_or(SleepInfo());
 
-    // TODO initialize RTC
-
     ESP_LOGI(kTag, "Setting up time zone...");
     mTimeInfo = ConfigStore::loadTimeInfo().value_or(TimeInfo());
     ESP_LOGI(kTag, "Time zone: %s", mTimeInfo.getTzOffset().c_str());
@@ -126,7 +140,25 @@ void NixieClock::initialize() {
                  isTimeSynced ? "Done" : "Failed");
     }
 
-    // TODO try to sync time with RTC
+    // If time is not synced with SNTP, try to sync time with RTC
+    if (!isTimeSynced) {
+        struct tm rtcTimeTm;
+        if (mRtc.getTime(&rtcTimeTm)) {
+            time_t rtcTime = timegmRtc(&rtcTimeTm);
+            struct timeval tv = {.tv_sec = rtcTime, .tv_usec = 0};
+            if (settimeofday(&tv, nullptr) == 0) {
+                ESP_LOGI(kTag,
+                         "System time set from RTC: %04d-%02d-%02d "
+                         "%02d:%02d:%02d UTC",
+                         rtcTimeTm.tm_year + 1900, rtcTimeTm.tm_mon + 1,
+                         rtcTimeTm.tm_mday, rtcTimeTm.tm_hour, rtcTimeTm.tm_min,
+                         rtcTimeTm.tm_sec);
+                isTimeSynced = true;
+            } else {
+                ESP_LOGE(kTag, "Failed to set system time from RTC");
+            }
+        }
+    }
 
     handleSleepMode();
 
@@ -223,7 +255,19 @@ void NixieClock::initializeSNTP() {
     esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
     esp_sntp_setservername(0, kNtpServerAddr);
     esp_sntp_set_sync_interval(kNtpSyncInterval);
+    esp_sntp_set_time_sync_notification_cb(timeSyncNotificationCallback);
     esp_sntp_init();
+}
+
+void NixieClock::timeSyncNotificationCallback(struct timeval* tv) {
+    if (!gRtcPtr) {
+        return;
+    }
+    time_t now = tv->tv_sec;
+    struct tm utcTime;
+    gmtime_r(&now, &utcTime);
+    ESP_LOGI(kTag, "Set time received from NTP to RTC");
+    gRtcPtr->setTime(&utcTime);
 }
 
 bool NixieClock::isInSleepMode() {
@@ -350,4 +394,24 @@ void NixieClock::handleSleepMode() {
         ledInfo.setState(LedState::Off);
     }
     mLedController.setLedInfo(ledInfo);
+}
+
+time_t NixieClock::timegmRtc(struct tm* tm) {
+    // Save current TZ
+    char* oldTz = getenv("TZ");
+    if (oldTz)
+        oldTz = strdup(oldTz);   // copy for restore
+    // Set TZ to UTC
+    setenv("TZ", "UTC0", 1);
+    tzset();
+    time_t t = mktime(tm);   // mktime now treats tm as UTC
+    // Restore previous TZ
+    if (oldTz) {
+        setenv("TZ", oldTz, 1);
+        free(oldTz);
+    } else {
+        unsetenv("TZ");
+    }
+    tzset();
+    return t;
 }
