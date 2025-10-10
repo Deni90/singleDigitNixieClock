@@ -48,7 +48,7 @@
         "silk_text_thickness": 0.075,
         "silk_text_upright": false,
         "zones": {
-          "min_clearance": 0.2
+          "min_clearance": 0.254
         }
       },
       "diff_pair_dimensions": [
@@ -244,12 +244,7 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [
-      [
-        "power_pin_not_driven|609600|508000|99eaff61-125e-4f24-ba7e-ee91aaaf8e4a|00000000-0000-0000-0000-000000000000|/eeb7a0b0-6658-452b-85b7-e51f2a87fd1e|/eeb7a0b0-6658-452b-85b7-e51f2a87fd1e|",
-        ""
-      ]
-    ],
+    "erc_exclusions": [],
     "meta": {
       "version": 0
     },
