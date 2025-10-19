@@ -90,8 +90,6 @@ Since I recently moved to KiCad, it was a perfect opportunity to try out the PCB
 
 The entire journey from placing the order to receiving the package took less than a week. Incredible! PCBWay did a superb job, PCBs are amazing. I am more than impressed.
 
-![Control and display PCBs for the nixie clock](doc/nixie-clock-pcbs.webp)
-
 ![Assembled control and display PCBs for the Nixie clock](doc/nixie-clock-assembled-pcbs.webp)
 
 ## Enclosure design
