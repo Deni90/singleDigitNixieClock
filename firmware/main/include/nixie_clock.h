@@ -54,5 +54,6 @@ class NixieClock : public IClock {
     TaskHandle_t mShowCurrentTimeTaskHandle;
     I2cBus mI2c;
     Ds3231 mRtc;
+    bool mLastSleepModeStatus;
 };
 #endif   // nixie_clock_h

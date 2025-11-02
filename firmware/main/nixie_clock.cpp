@@ -53,7 +53,7 @@ NixieClock::NixieClock()
     : mLedController(kLedPin),
       mNixieTube(kBcdPinA, kBcdPinB, kBcdPinC, kBcdPinD), mWebServer(*this),
       mShowCurrentTimeTaskHandle(nullptr), mI2c(kI2cPort, kI2cSda, kI2cScl),
-      mRtc(mI2c) {
+      mRtc(mI2c), mLastSleepModeStatus(false) {
     gRtcPtr = &mRtc;
 }
 
@@ -163,9 +163,9 @@ void NixieClock::initialize() {
     handleSleepMode();
 
     // Show current time after the current time is synced
-    if (isTimeSynced) {
+    if (isTimeSynced && !isInSleepMode()) {
         startShowCurrentTimeTask();
-        xTaskCreate(loopTask, "loopTask", 2048, this, 2, nullptr);
+        xTaskCreate(loopTask, "loopTask", 4096, this, 2, nullptr);
     }
 }
 
@@ -309,7 +309,8 @@ void NixieClock::loopTask(void* param) {
         struct tm timeInfo;
         time(&now);
         localtime_r(&now, &timeInfo);
-        if (timeInfo.tm_sec == 0 && lastSecond != 0) {
+        self->handleSleepMode();
+        if (timeInfo.tm_sec == 0 && lastSecond != 0 && !self->isInSleepMode()) {
             self->startShowCurrentTimeTask();
         }
         lastSecond = timeInfo.tm_sec;
@@ -335,12 +336,6 @@ void NixieClock::showCurrentTimeTask(void* param) {
     char buf[32];
     strftime(buf, sizeof(buf), "%H:%M:%S", &nowTm);
     ESP_LOGI(kTag, "Current time: %s", buf);
-    if (self->isInSleepMode()) {
-        ESP_LOGI(kTag, "Sleep mode on");
-        self->mShowCurrentTimeTaskHandle = nullptr;
-        vTaskDelete(nullptr);
-        return;
-    }
     LedInfo ledInfo = self->mLedController.getLedInfo();
     if (ledInfo.getState() != LedState::Off) {
         ledInfo.setState(LedState::On);
@@ -387,13 +382,20 @@ void NixieClock::showCurrentTimeTask(void* param) {
 }
 
 void NixieClock::handleSleepMode() {
-    LedInfo ledInfo = ConfigStore::loadLedInfo().value();
-    if (isInSleepMode()) {
-        ESP_LOGI(kTag, "In sleep mode, turning off LED.");
-        // turn off the led
-        ledInfo.setState(LedState::Off);
+    bool currentSleepModeStatus = isInSleepMode();
+    if (mLastSleepModeStatus != currentSleepModeStatus) {
+        mLastSleepModeStatus = currentSleepModeStatus;
+        if (mLastSleepModeStatus) {
+            ESP_LOGI(kTag, "Entering sleep mode.");
+            auto ledInfo = mLedController.getLedInfo();
+            ledInfo.setState(LedState::Off);
+            mLedController.setLedInfo(ledInfo);
+        } else {
+            ESP_LOGI(kTag, "Exiting sleep mode.");
+            LedInfo ledInfo = ConfigStore::loadLedInfo().value_or(LedInfo());
+            mLedController.setLedInfo(ledInfo);
+        }
     }
-    mLedController.setLedInfo(ledInfo);
 }
 
 time_t NixieClock::timegmRtc(struct tm* tm) {
