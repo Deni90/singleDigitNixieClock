@@ -165,8 +165,9 @@ void NixieClock::initialize() {
     // Show current time after the current time is synced
     if (isTimeSynced && !isInSleepMode()) {
         startShowCurrentTimeTask();
-        xTaskCreate(loopTask, "loopTask", 4096, this, 2, nullptr);
     }
+
+    xTaskCreate(loopTask, "loopTask", 4096, this, 2, nullptr);
 }
 
 std::optional<LedInfo> NixieClock::onGetLedInfo() const {
