@@ -12,6 +12,7 @@
 #include <fstream>
 #include <inttypes.h>
 #include <iostream>
+#include <mutex>
 #include <sstream>
 
 #include "cJSON.h"
@@ -25,20 +26,18 @@ static constexpr const char* kSleepInfoFile =
 static constexpr const char* kTimeInfoFile = "/littlefs/config/time_info.json";
 static constexpr const char* kWifiInfoFile = "/littlefs/config/wifi_info.json";
 
-SemaphoreHandle_t ConfigStore::mMutex = nullptr;
+Mutex ConfigStore::mMutex;
 bool ConfigStore::mIsInitialized = false;
 
 void ConfigStore::initialize() {
     if (!mIsInitialized) {
         setupLittlefs();
-        if (mMutex == nullptr) {
-            mMutex = xSemaphoreCreateMutex();
-        }
         mIsInitialized = true;
     }
 }
 
 std::optional<LedInfo> ConfigStore::loadLedInfo() {
+    std::lock_guard<Mutex> lock(mMutex);
     if (!mIsInitialized) {
         ESP_LOGE(kTag,
                  "Module not initialized, intitialize it before using it.");
@@ -50,13 +49,8 @@ std::optional<LedInfo> ConfigStore::loadLedInfo() {
     }
     // read and parse JSON file
     std::stringstream buffer;
-    if (mMutex && xSemaphoreTake(mMutex, portMAX_DELAY) == pdTRUE) {
-        std::ifstream ledInfoFile(kLedInfoFile);
-        buffer << ledInfoFile.rdbuf();
-        xSemaphoreGive(mMutex);
-    } else {
-        return std::nullopt;
-    }
+    std::ifstream ledInfoFile(kLedInfoFile);
+    buffer << ledInfoFile.rdbuf();
     cJSON* json = cJSON_Parse(buffer.str().c_str());
     // check are all fields present in the config
     if (!cJSON_GetObjectItemCaseSensitive(json, "R")) {
@@ -95,12 +89,12 @@ std::optional<LedInfo> ConfigStore::loadLedInfo() {
 }
 
 bool ConfigStore::saveLedInfo(const LedInfo& ledInfo) {
+    std::lock_guard<Mutex> lock(mMutex);
     if (!mIsInitialized) {
         ESP_LOGE(kTag,
                  "Module not initialized, intitialize it before using it.");
         return false;
     }
-    bool ret = true;
     cJSON* json = cJSON_CreateObject();
     cJSON_AddItemToObject(json, "R", cJSON_CreateNumber(ledInfo.getRed()));
     cJSON_AddItemToObject(json, "G", cJSON_CreateNumber(ledInfo.getGreen()));
@@ -110,20 +104,16 @@ bool ConfigStore::saveLedInfo(const LedInfo& ledInfo) {
         cJSON_CreateString(ledStateToString(ledInfo.getState())));
     char* jsonString = cJSON_Print(json);
     if (jsonString != nullptr) {
-        if (mMutex && xSemaphoreTake(mMutex, portMAX_DELAY) == pdTRUE) {
-            std::ofstream ledInfoFile(kLedInfoFile);
-            ledInfoFile << jsonString;
-            xSemaphoreGive(mMutex);
-        } else {
-            ret = false;
-        }
+        std::ofstream ledInfoFile(kLedInfoFile);
+        ledInfoFile << jsonString;
         cJSON_free(jsonString);
     }
     cJSON_Delete(json);
-    return ret;
+    return true;
 }
 
 std::optional<SleepInfo> ConfigStore::loadSleepInfo() {
+    std::lock_guard<Mutex> lock(mMutex);
     if (!mIsInitialized) {
         ESP_LOGE(kTag,
                  "Module not initialized, intitialize it before using it.");
@@ -135,12 +125,9 @@ std::optional<SleepInfo> ConfigStore::loadSleepInfo() {
     }
     // read and parse JSON file
     std::stringstream buffer;
-    if (mMutex && xSemaphoreTake(mMutex, portMAX_DELAY) == pdTRUE) {
+    {
         std::ifstream sleepInfoFile(kSleepInfoFile);
         buffer << sleepInfoFile.rdbuf();
-        xSemaphoreGive(mMutex);
-    } else {
-        return std::nullopt;
     }
     cJSON* json = cJSON_Parse(buffer.str().c_str());
     // check are all fields present in the config
@@ -165,12 +152,12 @@ std::optional<SleepInfo> ConfigStore::loadSleepInfo() {
 }
 
 bool ConfigStore::saveSleepInfo(const SleepInfo& sleepInfo) {
+    std::lock_guard<Mutex> lock(mMutex);
     if (!mIsInitialized) {
         ESP_LOGE(kTag,
                  "Module not initialized, intitialize it before using it.");
         return false;
     }
-    bool ret = true;
     cJSON* json = cJSON_CreateObject();
     cJSON_AddItemToObject(json, "sleep_before",
                           cJSON_CreateNumber(sleepInfo.getSleepBefore()));
@@ -178,20 +165,16 @@ bool ConfigStore::saveSleepInfo(const SleepInfo& sleepInfo) {
                           cJSON_CreateNumber(sleepInfo.getSleepAfter()));
     char* jsonString = cJSON_Print(json);
     if (jsonString != nullptr) {
-        if (mMutex && xSemaphoreTake(mMutex, portMAX_DELAY) == pdTRUE) {
-            std::ofstream sleepInfoFile(kSleepInfoFile);
-            sleepInfoFile << jsonString;
-            xSemaphoreGive(mMutex);
-        } else {
-            ret = false;
-        }
+        std::ofstream sleepInfoFile(kSleepInfoFile);
+        sleepInfoFile << jsonString;
         cJSON_free(jsonString);
     }
     cJSON_Delete(json);
-    return ret;
+    return true;
 }
 
 std::optional<WifiInfo> ConfigStore::loadWifiInfo() {
+    std::lock_guard<Mutex> lock(mMutex);
     if (!mIsInitialized) {
         ESP_LOGE(kTag,
                  "Module not initialized, intitialize it before using it.");
@@ -203,13 +186,8 @@ std::optional<WifiInfo> ConfigStore::loadWifiInfo() {
     }
     // read and parse JSON file
     std::stringstream buffer;
-    if (mMutex && xSemaphoreTake(mMutex, portMAX_DELAY) == pdTRUE) {
-        std::ifstream wifiInfoFile(kWifiInfoFile);
-        buffer << wifiInfoFile.rdbuf();
-        xSemaphoreGive(mMutex);
-    } else {
-        return std::nullopt;
-    }
+    std::ifstream wifiInfoFile(kWifiInfoFile);
+    buffer << wifiInfoFile.rdbuf();
     cJSON* json = cJSON_Parse(buffer.str().c_str());
     // check are all fields present in the config
     if (!cJSON_GetObjectItemCaseSensitive(json, "hostname")) {
@@ -258,12 +236,12 @@ std::optional<WifiInfo> ConfigStore::loadWifiInfo() {
 }
 
 bool ConfigStore::saveWifiInfo(const WifiInfo& wifiInfo) {
+    std::lock_guard<Mutex> lock(mMutex);
     if (!mIsInitialized) {
         ESP_LOGE(kTag,
                  "Module not initialized, intitialize it before using it.");
         return false;
     }
-    bool ret = true;
     cJSON* json = cJSON_CreateObject();
     cJSON_AddItemToObject(json, "hostname",
                           cJSON_CreateString(wifiInfo.getHostname().c_str()));
@@ -276,20 +254,16 @@ bool ConfigStore::saveWifiInfo(const WifiInfo& wifiInfo) {
                           cJSON_CreateString(wifiInfo.getPassword().c_str()));
     char* jsonString = cJSON_Print(json);
     if (jsonString != nullptr) {
-        if (mMutex && xSemaphoreTake(mMutex, portMAX_DELAY) == pdTRUE) {
-            std::ofstream wifiInfoFile(kWifiInfoFile);
-            wifiInfoFile << jsonString;
-            xSemaphoreGive(mMutex);
-        } else {
-            ret = false;
-        }
+        std::ofstream wifiInfoFile(kWifiInfoFile);
+        wifiInfoFile << jsonString;
         cJSON_free(jsonString);
     }
     cJSON_Delete(json);
-    return ret;
+    return true;
 }
 
 std::optional<TimeInfo> ConfigStore::loadTimeInfo() {
+    std::lock_guard<Mutex> lock(mMutex);
     if (!mIsInitialized) {
         ESP_LOGE(kTag,
                  "Module not initialized, intitialize it before using it.");
@@ -301,13 +275,8 @@ std::optional<TimeInfo> ConfigStore::loadTimeInfo() {
     }
     // read and parse JSON file
     std::stringstream buffer;
-    if (mMutex && xSemaphoreTake(mMutex, portMAX_DELAY) == pdTRUE) {
-        std::ifstream timeInfoFile(kTimeInfoFile);
-        buffer << timeInfoFile.rdbuf();
-        xSemaphoreGive(mMutex);
-    } else {
-        return std::nullopt;
-    }
+    std::ifstream timeInfoFile(kTimeInfoFile);
+    buffer << timeInfoFile.rdbuf();
     cJSON* json = cJSON_Parse(buffer.str().c_str());
     // check are all fields present in the config
     if (!cJSON_GetObjectItemCaseSensitive(json, "tz_zone")) {
@@ -347,12 +316,12 @@ std::optional<TimeInfo> ConfigStore::loadTimeInfo() {
 }
 
 bool ConfigStore::saveTimeInfo(const TimeInfo& timeInfo) {
+    std::lock_guard<Mutex> lock(mMutex);
     if (!mIsInitialized) {
         ESP_LOGE(kTag,
                  "Module not initialized, intitialize it before using it.");
         return false;
     }
-    bool ret = true;
     cJSON* json = cJSON_CreateObject();
     cJSON_AddItemToObject(json, "tz_zone",
                           cJSON_CreateString(timeInfo.getTzZone().c_str()));
@@ -363,17 +332,12 @@ bool ConfigStore::saveTimeInfo(const TimeInfo& timeInfo) {
         cJSON_CreateString(timeFormatToString(timeInfo.getTimeFormat())));
     char* jsonString = cJSON_Print(json);
     if (jsonString != nullptr) {
-        if (mMutex && xSemaphoreTake(mMutex, portMAX_DELAY) == pdTRUE) {
-            std::ofstream timeInfoFile(kTimeInfoFile);
-            timeInfoFile << jsonString;
-            xSemaphoreGive(mMutex);
-        } else {
-            ret = false;
-        }
+        std::ofstream timeInfoFile(kTimeInfoFile);
+        timeInfoFile << jsonString;
         cJSON_free(jsonString);
     }
     cJSON_Delete(json);
-    return ret;
+    return true;
 }
 
 void ConfigStore::setupLittlefs() {

@@ -15,8 +15,8 @@ idf_component_register(
         in14_nixie_tube.cpp
         led_controller.cpp
         led_info.cpp
-        nixie_clock.cpp
         main.cpp
+        mutex.cpp
         nixie_clock.cpp
         sleep_info.cpp
         time_info.cpp

@@ -7,6 +7,8 @@
 
 #include "led_controller.h"
 
+#include <mutex>
+
 #include "driver/rmt_tx.h"
 #include "led_strip.h"
 
@@ -16,14 +18,13 @@ static constexpr uint8_t kMaxBrightness = 255;
 
 LedController::LedController(gpio_num_t ledPin)
     : mLedPin(ledPin), mCounter(0), mDirection(true), mTempState(std::nullopt) {
-    mMutex = xSemaphoreCreateMutex();
 }
 
 void LedController::initialize(LedInfo ledInfo) {
-    xSemaphoreTake(mMutex, portMAX_DELAY);
-    mLedInfo = ledInfo;
-    xSemaphoreGive(mMutex);
-
+    {
+        std::lock_guard<Mutex> lock(mMutex);
+        mLedInfo = ledInfo;
+    }
     led_strip_config_t ledConfig = {};
     ledConfig.strip_gpio_num = mLedPin;
     ledConfig.max_leds = kLedCount;
@@ -90,9 +91,8 @@ void LedController::update() {
 
     // First check if there is a temporal state set, if not use the state from
     // member LedInfo object
-    xSemaphoreTake(mMutex, portMAX_DELAY);
+    std::lock_guard<Mutex> lock(mMutex);
     LedInfo currentLedInfo = mTempState.value_or(mLedInfo);
-    xSemaphoreGive(mMutex);
     switch (currentLedInfo.getState()) {
     case LedState::Off: {
         ESP_ERROR_CHECK(led_strip_clear(mLedHandle));
@@ -159,26 +159,22 @@ void LedController::update() {
 }
 
 void LedController::setLedInfo(const LedInfo& ledInfo) {
-    xSemaphoreTake(mMutex, portMAX_DELAY);
+    std::lock_guard<Mutex> lock(mMutex);
     mLedInfo = ledInfo;
-    xSemaphoreGive(mMutex);
 }
 
 LedInfo LedController::getLedInfo() {
-    xSemaphoreTake(mMutex, portMAX_DELAY);
+    std::lock_guard<Mutex> lock(mMutex);
     auto ledInfo = mLedInfo;
-    xSemaphoreGive(mMutex);
     return ledInfo;
 }
 
 void LedController::setTemporalState(const LedInfo& state) {
-    xSemaphoreTake(mMutex, portMAX_DELAY);
+    std::lock_guard<Mutex> lock(mMutex);
     mTempState = state;
-    xSemaphoreGive(mMutex);
 }
 
 void LedController::clearTemporalState() {
-    xSemaphoreTake(mMutex, portMAX_DELAY);
+    std::lock_guard<Mutex> lock(mMutex);
     mTempState.reset();
-    xSemaphoreGive(mMutex);
 }

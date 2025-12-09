@@ -10,10 +10,8 @@
 
 #include <optional>
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/semphr.h"
-
 #include "led_info.h"
+#include "mutex.h"
 #include "sleep_info.h"
 #include "time_info.h"
 #include "wifi_info.h"
@@ -92,7 +90,7 @@ class ConfigStore {
     static void setupLittlefs();
 
     static bool mIsInitialized;
-    static SemaphoreHandle_t mMutex;
+    static Mutex mMutex;
 };
 
 #endif   // config_store_h

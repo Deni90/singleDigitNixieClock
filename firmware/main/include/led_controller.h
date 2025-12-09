@@ -12,11 +12,10 @@
 #include <optional>
 
 #include "driver/gpio.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/semphr.h"
 
 #include "led_info.h"
 #include "led_strip.h"
+#include "mutex.h"
 
 /**
  * @brief A driver class for handling the RGB led
@@ -82,7 +81,7 @@ class LedController {
     uint8_t mCounter;
     bool mDirection;
     std::optional<LedInfo> mTempState;
-    SemaphoreHandle_t mMutex;
+    Mutex mMutex;
 };
 
 #endif   // led_controller_h

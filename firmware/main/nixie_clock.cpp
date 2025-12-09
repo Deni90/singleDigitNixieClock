@@ -8,6 +8,7 @@
 #include "nixie_clock.h"
 
 #include <cstring>
+#include <mutex>
 
 #include "cJSON.h"
 #include "dns_server.h"
@@ -186,7 +187,10 @@ std::optional<SleepInfo> NixieClock::onGetSleepInfo() const {
 }
 
 void NixieClock::onSetSleepInfo(const SleepInfo& sleepInfo) {
-    mSleepInfo = sleepInfo;
+    {
+        std::lock_guard<Mutex> lock(mMutex);
+        mSleepInfo = sleepInfo;
+    }
     ConfigStore::saveSleepInfo(sleepInfo);
     handleSleepMode();
 }
@@ -205,7 +209,10 @@ std::optional<TimeInfo> NixieClock::onGetTimeInfo() const {
 }
 
 void NixieClock::onSetTimeInfo(const TimeInfo& timeInfo) {
-    mTimeInfo = timeInfo;
+    {
+        std::lock_guard<Mutex> lock(mMutex);
+        mTimeInfo = timeInfo;
+    }
     ConfigStore::saveTimeInfo(timeInfo);
     setenv("TZ", timeInfo.getTzOffset().c_str(), 1);
     tzset();
@@ -277,6 +284,7 @@ bool NixieClock::isInSleepMode() {
     time(&now);
     localtime_r(&now, &t);
     int32_t timeInMinutes = t.tm_hour * 60 + t.tm_min;
+    std::lock_guard<Mutex> lock(mMutex);
     if (mSleepInfo.getSleepBefore() < mSleepInfo.getSleepAfter()) {
         if (timeInMinutes < mSleepInfo.getSleepBefore() ||
             timeInMinutes > mSleepInfo.getSleepAfter()) {
@@ -355,10 +363,13 @@ void NixieClock::showCurrentTimeTask(void* param) {
     // following format: H <pause> H <pause> M <pause> M
     // handle 24 and 12 hour formats
     uint8_t hour = nowTm.tm_hour;
-    if (self->mTimeInfo.getTimeFormat() == TimeFormat::Hour12) {
-        hour = nowTm.tm_hour % 12;
-        if (hour == 0) {
-            hour = 12;
+    {
+        std::lock_guard<Mutex> lock(self->mMutex);
+        if (self->mTimeInfo.getTimeFormat() == TimeFormat::Hour12) {
+            hour = nowTm.tm_hour % 12;
+            if (hour == 0) {
+                hour = 12;
+            }
         }
     }
     int32_t nixieOutput[] = {hour / 10, hour % 10, nowTm.tm_min / 10,
@@ -384,6 +395,7 @@ void NixieClock::showCurrentTimeTask(void* param) {
 
 void NixieClock::handleSleepMode() {
     bool currentSleepModeStatus = isInSleepMode();
+    std::lock_guard<Mutex> lock(mMutex);
     if (mLastSleepModeStatus != currentSleepModeStatus) {
         mLastSleepModeStatus = currentSleepModeStatus;
         if (mLastSleepModeStatus) {

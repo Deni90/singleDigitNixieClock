@@ -12,6 +12,7 @@
 #include "i2c_bus.h"
 #include "in14_nixie_tube.h"
 #include "led_controller.h"
+#include "mutex.h"
 #include "sleep_info.h"
 #include "time_info.h"
 #include "web_server.h"
@@ -55,5 +56,6 @@ class NixieClock : public IClock {
     I2cBus mI2c;
     Ds3231 mRtc;
     bool mLastSleepModeStatus;
+    mutable Mutex mMutex;
 };
 #endif   // nixie_clock_h
