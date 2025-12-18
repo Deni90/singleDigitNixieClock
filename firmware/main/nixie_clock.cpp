@@ -42,6 +42,7 @@ static constexpr gpio_num_t kI2cScl = GPIO_NUM_23;
 static constexpr u_int32_t kLedControllerUpdatePeriod = 4;   // ms 255* 4 = ~1s
 static constexpr u_int32_t kTimeUpdatePeriod = 60000;        // 1 minute
 static constexpr u_int32_t kDigitDuration = 300;
+static constexpr u_int32_t kShowTimeDelay = 750;
 static constexpr u_int32_t kPauseDuration = 2000;
 static constexpr u_int32_t kIntroDigitPeriod = 50;
 static constexpr u_int8_t kCurrentTimeRepeatTimes = 3;
@@ -357,7 +358,7 @@ void NixieClock::showCurrentTimeTask(void* param) {
         vTaskDelay(kIntroDigitPeriod / portTICK_PERIOD_MS);
     }
     self->mNixieTube.hideDigit();
-    vTaskDelay(kDigitDuration / portTICK_PERIOD_MS);
+    vTaskDelay(kShowTimeDelay / portTICK_PERIOD_MS);
     // Show time on nixie tube. Since there is only one nixie tube it is
     // needed to sequentially show digits. The time is displayed in the
     // following format: H <pause> H <pause> M <pause> M
